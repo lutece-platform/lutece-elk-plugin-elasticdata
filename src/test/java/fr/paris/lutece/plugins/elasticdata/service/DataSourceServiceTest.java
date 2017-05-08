@@ -58,7 +58,7 @@ public class DataSourceServiceTest extends LuteceTestCase
         ds.setDataType( "mockdataobject");
         
         StringBuilder sbLogs = new StringBuilder();
-        instance.insertData( sbLogs, ds, false );
+        instance.insertData( sbLogs, ds, true );
         System.out.println( sbLogs.toString() );
     }
 
@@ -71,7 +71,7 @@ public class DataSourceServiceTest extends LuteceTestCase
     {
         System.out.println( "insertDataAllDatasources" );
         DataSourceService instance = new DataSourceService();
-        String result = instance.insertDataAllDatasources( false );
+        String result = instance.insertDataAllDatasources( true );
         System.out.println( result );
     }
     

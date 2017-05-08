@@ -48,11 +48,22 @@ import java.util.logging.Logger;
  */
 public class DataSourceService
 {
+    /**
+     * Gets all data sources found into Spring context files
+     * @return The list
+     */
     public List<DataSource> getDataSources()
     {
         return SpringContextService.getBeansOfType( DataSource.class );
     }
 
+    /**
+     * Insert data from a DataSource into Elastic Search
+     * @param sbLogs A log buffer
+     * @param dataSource The data source
+     * @param bReset if the index should be reset before inserting
+     * @throws ElasticClientException If an error occurs accessing to ElasticSearch
+     */
     public void insertData( StringBuilder sbLogs, DataSource dataSource , boolean bReset ) throws ElasticClientException
     {
         Elastic elastic = new Elastic();
@@ -69,7 +80,12 @@ public class DataSourceService
         sbLogs.append( "Number of object inserted for Data Source '" ).append( dataSource.getName() ).append( "' : " ).append(listDataObjects.size());
     }
     
-    
+    /**
+     * Insert All data sources 
+     * @param bReset Reset the index before inserting
+     * @return The logs of the process
+     * @throws ElasticClientException 
+     */
     public String insertDataAllDatasources( boolean bReset ) throws ElasticClientException
     {
         StringBuilder sbLogs = new StringBuilder();
@@ -81,9 +97,13 @@ public class DataSourceService
         return sbLogs.toString();
     }
     
-
+    /**
+     * Build a JSON mappings block to declare 'timestamp' field as a date
+     * @param strType The document type 
+     * @return The JSON
+     */
     private String getTimestampMappings( String strType )
     {
-        return "{ \"mappings\": { \"" + strType + "\" : { \"properties\": { \"timestamp\": { \"type\": \"date\", \"format\": \"x\" }}}}}";
+        return "{ \"mappings\": { \"" + strType + "\" : { \"properties\": { \"timestamp\": { \"type\": \"date\", \"format\": \"epoch_millis\" }}}}}";
     }
 }
