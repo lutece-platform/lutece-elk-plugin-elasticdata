@@ -1,0 +1,26 @@
+<div class="row">
+    <div class="col-md-10 col-md-offset-1">
+        <h1>#i18n{elasticdata.manage_elasticdata.title}</h1>
+
+        <@messages infos=infos />
+
+        <table class="table table-condensed table-striped table-bordered">
+            <tr>
+                <th>#i18n{elasticdata.manage_elasticdata.columnDataSource}</th>
+                <th>#i18n{elasticdata.manage_elasticdata.columnActions}</th>
+            </tr>
+            <#list data_sources_list as source>
+            <tr>
+                <td>${source.name}</td>
+                <td>
+                    <a class="btn btn-primary" href="jsp/admin/plugins/elasticdata/ManageElasticData.jsp?action=index&data_source=${source.id}">
+                        <span class="fa fa-cogs"></span> 
+                        #i18n{elasticdata.manage_elasticdata.buttonIndex}
+                    </a>
+                </td>
+            </tr>
+            </#list>
+        </table>
+    </div>
+</div>
+

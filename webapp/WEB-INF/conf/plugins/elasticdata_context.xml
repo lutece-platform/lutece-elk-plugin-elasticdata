@@ -5,6 +5,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd" >
 
        <bean id="elasticdata.mockDataSource" class="fr.paris.lutece.plugins.elasticdata.business.mock.MockDataSource" >
+           <property name="id" value="MockDataSource" />
            <property name="name" value="Mock Data Source" />
            <property name="targetIndexName" value="mockdatasource" />
            <property name="dataType" value="mockdataobject" />

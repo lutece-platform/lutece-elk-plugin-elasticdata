@@ -39,70 +39,101 @@ import fr.paris.lutece.plugins.libraryelastic.util.Elastic;
 import fr.paris.lutece.plugins.libraryelastic.util.ElasticClientException;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import java.util.Collection;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * DataSourceService
  */
 public class DataSourceService
 {
+    private static Map<String, DataSource> _mapDataSources;
+
     /**
      * Gets all data sources found into Spring context files
+     * 
      * @return The list
      */
-    public List<DataSource> getDataSources()
+    public static Collection<DataSource> getDataSources( )
     {
-        return SpringContextService.getBeansOfType( DataSource.class );
+        if ( _mapDataSources == null )
+        {
+            _mapDataSources = new HashMap( );
+            for ( DataSource source : SpringContextService.getBeansOfType( DataSource.class ) )
+            {
+                _mapDataSources.put( source.getId( ), source );
+            }
+        }
+        return _mapDataSources.values( );
+    }
+
+    /**
+     * Get a Data Source from its ID
+     * 
+     * @param strId
+     *            The ID
+     * @return The Data Source
+     */
+    public static DataSource getDataSource( String strId )
+    {
+        return _mapDataSources.get( strId );
     }
 
     /**
      * Insert data from a DataSource into Elastic Search
-     * @param sbLogs A log buffer
-     * @param dataSource The data source
-     * @param bReset if the index should be reset before inserting
-     * @throws ElasticClientException If an error occurs accessing to ElasticSearch
+     * 
+     * @param sbLogs
+     *            A log buffer
+     * @param dataSource
+     *            The data source
+     * @param bReset
+     *            if the index should be reset before inserting
+     * @throws ElasticClientException
+     *             If an error occurs accessing to ElasticSearch
      */
-    public void insertData( StringBuilder sbLogs, DataSource dataSource , boolean bReset ) throws ElasticClientException
+    public static void insertData( StringBuilder sbLogs, DataSource dataSource, boolean bReset ) throws ElasticClientException
     {
-        Elastic elastic = new Elastic();
-        if( bReset )
+        Elastic elastic = new Elastic( );
+        if ( bReset )
         {
-            elastic.deleteIndex( dataSource.getTargetIndexName() );
-            elastic.createMappings( dataSource.getTargetIndexName(), getTimestampMappings( dataSource.getDataType() ));
+            elastic.deleteIndex( dataSource.getTargetIndexName( ) );
+            elastic.createMappings( dataSource.getTargetIndexName( ), getTimestampMappings( dataSource.getDataType( ) ) );
         }
-        Collection<DataObject> listDataObjects = dataSource.getDataObjects();
-        for( DataObject object : listDataObjects )
+        Collection<DataObject> listDataObjects = dataSource.getDataObjects( );
+        for ( DataObject object : listDataObjects )
         {
-            elastic.create( dataSource.getTargetIndexName(), dataSource.getDataType(), object );
+            elastic.create( dataSource.getTargetIndexName( ), dataSource.getDataType( ), object );
         }
-        sbLogs.append( "Number of object inserted for Data Source '" ).append( dataSource.getName() ).append( "' : " ).append(listDataObjects.size());
+        sbLogs.append( "Number of object inserted for Data Source '" ).append( dataSource.getName( ) ).append( "' : " ).append( listDataObjects.size( ) );
     }
-    
+
     /**
-     * Insert All data sources 
-     * @param bReset Reset the index before inserting
+     * Insert All data sources
+     * 
+     * @param bReset
+     *            Reset the index before inserting
      * @return The logs of the process
-     * @throws ElasticClientException 
+     * @throws ElasticClientException
      */
-    public String insertDataAllDatasources( boolean bReset ) throws ElasticClientException
+    public static String insertDataAllDatasources( boolean bReset ) throws ElasticClientException
     {
-        StringBuilder sbLogs = new StringBuilder();
-        
-        for( DataSource dataSource : getDataSources() )
+        StringBuilder sbLogs = new StringBuilder( );
+
+        for ( DataSource dataSource : getDataSources( ) )
         {
-            insertData( sbLogs , dataSource, bReset );
+            insertData( sbLogs, dataSource, bReset );
         }
-        return sbLogs.toString();
+        return sbLogs.toString( );
     }
-    
+
     /**
      * Build a JSON mappings block to declare 'timestamp' field as a date
-     * @param strType The document type 
+     * 
+     * @param strType
+     *            The document type
      * @return The JSON
      */
-    private String getTimestampMappings( String strType )
+    private static String getTimestampMappings( String strType )
     {
         return "{ \"mappings\": { \"" + strType + "\" : { \"properties\": { \"timestamp\": { \"type\": \"date\", \"format\": \"epoch_millis\" }}}}}";
     }

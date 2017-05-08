@@ -33,66 +33,62 @@
  */
 package fr.paris.lutece.plugins.elasticdata.web;
 
-import fr.paris.lutece.portal.service.util.AppPropertiesService;
+import fr.paris.lutece.plugins.elasticdata.business.DataSource;
+import fr.paris.lutece.plugins.elasticdata.service.DataSourceService;
+import fr.paris.lutece.plugins.libraryelastic.util.ElasticClientException;
 import fr.paris.lutece.portal.util.mvc.admin.MVCAdminJspBean;
-import fr.paris.lutece.portal.web.util.LocalizedPaginator;
-import fr.paris.lutece.util.html.Paginator;
-import fr.paris.lutece.util.url.UrlItem;
-
-import java.util.List;
+import fr.paris.lutece.portal.util.mvc.admin.annotations.Controller;
+import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
+import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 /**
  * ManageElasticData JSP Bean abstract class for JSP Bean
  */
-public abstract class ManageElasticDataJspBean extends MVCAdminJspBean
+@Controller( controllerJsp = "ManageElasticData.jsp", controllerPath = "jsp/admin/plugins/elasticdata/", right = "ELASTICDATA_MANAGEMENT" )
+public class ManageElasticDataJspBean extends MVCAdminJspBean
 {
-    // Rights
-    public static final String RIGHT_MANAGEELASTICDATA = "ELASTICDATA_MANAGEMENT";
-    
-    // Properties
-    private static final String PROPERTY_DEFAULT_LIST_ITEM_PER_PAGE = "elasticdata.listItems.itemsPerPage";
-    
-    // Parameters
-    private static final String PARAMETER_PAGE_INDEX = "page_index";
-    
-    // Markers
-    private static final String MARK_PAGINATOR = "paginator";
-    private static final String MARK_NB_ITEMS_PER_PAGE = "nb_items_per_page";
-
-    //Variables
-    private int _nDefaultItemsPerPage;
-    private String _strCurrentPageIndex;
-    private int _nItemsPerPage;
+    private static final String TEMPLATE_HOME = "/admin/plugins/elasticdata/manage_elasticdata.html";
+    private static final String PROPERTY_PAGE_TITLE = "elasticdata.manage_elasticdata.title";
+    private static final String VIEW_HOME = "home";
+    private static final String ACTION_INDEX = "index";
+    private static final String MARK_DATA_SOURCES_LIST = "data_sources_list";
+    private static final String PARAMETER_DATA_SOURCE = "data_source";
+    private static final long serialVersionUID = 1L;
 
     /**
-     * Return a model that contains the list and paginator infos
-     * @param request The HTTP request
-     * @param strBookmark The bookmark
-     * @param list The list of item
-     * @param strManageJsp The JSP
-     * @return The model
+     * View the home of the feature
+     * 
+     * @param request
+     *            The HTTP request
+     * @return The page
      */
-    protected Map<String, Object> getPaginatedListModel( HttpServletRequest request, String strBookmark, List list,
-        String strManageJsp )
+    @View( value = VIEW_HOME, defaultView = true )
+    public String getManageElasticData( HttpServletRequest request )
     {
-        _strCurrentPageIndex = Paginator.getPageIndex( request, Paginator.PARAMETER_PAGE_INDEX, _strCurrentPageIndex );
-        _nDefaultItemsPerPage = AppPropertiesService.getPropertyInt( PROPERTY_DEFAULT_LIST_ITEM_PER_PAGE, 50 );
-        _nItemsPerPage = Paginator.getItemsPerPage( request, Paginator.PARAMETER_ITEMS_PER_PAGE, _nItemsPerPage, _nDefaultItemsPerPage );
+        Map<String, Object> model = getModel( );
+        model.put( MARK_DATA_SOURCES_LIST, DataSourceService.getDataSources( ) );
 
-        UrlItem url = new UrlItem( strManageJsp );
-        String strUrl = url.getUrl(  );
+        return getPage( PROPERTY_PAGE_TITLE, TEMPLATE_HOME, model );
+    }
 
-        // PAGINATOR
-        LocalizedPaginator paginator = new LocalizedPaginator( list, _nItemsPerPage, strUrl, PARAMETER_PAGE_INDEX, _strCurrentPageIndex, getLocale(  ) );
-
-        Map<String, Object> model = getModel(  );
-
-        model.put( MARK_NB_ITEMS_PER_PAGE, "" + _nItemsPerPage );
-        model.put( MARK_PAGINATOR, paginator );
-        model.put( strBookmark, paginator.getPageItems(  ) );
-
-        return model;
+    /**
+     * Process the full indexing of a given data source
+     * 
+     * @param request
+     *            The HTTP request
+     * @return The redirected page
+     */
+    @Action( ACTION_INDEX )
+    public String doIndex( HttpServletRequest request ) throws ElasticClientException
+    {
+        String strDataSourceId = request.getParameter( PARAMETER_DATA_SOURCE );
+        DataSource source = DataSourceService.getDataSource( strDataSourceId );
+        StringBuilder sbLogs = new StringBuilder( );
+        DataSourceService.insertData( sbLogs, source, true );
+        addInfo( sbLogs.toString( ) );
+        
+        return redirectView( request, VIEW_HOME );
     }
 }

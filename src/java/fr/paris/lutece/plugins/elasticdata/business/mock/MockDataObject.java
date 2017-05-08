@@ -32,31 +32,45 @@
  * License 1.0
  */
 
-
 package fr.paris.lutece.plugins.elasticdata.business.mock;
 
-import fr.paris.lutece.plugins.elasticdata.business.AbstractDataSource;
 import fr.paris.lutece.plugins.elasticdata.business.DataObject;
-import fr.paris.lutece.plugins.elasticdata.business.DataSource;
-import java.util.ArrayList;
-import java.util.Collection;
+import fr.paris.lutece.plugins.elasticdata.business.DataObject;
+import java.util.Date;
 
 /**
- * MockDataSource
+ * Mock DataObject
  */
-public class MockDataSource extends AbstractDataSource implements DataSource
+public class MockDataObject implements DataObject
 {
+    private String _strName;
 
-    @Override
-    public Collection<DataObject> getDataObjects()
+    /**
+     * Constructor
+     * 
+     * @param strName
+     */
+    MockDataObject( String strName )
     {
-        Collection<DataObject> list = new ArrayList<>();
-        for( int i = 1 ; i < 10 ; i++ )
-        {
-            DataObject object = new MockDataObject( "Object " + i );
-            list.add( object );
-        }
-        return list;
+        _strName = strName;
+    }
+
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public String getTimestamp( )
+    {
+        return String.valueOf( ( new Date( ) ).getTime( ) );
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public String getName( )
+    {
+        return _strName;
     }
 
 }

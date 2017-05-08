@@ -39,10 +39,33 @@ package fr.paris.lutece.plugins.elasticdata.business;
 public abstract class AbstractDataSource implements DataSource
 {
 
-    // Variables declarations 
+    // Variables declarations
+    private String _strId;
     private String _strName;
     private String _strTargetIndexName;
     private String _strDataType;
+
+    /**
+     * Returns the Id
+     *
+     * @return The Id
+     */
+    @Override
+    public String getId( )
+    {
+        return _strId;
+    }
+
+    /**
+     * Sets the Id
+     *
+     * @param strId
+     *            The Id
+     */
+    public void setId( String strId )
+    {
+        _strId = strId;
+    }
 
     /**
      * Returns the Name
@@ -50,7 +73,7 @@ public abstract class AbstractDataSource implements DataSource
      * @return The Name
      */
     @Override
-    public String getName()
+    public String getName( )
     {
         return _strName;
     }
@@ -58,7 +81,8 @@ public abstract class AbstractDataSource implements DataSource
     /**
      * Sets the Name
      *
-     * @param strName The Name
+     * @param strName
+     *            The Name
      */
     public void setName( String strName )
     {
@@ -71,7 +95,7 @@ public abstract class AbstractDataSource implements DataSource
      * @return The TargetIndexName
      */
     @Override
-    public String getTargetIndexName()
+    public String getTargetIndexName( )
     {
         return _strTargetIndexName;
     }
@@ -79,7 +103,8 @@ public abstract class AbstractDataSource implements DataSource
     /**
      * Sets the TargetIndexName
      *
-     * @param strTargetIndexName The TargetIndexName
+     * @param strTargetIndexName
+     *            The TargetIndexName
      */
     public void setTargetIndexName( String strTargetIndexName )
     {
@@ -92,7 +117,7 @@ public abstract class AbstractDataSource implements DataSource
      * @return The DataType
      */
     @Override
-    public String getDataType()
+    public String getDataType( )
     {
         return _strDataType;
     }
@@ -100,7 +125,8 @@ public abstract class AbstractDataSource implements DataSource
     /**
      * Sets the DataType
      *
-     * @param strDataType The DataType
+     * @param strDataType
+     *            The DataType
      */
     public void setDataType( String strDataType )
     {

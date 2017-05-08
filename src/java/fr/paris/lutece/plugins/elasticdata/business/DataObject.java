@@ -32,17 +32,17 @@
  * License 1.0
  */
 
-
 package fr.paris.lutece.plugins.elasticdata.business;
 
 /**
  * DataObject
  */
-public interface DataObject 
+public interface DataObject
 {
     /**
      * The timestamp of the data
+     * 
      * @return The timestamp
      */
-    String getTimestamp(); 
+    String getTimestamp( );
 }

@@ -45,34 +45,36 @@ public class DataSourceServiceTest extends LuteceTestCase
 
     /**
      * Test of insertData method, of class DataSourceService.
+     * 
      * @throws java.lang.Exception
      */
     @Test
-    public void testInsertData() throws Exception
+    public void testInsertData( ) throws Exception
     {
         System.out.println( "insertData" );
-        DataSourceService instance = new DataSourceService();
-        MockDataSource ds = new MockDataSource();
+        DataSourceService instance = new DataSourceService( );
+        MockDataSource ds = new MockDataSource( );
         ds.setName( "Mock Data Source" );
         ds.setTargetIndexName( "mockdatasource" );
-        ds.setDataType( "mockdataobject");
-        
-        StringBuilder sbLogs = new StringBuilder();
+        ds.setDataType( "mockdataobject" );
+
+        StringBuilder sbLogs = new StringBuilder( );
         instance.insertData( sbLogs, ds, true );
-        System.out.println( sbLogs.toString() );
+        System.out.println( sbLogs.toString( ) );
     }
 
     /**
      * Test of insertData method, of class DataSourceService.
+     * 
      * @throws java.lang.Exception
      */
     @Test
-    public void testInsertDataAllDatasources() throws Exception
+    public void testInsertDataAllDatasources( ) throws Exception
     {
         System.out.println( "insertDataAllDatasources" );
-        DataSourceService instance = new DataSourceService();
+        DataSourceService instance = new DataSourceService( );
         String result = instance.insertDataAllDatasources( true );
         System.out.println( result );
     }
-    
+
 }
