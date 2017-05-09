@@ -35,7 +35,6 @@
 package fr.paris.lutece.plugins.elasticdata.business.mock;
 
 import fr.paris.lutece.plugins.elasticdata.business.DataObject;
-import fr.paris.lutece.plugins.elasticdata.business.DataObject;
 import java.util.Date;
 
 /**
@@ -48,7 +47,7 @@ public class MockDataObject implements DataObject
     /**
      * Constructor
      * 
-     * @param strName
+     * @param strName An object name
      */
     MockDataObject( String strName )
     {
@@ -66,7 +65,7 @@ public class MockDataObject implements DataObject
 
     /**
      * 
-     * @return
+     * @return The object name
      */
     public String getName( )
     {

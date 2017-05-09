@@ -46,12 +46,17 @@ import java.util.Map;
 /**
  * DataSourceService
  */
-public class DataSourceService
+public final class DataSourceService
 {
     private static final String PROPERTY_ELASTIC_SERVER_URL = "elasticdata.elastic_server.url";
     private static final String DEFAULT_ELASTIC_SERVER_URL = "httt://localhost:9200";
 
     private static Map<String, DataSource> _mapDataSources;
+
+    /** Package constructor */
+    DataSourceService()
+    {
+    }
 
     /**
      * Gets all data sources found into Spring context files
@@ -60,12 +65,15 @@ public class DataSourceService
      */
     public static Collection<DataSource> getDataSources( )
     {
-        if ( _mapDataSources == null )
+        synchronized( DataSourceService.class ) 
         {
-            _mapDataSources = new HashMap( );
-            for ( DataSource source : SpringContextService.getBeansOfType( DataSource.class ) )
+            if ( _mapDataSources == null )
             {
-                _mapDataSources.put( source.getId( ), source );
+                _mapDataSources = new HashMap( );
+                for ( DataSource source : SpringContextService.getBeansOfType( DataSource.class ) )
+                {
+                    _mapDataSources.put( source.getId( ), source );
+                }
             }
         }
         return _mapDataSources.values( );
@@ -118,7 +126,7 @@ public class DataSourceService
      * @param bReset
      *            Reset the index before inserting
      * @return The logs of the process
-     * @throws ElasticClientException
+     * @throws ElasticClientException If an error occurs accessing to ElasticSearch
      */
     public static String insertDataAllDatasources( boolean bReset ) throws ElasticClientException
     {
