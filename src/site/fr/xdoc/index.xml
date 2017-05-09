@@ -5,21 +5,37 @@
     </properties>
     <body>
         <section name="Plugin elasticdata">
-            <!--
-            <p>
-                <img src="images/elasticdata.png" />
-            </p>
-            -->
             <subsection name="Introduction">
-                <p></p>
+                <p>
+                    Ce plugin fournit un moyen simple de remplir ElasticSearch avec des données horodatées
+                    afin de créer des tableaux de bord Kibana.
+                </p>
+                <p>
+                    Il propose de créer des modules Lutece qui déclarent des sources de données et des objets 
+                    qui permettront de créer et de remplir des index ElasticSearch correspondants.
+                </p>
+                <p>
+                    Le plugin fournit une fonctionnalité d'administration qui permet de lancer l'alimentation.
+                </p>
             </subsection>
             <subsection name="Configuration">
-                <p></p>
+                <p> L'URL du serveur Elastic Search doit être définie dans le fichier <b>elasticdata.properties</b>. </p>
+                <pre>
+ Elasticdata.elastic_server.url = http: // localhost: 9200
+                </pre>
+                <p>
+                    Toutes les sources de données définies dans les fichiers de contexte des modules installés seront détectées.
+                </p>
+                <p>
+                    NB: les modules doivent être activés dans la fonctionnalité d'administration <b>Gestion des plugins</b> afin d'être pris en compte.
+                </p>
             </subsection>
-            <subsection name="Usage">
-                <p></p>
+            <subsection name="Utilisation">
+                <p>
+                    Voir <a href="http://wiki.lutece.paris.fr"> Lutece Wiki </a> pour apprendre à développer les modules ElaticData.
+                </p>
+                Google Traduction pour les entreprises :Google Kit du traducteurGadget TraductionOutil d'aide à l'export
             </subsection>
         </section>
     </body>
 </document>
-

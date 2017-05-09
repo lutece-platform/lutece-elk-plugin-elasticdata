@@ -88,7 +88,7 @@ public class ManageElasticDataJspBean extends MVCAdminJspBean
         StringBuilder sbLogs = new StringBuilder( );
         DataSourceService.insertData( sbLogs, source, true );
         addInfo( sbLogs.toString( ) );
-        
+
         return redirectView( request, VIEW_HOME );
     }
 }

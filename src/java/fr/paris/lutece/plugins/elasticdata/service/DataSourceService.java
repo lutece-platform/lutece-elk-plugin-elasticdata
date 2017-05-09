@@ -38,6 +38,7 @@ import fr.paris.lutece.plugins.elasticdata.business.DataSource;
 import fr.paris.lutece.plugins.libraryelastic.util.Elastic;
 import fr.paris.lutece.plugins.libraryelastic.util.ElasticClientException;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
+import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,6 +48,9 @@ import java.util.Map;
  */
 public class DataSourceService
 {
+    private static final String PROPERTY_ELASTIC_SERVER_URL = "elasticdata.elastic_server.url";
+    private static final String DEFAULT_ELASTIC_SERVER_URL = "httt://localhost:9200";
+
     private static Map<String, DataSource> _mapDataSources;
 
     /**
@@ -93,7 +97,8 @@ public class DataSourceService
      */
     public static void insertData( StringBuilder sbLogs, DataSource dataSource, boolean bReset ) throws ElasticClientException
     {
-        Elastic elastic = new Elastic( );
+        String strServerUrl = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL );
+        Elastic elastic = new Elastic( strServerUrl );
         if ( bReset )
         {
             elastic.deleteIndex( dataSource.getTargetIndexName( ) );
