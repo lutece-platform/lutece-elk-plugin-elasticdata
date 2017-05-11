@@ -5,6 +5,9 @@
     </properties>
     <body>
         <section name="Plugin elasticdata">
+            <p>
+                <img src="images/elastic.png" />
+            </p>
             <subsection name="Introduction">
                 <p>
                     Ce plugin fournit un moyen simple de remplir ElasticSearch avec des données horodatées

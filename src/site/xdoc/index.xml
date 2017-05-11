@@ -5,6 +5,9 @@
     </properties>
     <body>
         <section name="Plugin elasticdata">
+            <p>
+                <img src="images/elastic.png" />
+            </p>
             <subsection name="Introduction">
                 <p>
                     This plugin provides an easy way to fill ElasticSearch with timestamped data

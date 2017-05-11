@@ -10,7 +10,7 @@
     <description>elasticdata.plugin.description</description>
     <provider>elasticdata.plugin.provider</provider>
     <provider-url>http://lutece.paris.fr</provider-url>
-    <icon-url>images/admin/skin/feature_default_icon.png</icon-url>
+    <icon-url>images/admin/skin/plugins/elasticdata/elasticdata.png</icon-url>
     <copyright>Copyright (c) 2017 City of Paris</copyright>
     <db-pool-required>1</db-pool-required>
     
