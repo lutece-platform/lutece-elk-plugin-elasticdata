@@ -109,7 +109,10 @@ public final class DataSourceService
         Elastic elastic = new Elastic( strServerUrl );
         if ( bReset )
         {
-            elastic.deleteIndex( dataSource.getTargetIndexName( ) );
+            if( elastic.isExists(dataSource.getTargetIndexName( ) ))
+            {
+                elastic.deleteIndex( dataSource.getTargetIndexName( ) );
+            }
             elastic.createMappings( dataSource.getTargetIndexName( ), getTimestampMappings( dataSource.getDataType( ) ) );
         }
         Collection<DataObject> listDataObjects = dataSource.getDataObjects( );

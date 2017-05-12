@@ -4,11 +4,12 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd" >
 
+    <!-- Sample with mock datasource
        <bean id="elasticdata.mockDataSource" class="fr.paris.lutece.plugins.elasticdata.business.mock.MockDataSource" >
            <property name="id" value="MockDataSource" />
            <property name="name" value="Mock Data Source" />
            <property name="targetIndexName" value="mockdatasource" />
            <property name="dataType" value="mockdataobject" />
        </bean>
-
+    -->
 </beans>
