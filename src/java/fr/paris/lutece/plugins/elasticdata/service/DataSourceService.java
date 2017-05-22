@@ -54,7 +54,7 @@ public final class DataSourceService
     private static Map<String, DataSource> _mapDataSources;
 
     /** Package constructor */
-    DataSourceService()
+    DataSourceService( )
     {
     }
 
@@ -65,7 +65,7 @@ public final class DataSourceService
      */
     public static Collection<DataSource> getDataSources( )
     {
-        synchronized( DataSourceService.class ) 
+        synchronized( DataSourceService.class )
         {
             if ( _mapDataSources == null )
             {
@@ -109,7 +109,7 @@ public final class DataSourceService
         Elastic elastic = new Elastic( strServerUrl );
         if ( bReset )
         {
-            if( elastic.isExists(dataSource.getTargetIndexName( ) ))
+            if ( elastic.isExists( dataSource.getTargetIndexName( ) ) )
             {
                 elastic.deleteIndex( dataSource.getTargetIndexName( ) );
             }
@@ -118,9 +118,46 @@ public final class DataSourceService
         Collection<DataObject> listDataObjects = dataSource.getDataObjects( );
         for ( DataObject object : listDataObjects )
         {
-            elastic.create( dataSource.getTargetIndexName( ), dataSource.getDataType( ), object );
+            insertData( elastic, dataSource, object );
         }
         sbLogs.append( "Number of object inserted for Data Source '" ).append( dataSource.getName( ) ).append( "' : " ).append( listDataObjects.size( ) );
+    }
+
+    /**
+     * Insert one dataObject from a DataSource into Elastic Search
+     * 
+     * @param elastic
+     *            The elasticserver, can be null
+     * @param dataSource
+     *            The data source
+     * @param dataObject
+     *            The data object
+     * @throws ElasticClientException
+     *             If an error occurs accessing to ElasticSearch
+     */
+    private static void insertData( Elastic elastic, DataSource dataSource, DataObject dataObject ) throws ElasticClientException
+    {
+        if ( elastic == null )
+        {
+            String strServerUrl = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL );
+            elastic = new Elastic( strServerUrl );
+        }
+        elastic.create( dataSource.getTargetIndexName( ), dataSource.getDataType( ), dataObject );
+    }
+
+    /**
+     * Insert one dataObject from a DataSource into Elastic Search
+     * 
+     * @param dataSource
+     *            The data source
+     * @param dataObject
+     *            The data object
+     * @throws ElasticClientException
+     *             If an error occurs accessing to ElasticSearch
+     */
+    public static void insertData( DataSource dataSource, DataObject dataObject ) throws ElasticClientException
+    {
+        insertData( null, dataSource, dataObject );
     }
 
     /**
@@ -129,7 +166,8 @@ public final class DataSourceService
      * @param bReset
      *            Reset the index before inserting
      * @return The logs of the process
-     * @throws ElasticClientException If an error occurs accessing to ElasticSearch
+     * @throws ElasticClientException
+     *             If an error occurs accessing to ElasticSearch
      */
     public static String insertDataAllDatasources( boolean bReset ) throws ElasticClientException
     {

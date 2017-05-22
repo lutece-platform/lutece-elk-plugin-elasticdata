@@ -38,8 +38,8 @@
 
     <properties>
         <componentName>elasticdata</componentName>
-        <jiraProjectName>ELASTICDATA</jiraProjectName>
-        <jiraComponentId></jiraComponentId>
+        <jiraProjectName>ELASTICDAT</jiraProjectName>
+        <jiraComponentId>13683</jiraComponentId>
     </properties>
     
     <scm>

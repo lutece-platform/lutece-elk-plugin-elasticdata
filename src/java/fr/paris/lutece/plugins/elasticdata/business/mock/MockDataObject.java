@@ -47,7 +47,8 @@ public class MockDataObject implements DataObject
     /**
      * Constructor
      * 
-     * @param strName An object name
+     * @param strName
+     *            An object name
      */
     MockDataObject( String strName )
     {
