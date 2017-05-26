@@ -47,6 +47,7 @@ public abstract class AbstractDataObject implements DataObject
     private long _lTimestamp;
     private String _strDayOfWeek;
     private String _strMonth;
+    private String _strHour;
     
     /**
      * {@inheritDoc }
@@ -63,7 +64,7 @@ public abstract class AbstractDataObject implements DataObject
      * @param lTimestamp
      *            the notification timestamp
      */
-    public void setTimestamp( long lTimestamp )
+    public final void setTimestamp( long lTimestamp )
     {
         Locale locale = LocaleService.getDefault();
         _lTimestamp = lTimestamp;
@@ -71,6 +72,7 @@ public abstract class AbstractDataObject implements DataObject
         calendar.setTimeInMillis( lTimestamp );
         _strDayOfWeek = calendar.getDisplayName( Calendar.DAY_OF_WEEK, Calendar.LONG , locale );
         _strMonth = calendar.getDisplayName( Calendar.MONTH, Calendar.LONG , locale );
+        _strHour = String.valueOf( calendar.get(Calendar.HOUR_OF_DAY ));
     }
     
     /**
@@ -90,6 +92,15 @@ public abstract class AbstractDataObject implements DataObject
     public String getMonth()
     {
         return _strMonth;
+    }
+
+    /**
+     * Returns the Hour
+     * @return the Hour 
+     */
+    public String getHour()
+    {
+        return _strHour;
     }
 
 
