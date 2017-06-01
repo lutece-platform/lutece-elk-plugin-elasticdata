@@ -1,7 +1,9 @@
+![](http://dev.lutece.paris.fr/jenkins/buildStatus/icon?job=elk-plugin-elasticdata-deploy)
+# Plugin elasticdata
 
-#Plugin elasticdata
+![](http://dev.lutece.paris.fr/plugins/plugin-elasticdata/images/elastic.png)
 
-##Introduction
+## Introduction
 
 This plugin provides an easy way to fill ElasticSearch with timestamped data in order to build Kibana dashboards.
 
@@ -9,7 +11,7 @@ It offers to create Lutece modules that declare Data Sources and Data Objects th
 
 The plugin provides an Admin Feature that can start the feeding.
 
-##Configuration
+## Configuration
 
 The Elastic Search server URL should be defined in the **elasticdata.properties** file.
 
@@ -23,7 +25,7 @@ All Data Sources defined into context files of installed modules will be detecte
 
 NB : modules should be activated into the **Plugins Management** admin feature.
 
-##Usage
+## Usage
 
 See the [Lutece Wiki](http://wiki.lutece.paris.fr) to learn how to develop ElaticData modules.
 
