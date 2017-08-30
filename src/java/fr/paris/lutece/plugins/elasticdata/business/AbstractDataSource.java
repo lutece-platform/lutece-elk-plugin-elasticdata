@@ -44,6 +44,7 @@ public abstract class AbstractDataSource implements DataSource
     private String _strName;
     private String _strTargetIndexName;
     private String _strDataType;
+    private int _nBatchSize;
 
     /**
      * Returns the Id
@@ -132,4 +133,24 @@ public abstract class AbstractDataSource implements DataSource
     {
         _strDataType = strDataType;
     }
+    
+    /**
+     * Returns the BatchSize
+     * @return The BatchSize
+     */ 
+    @Override
+    public int getBatchSize()
+    {
+        return _nBatchSize;
+    }
+
+    /**
+     * Sets the BatchSize
+     * @param nBatchSize The BatchSize
+     */ 
+    public void setBatchSize( int nBatchSize )
+    {
+        _nBatchSize = nBatchSize;
+    }
+  
 }

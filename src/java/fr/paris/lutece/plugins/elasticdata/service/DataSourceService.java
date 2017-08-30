@@ -35,12 +35,18 @@ package fr.paris.lutece.plugins.elasticdata.service;
 
 import fr.paris.lutece.plugins.elasticdata.business.DataObject;
 import fr.paris.lutece.plugins.elasticdata.business.DataSource;
+import fr.paris.lutece.plugins.libraryelastic.business.bulk.BulkRequest;
+import fr.paris.lutece.plugins.libraryelastic.business.bulk.IndexSubRequest;
 import fr.paris.lutece.plugins.libraryelastic.util.Elastic;
 import fr.paris.lutece.plugins.libraryelastic.util.ElasticClientException;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
+import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -50,7 +56,10 @@ public final class DataSourceService
 {
     private static final String PROPERTY_ELASTIC_SERVER_URL = "elasticdata.elastic_server.url";
     private static final String DEFAULT_ELASTIC_SERVER_URL = "httt://localhost:9200";
-
+    private static final String PROPERTY_BULK_BATCH_SIZE = "elasticdata.bulk_batch_size";
+    private static final int DEFAULT_BATCH_SIZE = 200;
+    private static final int BATCH_SIZE = AppPropertiesService.getPropertyInt( PROPERTY_BULK_BATCH_SIZE, DEFAULT_BATCH_SIZE );
+            
     private static Map<String, DataSource> _mapDataSources;
 
     /** Package constructor */
@@ -116,13 +125,49 @@ public final class DataSourceService
             elastic.createMappings( dataSource.getTargetIndexName( ), getTimestampMappings( dataSource.getDataType( ) ) );
         }
         Collection<DataObject> listDataObjects = dataSource.getDataObjects( );
-        for ( DataObject object : listDataObjects )
-        {
-            insertData( elastic, dataSource, object );
-        }
+        int nBatchSize = ( dataSource.getBatchSize() != 0 ) ? dataSource.getBatchSize() : BATCH_SIZE;
+        insertObjects( elastic , dataSource, listDataObjects , nBatchSize );
+       
         sbLogs.append( "Number of object inserted for Data Source '" ).append( dataSource.getName( ) ).append( "' : " ).append( listDataObjects.size( ) );
     }
+    
+    /**
+     * Insert a list of object in bulk mode  
+     * @param elastic The Elastic Server
+     * @param dataSource The data source
+     * @param listDataObjects The list of objects
+     * @param nBatchSize The number of objects in each bulk request
+     * @throws ElasticClientException  If a problem occurs connecting the server
+     */
+    static void insertObjects( Elastic elastic, DataSource dataSource, Collection<DataObject> listDataObjects , int nBatchSize ) throws ElasticClientException
+    {
+        IndexSubRequest isr = new IndexSubRequest( null );
+        List listBatch = new ArrayList();
 
+        int nObjectCount = listDataObjects.size();
+        int nCount = 0;
+        Iterator i = listDataObjects.iterator();
+        while( nCount < nObjectCount )
+        {
+            DataObject object = (DataObject) i.next();
+            listBatch.add( object );
+            if( ( listBatch.size() == nBatchSize ) || ( nCount == nObjectCount - 1 ) )
+            {
+                BulkRequest br = new BulkRequest();
+                for( Object batchObject : listBatch )
+                {
+                    br.addAction( isr, batchObject );
+                }
+                AppLogService.info( "ElasticData indexing : Posting bulk action for " + listBatch.size() + " documents of DataSource '" + dataSource.getName() + "'" );
+                insertBulkData( elastic, dataSource, br );
+                listBatch.clear();
+            }
+            nCount++;
+        }
+        AppLogService.info( "ElasticData indexing : completed for " + nCount + " documents of DataSource '" + dataSource.getName() + "'" );
+       
+    }
+    
     /**
      * Insert one dataObject from a DataSource into Elastic Search
      * 
@@ -143,6 +188,30 @@ public final class DataSourceService
             elastic = new Elastic( strServerUrl );
         }
         elastic.create( dataSource.getTargetIndexName( ), dataSource.getDataType( ), dataObject );
+    }    
+        
+    /**
+     * Insert one dataObject from a DataSource into Elastic Search
+     * 
+     * @param elastic
+     *            The elasticserver, can be null
+     * @param dataSource
+     *            The data source
+     * @param dataObject
+     *            The data object
+     * @throws ElasticClientException
+     *             If an error occurs accessing to ElasticSearch
+     */
+    private static void insertBulkData( Elastic elastic, DataSource dataSource, BulkRequest bulkRequest ) throws ElasticClientException
+    {
+        if ( elastic == null )
+        {
+            String strServerUrl = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL );
+            elastic = new Elastic( strServerUrl );
+        }
+        String strResponse = elastic.createByBulk( dataSource.getTargetIndexName( ), dataSource.getDataType( ), bulkRequest );
+        AppLogService.debug( "ElasticData : Response of the posted bulk request : " + strResponse );
+        
     }
 
     /**

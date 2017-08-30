@@ -31,7 +31,6 @@
  *
  * License 1.0
  */
-
 package fr.paris.lutece.plugins.elasticdata.business;
 
 import java.util.Collection;
@@ -41,38 +40,46 @@ import java.util.Collection;
  */
 public interface DataSource
 {
+
     /**
      * The Data Source Id
-     * 
+     *
      * @return The Id
      */
-    String getId( );
+    String getId();
 
     /**
      * The Data Source name
-     * 
+     *
      * @return The name
      */
-    String getName( );
+    String getName();
 
     /**
      * The target index name to be created
-     * 
+     *
      * @return The index name
      */
-    String getTargetIndexName( );
+    String getTargetIndexName();
 
     /**
      * The data type
-     * 
+     *
      * @return The type
      */
-    String getDataType( );
+    String getDataType();
 
     /**
      * A collection of object to create
-     * 
+     *
      * @return The collection
      */
-    Collection<DataObject> getDataObjects( );
+    Collection<DataObject> getDataObjects();
+
+    /**
+     * Returns the BatchSize
+     *
+     * @return The BatchSize
+     */
+    int getBatchSize();
 }
