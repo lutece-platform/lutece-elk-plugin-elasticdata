@@ -57,7 +57,7 @@ public final class DataSourceService
     private static final String PROPERTY_ELASTIC_SERVER_URL = "elasticdata.elastic_server.url";
     private static final String DEFAULT_ELASTIC_SERVER_URL = "httt://localhost:9200";
     private static final String PROPERTY_BULK_BATCH_SIZE = "elasticdata.bulk_batch_size";
-    private static final int DEFAULT_BATCH_SIZE = 200;
+    private static final int DEFAULT_BATCH_SIZE = 10000;
     private static final int BATCH_SIZE = AppPropertiesService.getPropertyInt( PROPERTY_BULK_BATCH_SIZE, DEFAULT_BATCH_SIZE );
             
     private static Map<String, DataSource> _mapDataSources;
@@ -141,7 +141,6 @@ public final class DataSourceService
      */
     static void insertObjects( Elastic elastic, DataSource dataSource, Collection<DataObject> listDataObjects , int nBatchSize ) throws ElasticClientException
     {
-        IndexSubRequest isr = new IndexSubRequest( null );
         List listBatch = new ArrayList();
 
         int nObjectCount = listDataObjects.size();
@@ -156,6 +155,7 @@ public final class DataSourceService
                 BulkRequest br = new BulkRequest();
                 for( Object batchObject : listBatch )
                 {
+                    IndexSubRequest isr = new IndexSubRequest( null );
                     br.addAction( isr, batchObject );
                 }
                 AppLogService.info( "ElasticData indexing : Posting bulk action for " + listBatch.size() + " documents of DataSource '" + dataSource.getName() + "'" );
