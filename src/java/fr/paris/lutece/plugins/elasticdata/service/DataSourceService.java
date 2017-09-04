@@ -291,7 +291,7 @@ public final class DataSourceService
      */
     private static String getTimestampAndLocationMappings( String strType )
     {
-        return "{ \"mappings\": { \"" + strType + "\" : { \"properties\": { \"timestamp\": { \"type\": \"date\", \"format\": \"epoch_millis\" }},{ \"location\": { \"type\": \"geo_point\"} } }}}";
+        return "{ \"mappings\": { \"" + strType + "\" : { \"properties\": { \"timestamp\": { \"type\": \"date\", \"format\": \"epoch_millis\" }, \"location\": { \"type\": \"geo_point\"} } }}}";
     }
     
 }
