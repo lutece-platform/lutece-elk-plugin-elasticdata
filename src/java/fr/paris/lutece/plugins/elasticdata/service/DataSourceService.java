@@ -122,7 +122,7 @@ public final class DataSourceService
             {
                 elastic.deleteIndex( dataSource.getTargetIndexName( ) );
             }
-            elastic.createMappings( dataSource.getTargetIndexName( ), getTimestampMappings( dataSource.getDataType( ) ) );
+            elastic.createMappings( dataSource.getTargetIndexName( ), getMappings( dataSource ));
         }
         Collection<DataObject> listDataObjects = dataSource.getDataObjects( );
         int nBatchSize = ( dataSource.getBatchSize() != 0 ) ? dataSource.getBatchSize() : BATCH_SIZE;
@@ -250,6 +250,27 @@ public final class DataSourceService
     }
 
     /**
+     * Return the mappings associated to a data source
+     * @param dataSource The data source
+     * @return The mappings string as JSON
+     */
+    private static String getMappings( DataSource dataSource )
+    {
+        if( dataSource.getMappings() != null )
+        {
+            // Datasource prodided mappings
+            return dataSource.getMappings();
+        }       
+        if( dataSource.isLocalizable() )
+        {
+            // Timestamp and location mappings
+            return getTimestampAndLocationMappings( dataSource.getDataType( ) );
+        }
+        // Default timestamp mappings
+        return  getTimestampMappings( dataSource.getDataType( ));
+    }
+    
+    /**
      * Build a JSON mappings block to declare 'timestamp' field as a date
      * 
      * @param strType
@@ -260,4 +281,17 @@ public final class DataSourceService
     {
         return "{ \"mappings\": { \"" + strType + "\" : { \"properties\": { \"timestamp\": { \"type\": \"date\", \"format\": \"epoch_millis\" }}}}}";
     }
+    
+    /**
+     * Build a JSON mappings block to declare 'timestamp' field as a date
+     * 
+     * @param strType
+     *            The document type
+     * @return The JSON
+     */
+    private static String getTimestampAndLocationMappings( String strType )
+    {
+        return "{ \"mappings\": { \"" + strType + "\" : { \"properties\": { \"timestamp\": { \"type\": \"date\", \"format\": \"epoch_millis\" }},{ \"location\": { \"type\": \"geo_point\"} } }}}";
+    }
+    
 }

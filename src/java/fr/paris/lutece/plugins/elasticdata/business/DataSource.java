@@ -82,4 +82,17 @@ public interface DataSource
      * @return The BatchSize
      */
     int getBatchSize();
+    
+    /**
+     * Get specific mappings for the Data Source
+     * @return The mappings as JSON
+     */
+    String getMappings();
+    
+    /**
+     * Contains Geo Point
+     * @return true if localizable
+     */
+    boolean isLocalizable();
+            
 }

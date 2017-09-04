@@ -45,6 +45,8 @@ public abstract class AbstractDataSource implements DataSource
     private String _strTargetIndexName;
     private String _strDataType;
     private int _nBatchSize;
+    private String _strMappings;
+    private boolean _bLocalizable;
 
     /**
      * Returns the Id
@@ -152,5 +154,43 @@ public abstract class AbstractDataSource implements DataSource
     {
         _nBatchSize = nBatchSize;
     }
-  
+
+       /**
+        * Returns the Localizable
+        * @return The Localizable
+        */ 
+    @Override
+    public boolean isLocalizable()
+    {
+        return _bLocalizable;
+    }
+
+   /**
+    * Sets the Localizable
+    * @param bLocalizable The Localizable
+    */ 
+    public void setLocalizable( boolean bLocalizable )
+    {
+        _bLocalizable = bLocalizable;
+    }
+
+   /**
+    * Returns the Mappings
+    * @return The Mappings
+    */ 
+    @Override
+    public String getMappings()
+    {
+        return _strMappings;
+    }
+
+   /**
+    * Sets the Mappings
+    * @param strMappings The Mappings
+    */ 
+    public void setMappings( String strMappings )
+    {
+        _strMappings = strMappings;
+    }    
+    
 }
