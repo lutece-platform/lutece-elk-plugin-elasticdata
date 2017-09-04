@@ -283,7 +283,7 @@ public final class DataSourceService
     }
     
     /**
-     * Build a JSON mappings block to declare 'timestamp' field as a date
+     * Build a JSON mappings block to declare 'timestamp' field as a date and 'location' field as a geo_point
      * 
      * @param strType
      *            The document type
