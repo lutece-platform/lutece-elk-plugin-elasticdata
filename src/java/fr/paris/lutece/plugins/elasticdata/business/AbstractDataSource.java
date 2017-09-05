@@ -47,6 +47,7 @@ public abstract class AbstractDataSource implements DataSource
     private int _nBatchSize;
     private String _strMappings;
     private boolean _bLocalizable;
+    private boolean _bFullIndexingDaemon;
 
     /**
      * Returns the Id
@@ -192,5 +193,24 @@ public abstract class AbstractDataSource implements DataSource
     {
         _strMappings = strMappings;
     }    
+
+    /**
+     * Returns the FullIndexingDaemon
+     * @return The FullIndexingDaemon
+     */ 
+    @Override
+     public boolean usesFullIndexingDaemon()
+     {
+         return _bFullIndexingDaemon;
+     }
+
+    /**
+     * Sets the FullIndexingDaemon
+     * @param bFullIndexingDaemon The FullIndexingDaemon
+     */ 
+     public void setFullIndexingDaemon( boolean bFullIndexingDaemon )
+     {
+         _bFullIndexingDaemon = bFullIndexingDaemon;
+     }
     
 }

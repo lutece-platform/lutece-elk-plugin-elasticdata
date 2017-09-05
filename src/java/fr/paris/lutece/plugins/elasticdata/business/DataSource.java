@@ -94,5 +94,11 @@ public interface DataSource
      * @return true if localizable
      */
     boolean isLocalizable();
+
+    /**
+     * Uses the full indexing daemon
+     * @return true if the datasource should be fully indexed by the daemon
+     */
+    boolean usesFullIndexingDaemon();
             
 }

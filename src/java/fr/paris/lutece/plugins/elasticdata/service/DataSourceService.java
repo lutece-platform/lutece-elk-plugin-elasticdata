@@ -114,6 +114,7 @@ public final class DataSourceService
      */
     public static void insertData( StringBuilder sbLogs, DataSource dataSource, boolean bReset ) throws ElasticClientException
     {
+        long timeBegin = System.currentTimeMillis();
         String strServerUrl = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL );
         Elastic elastic = new Elastic( strServerUrl );
         if ( bReset )
@@ -128,7 +129,9 @@ public final class DataSourceService
         int nBatchSize = ( dataSource.getBatchSize() != 0 ) ? dataSource.getBatchSize() : BATCH_SIZE;
         insertObjects( elastic , dataSource, listDataObjects , nBatchSize );
        
+        long timeEnd = System.currentTimeMillis();
         sbLogs.append( "Number of object inserted for Data Source '" ).append( dataSource.getName( ) ).append( "' : " ).append( listDataObjects.size( ) );
+        sbLogs.append( " (duration : " ).append( timeEnd - timeBegin ).append( "ms)\n");
     }
     
     /**
@@ -240,12 +243,31 @@ public final class DataSourceService
      */
     public static String insertDataAllDatasources( boolean bReset ) throws ElasticClientException
     {
+        return insertDataAllDatasources( bReset , false );
+    }
+    
+    /**
+     * Insert All data sources
+     * 
+     * @param bReset
+     *            Reset the index before inserting
+     * @param bDaemon
+     *            If called by a daemon
+     * @return The logs of the process
+     * @throws ElasticClientException
+     *             If an error occurs accessing to ElasticSearch
+     */
+    public static String insertDataAllDatasources( boolean bReset , boolean bDaemon ) throws ElasticClientException
+    {
         StringBuilder sbLogs = new StringBuilder( );
 
         for ( DataSource dataSource : getDataSources( ) )
         {
-            insertData( sbLogs, dataSource, bReset );
-        }
+            if( dataSource.usesFullIndexingDaemon() || !bDaemon )
+            {
+                insertData( sbLogs, dataSource, bReset );
+            }
+         }
         return sbLogs.toString( );
     }
 

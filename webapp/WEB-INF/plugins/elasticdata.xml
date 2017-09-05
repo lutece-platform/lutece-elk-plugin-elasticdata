@@ -30,11 +30,13 @@
       </admin-feature>
     </admin-features>    
 
-    <!-- XPages parameters -->
-    <applications>
-    </applications>
-
-    <!-- Portlet parameters -->
-    <portlets>
-   </portlets>
+    <!-- Daemons -->
+    <daemons>
+        <daemon>
+            <daemon-id>fullIndexingDaemon</daemon-id>
+            <daemon-name>elasticdata.daemon.fullIndexing.name</daemon-name>
+            <daemon-description>elasticdata.daemon.fullIndexing.description</daemon-description>
+            <daemon-class>fr.paris.lutece.plugins.elasticdata.service.daemon.FullIndexingDaemon</daemon-class>
+        </daemon>
+    </daemons>
 </plug-in>
