@@ -48,6 +48,8 @@ public abstract class AbstractDataObject implements DataObject
     private String _strDayOfWeek;
     private String _strMonth;
     private String _strHour;
+    private String _strPrefixedDayOfWeek;
+    private String _strPrefixedMonth;
     
     /**
      * {@inheritDoc }
@@ -71,8 +73,10 @@ public abstract class AbstractDataObject implements DataObject
         Calendar calendar = Calendar.getInstance( locale );
         calendar.setTimeInMillis( lTimestamp );
         _strDayOfWeek = calendar.getDisplayName( Calendar.DAY_OF_WEEK, Calendar.LONG , locale );
+        _strPrefixedDayOfWeek = ((( calendar.get( Calendar.DAY_OF_WEEK ) + 5 ) % 7 ) + 1 ) + " - " + _strDayOfWeek;
         _strMonth = calendar.getDisplayName( Calendar.MONTH, Calendar.LONG , locale );
-        _strHour = String.valueOf( calendar.get(Calendar.HOUR_OF_DAY ));
+        _strPrefixedMonth = String.format( "%02d" , calendar.get( Calendar.MONTH ) + 1 ) + " - " + _strMonth;
+        _strHour = String.format( "%02d" , calendar.get(Calendar.HOUR_OF_DAY ));
     }
     
     /**
@@ -101,6 +105,25 @@ public abstract class AbstractDataObject implements DataObject
     public String getHour()
     {
         return _strHour;
+    }
+
+    /**
+     * Returns the day of week prefixed by the day number
+     * @return the day of week prefixed by the day number
+     */
+    public String getPrefixedDayOfWeek()
+    {
+        return _strPrefixedDayOfWeek;
+    }
+
+    
+    /**
+     * Returns the month prefixed by the day number
+     * @return the month prefixed by the day number
+     */
+    public String getPrefixedMonth()
+    {
+        return _strPrefixedMonth;
     }
 
 

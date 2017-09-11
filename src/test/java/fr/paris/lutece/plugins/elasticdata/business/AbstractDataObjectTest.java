@@ -60,7 +60,7 @@ public class AbstractDataObjectTest extends LuteceTestCase
         for( long i = 0 ; i < 7 ; i++ )
         {
             dataObject.setTimestamp( lTime + ( i * 24L * 60L * 60L * 1000L ) );
-            System.out.println( dataObject.getDayOfWeek() );
+            System.out.println( dataObject.getPrefixedDayOfWeek() );
         }
     }
 
@@ -77,7 +77,7 @@ public class AbstractDataObjectTest extends LuteceTestCase
         for( long i = 0 ; i < 12 ; i++ )
         {
             dataObject.setTimestamp( lTime + (i * 30L * 24L * 60L * 60L * 1000L ) );
-            System.out.println( dataObject.getMonth() );
+            System.out.println( dataObject.getPrefixedMonth() );
         }
     }
 
