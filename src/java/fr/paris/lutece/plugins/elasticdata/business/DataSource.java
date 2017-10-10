@@ -34,6 +34,7 @@
 package fr.paris.lutece.plugins.elasticdata.business;
 
 import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * DataSource
@@ -75,6 +76,16 @@ public interface DataSource
      * @return The collection
      */
     Collection<DataObject> getDataObjects();
+    
+    
+    /**
+     * An iterator of data object
+     *
+     * @return an Iterator
+     */
+    Iterator<DataObject> getDataObjectsIterator();
+    
+    
 
     /**
      * Returns the BatchSize

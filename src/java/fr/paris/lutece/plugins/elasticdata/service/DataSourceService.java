@@ -33,6 +33,13 @@
  */
 package fr.paris.lutece.plugins.elasticdata.service;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import fr.paris.lutece.plugins.elasticdata.business.DataObject;
 import fr.paris.lutece.plugins.elasticdata.business.DataSource;
 import fr.paris.lutece.plugins.libraryelastic.business.bulk.BulkRequest;
@@ -42,12 +49,6 @@ import fr.paris.lutece.plugins.libraryelastic.util.ElasticClientException;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 /**
  * DataSourceService
@@ -125,12 +126,12 @@ public final class DataSourceService
             }
             elastic.createMappings( dataSource.getTargetIndexName( ), getMappings( dataSource ));
         }
-        Collection<DataObject> listDataObjects = dataSource.getDataObjects( );
+        
         int nBatchSize = ( dataSource.getBatchSize() != 0 ) ? dataSource.getBatchSize() : BATCH_SIZE;
-        insertObjects( elastic , dataSource, listDataObjects , nBatchSize );
+        int nbDocsInsert=insertObjects( elastic , dataSource, dataSource.getDataObjectsIterator() , nBatchSize );
        
         long timeEnd = System.currentTimeMillis();
-        sbLogs.append( "Number of object inserted for Data Source '" ).append( dataSource.getName( ) ).append( "' : " ).append( listDataObjects.size( ) );
+        sbLogs.append( "Number of object inserted for Data Source '" ).append( dataSource.getName( ) ).append( "' : " ).append( nbDocsInsert );
         sbLogs.append( " (duration : " ).append( timeEnd - timeBegin ).append( "ms)\n");
     }
     
@@ -141,19 +142,21 @@ public final class DataSourceService
      * @param listDataObjects The list of objects
      * @param nBatchSize The number of objects in each bulk request
      * @throws ElasticClientException  If a problem occurs connecting the server
+     * @return the number of documents posted 
      */
-    static void insertObjects( Elastic elastic, DataSource dataSource, Collection<DataObject> listDataObjects , int nBatchSize ) throws ElasticClientException
+    static int insertObjects( Elastic elastic, DataSource dataSource, Iterator<DataObject> iterateDataObjects , int nBatchSize ) throws ElasticClientException
     {
-        List listBatch = new ArrayList();
+        List<DataObject> listBatch = new ArrayList<DataObject>();
 
-        int nObjectCount = listDataObjects.size();
+       
         int nCount = 0;
-        Iterator i = listDataObjects.iterator();
-        while( nCount < nObjectCount )
+      
+        while( iterateDataObjects.hasNext() )
         {
-            DataObject object = (DataObject) i.next();
+            DataObject object = iterateDataObjects.next();
+            nCount++;
             listBatch.add( object );
-            if( ( listBatch.size() == nBatchSize ) || ( nCount == nObjectCount - 1 ) )
+            if( ( listBatch.size() == nBatchSize ) || !iterateDataObjects.hasNext() )
             {
                 BulkRequest br = new BulkRequest();
                 for( Object batchObject : listBatch )
@@ -165,10 +168,11 @@ public final class DataSourceService
                 insertBulkData( elastic, dataSource, br );
                 listBatch.clear();
             }
-            nCount++;
+           
         }
         AppLogService.info( "ElasticData indexing : completed for " + nCount + " documents of DataSource '" + dataSource.getName() + "'" );
        
+        return nCount;
     }
     
     /**

@@ -33,6 +33,10 @@
  */
 package fr.paris.lutece.plugins.elasticdata.business;
 
+
+import java.util.Collection;
+import java.util.Iterator;
+
 /**
  * AbstractDataSource
  */
@@ -213,4 +217,21 @@ public abstract class AbstractDataSource implements DataSource
          _bFullIndexingDaemon = bFullIndexingDaemon;
      }
     
+     /**
+      * {@inheritDoc}
+      */
+
+     @Override
+    public Iterator<DataObject> getDataObjectsIterator()
+    {
+    	 
+    	 Collection<DataObject> listDataObject=getDataObjects();
+    	 if(listDataObject != null)
+    	 {
+    		 return getDataObjects().iterator(); 
+    		 
+    	 }
+    	 
+    	 return null;
+    }
 }
