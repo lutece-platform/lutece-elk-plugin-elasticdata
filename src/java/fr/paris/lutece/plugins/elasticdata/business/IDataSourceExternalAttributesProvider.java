@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2017, Mairie de Paris
+ * Copyright (c) 2002-2018, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,32 +31,17 @@
  *
  * License 1.0
  */
-
-package fr.paris.lutece.plugins.elasticdata.business.mock;
-
-import fr.paris.lutece.plugins.elasticdata.business.AbstractDataSource;
-import fr.paris.lutece.plugins.elasticdata.business.DataSource;
-import java.util.ArrayList;
-import java.util.Collection;
+package fr.paris.lutece.plugins.elasticdata.business;
 
 /**
- * MockDataSource
+ * This interface is used for provisioning external attributes to data sources
+ * @param <T> 
  */
-public class MockDataSource extends AbstractDataSource implements DataSource
+public interface IDataSourceExternalAttributesProvider<T extends DataSource>
 {
-
     /**
-     * {@inheritDoc }
+     * Provide external attributes to data sources
+     * @param dataSource the data source
      */
-    @Override
-    public Collection<MockDataObject> fetchDataObjects() {
-        Collection<MockDataObject> list = new ArrayList<>( );
-        for ( int i = 1; i < 10; i++ )
-        {
-            MockDataObject object = new MockDataObject( "Object " + i );
-            list.add( object );
-        }
-        return list;
-    }
-
+    public void provideAttributes( T dataSource );
 }

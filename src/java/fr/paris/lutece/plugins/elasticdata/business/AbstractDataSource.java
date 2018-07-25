@@ -33,7 +33,6 @@
  */
 package fr.paris.lutece.plugins.elasticdata.business;
 
-
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -52,6 +51,8 @@ public abstract class AbstractDataSource implements DataSource
     private String _strMappings;
     private boolean _bLocalizable;
     private boolean _bFullIndexingDaemon;
+    private Collection<IDataSourceExternalAttributesProvider> _colExternalAttributesProvider;
+    private Collection _colDataObjects;
 
     /**
      * Returns the Id
@@ -220,18 +221,61 @@ public abstract class AbstractDataSource implements DataSource
      /**
       * {@inheritDoc}
       */
-
-     @Override
-    public Iterator<DataObject> getDataObjectsIterator()
+    @Override
+    public Iterator getDataObjectsIterator( )
     {
-    	 
-    	 Collection<DataObject> listDataObject=getDataObjects();
-    	 if(listDataObject != null)
-    	 {
-    		 return getDataObjects().iterator(); 
-    		 
-    	 }
-    	 
-    	 return null;
+
+        Collection listDataObject = getDataObjects( );
+        if ( listDataObject != null )
+        {
+            return getDataObjects( ).iterator( );
+
+        }
+
+        return null;
+    }
+
+    public Collection getDataObjects( )
+    {
+        if ( _colDataObjects == null )
+        {
+            _colDataObjects = fetchDataObjects( );
+        }
+        return _colDataObjects;
+    }
+    
+    @Override
+    public void setDataObjects( )
+    {
+        _colDataObjects = fetchDataObjects();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void removeDataObjects( )
+    {
+        _colDataObjects.clear();
+    }
+    
+    
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Collection<IDataSourceExternalAttributesProvider> getExternalAttributesProvider() 
+    {
+        return _colExternalAttributesProvider;
+    }
+    
+    /**
+     * Set the external attributes provider for the data source
+     * @param colExternalAttributesProvider 
+     */
+    public void setExternalAttributesProvider(Collection<IDataSourceExternalAttributesProvider> colExternalAttributesProvider) 
+    {
+        _colExternalAttributesProvider = colExternalAttributesProvider;
     }
 }

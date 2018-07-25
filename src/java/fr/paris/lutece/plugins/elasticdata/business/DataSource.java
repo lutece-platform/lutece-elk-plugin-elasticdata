@@ -38,6 +38,7 @@ import java.util.Iterator;
 
 /**
  * DataSource
+ *            the dataObject type
  */
 public interface DataSource
 {
@@ -75,17 +76,31 @@ public interface DataSource
      *
      * @return The collection
      */
-    Collection<DataObject> getDataObjects();
-    
-    
+    Collection getDataObjects( );
+
     /**
      * An iterator of data object
      *
      * @return an Iterator
      */
-    Iterator<DataObject> getDataObjectsIterator();
+
+    Iterator getDataObjectsIterator( );
+
+    /**
+     * Fetch the data objects of the data source
+     * @return the data objects of the data source
+     */
+    Collection fetchDataObjects( );
     
+    /**
+     * Set the data objects of the data source
+     */
+    void setDataObjects( );
     
+    /**
+     * Remove the data objects of the data source
+     */
+    void removeDataObjects( );
 
     /**
      * Returns the BatchSize
@@ -111,5 +126,11 @@ public interface DataSource
      * @return true if the datasource should be fully indexed by the daemon
      */
     boolean usesFullIndexingDaemon();
+    
+    /**
+     * Get the external providers of attributes for DataSources
+     * @return the list of DataSourceAttributesProvider
+     */
+    Collection<IDataSourceExternalAttributesProvider> getExternalAttributesProvider();
             
 }

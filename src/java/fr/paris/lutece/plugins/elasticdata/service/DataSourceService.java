@@ -33,6 +33,7 @@
  */
 package fr.paris.lutece.plugins.elasticdata.service;
 
+import fr.paris.lutece.plugins.elasticdata.business.AbstractDataObject;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -42,6 +43,7 @@ import java.util.Map;
 
 import fr.paris.lutece.plugins.elasticdata.business.DataObject;
 import fr.paris.lutece.plugins.elasticdata.business.DataSource;
+import fr.paris.lutece.plugins.elasticdata.business.IDataSourceExternalAttributesProvider;
 import fr.paris.lutece.plugins.libraryelastic.business.bulk.BulkRequest;
 import fr.paris.lutece.plugins.libraryelastic.business.bulk.IndexSubRequest;
 import fr.paris.lutece.plugins.libraryelastic.util.Elastic;
@@ -114,7 +116,7 @@ public final class DataSourceService
      *             If an error occurs accessing to ElasticSearch
      */
     public static void insertData( StringBuilder sbLogs, DataSource dataSource, boolean bReset ) throws ElasticClientException
-    {
+    {     
         long timeBegin = System.currentTimeMillis();
         String strServerUrl = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL );
         Elastic elastic = new Elastic( strServerUrl );
@@ -320,4 +322,34 @@ public final class DataSourceService
         return "{ \"mappings\": { \"" + strType + "\" : { \"properties\": { \"timestamp\": { \"type\": \"date\", \"format\": \"epoch_millis\" }, \"location\": { \"type\": \"geo_point\"} } }}}";
     }
     
+    /**
+     * Provide external attributes for the DataSource
+     * @param dataSource the data source
+     */
+    public static void provideExternalAttributes( DataSource dataSource )
+    {
+        for ( IDataSourceExternalAttributesProvider provider : dataSource.getExternalAttributesProvider() )
+        {
+            provider.provideAttributes(dataSource);
+        }
+    }
+    
+    /**
+     * Clear the dataObjects from the data Source 
+     * @param dataSource 
+     *              the data source
+     */
+    public static void clearData( DataSource dataSource )
+    {
+        dataSource.removeDataObjects();
+    }
+   
+    /**
+     * Set the datas objects in the data source
+     * @param source 
+     */
+    public static void setDatas( DataSource source )
+    {
+        source.setDataObjects();
+    }
 }

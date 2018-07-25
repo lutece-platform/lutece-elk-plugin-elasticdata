@@ -83,10 +83,16 @@ public class ManageElasticDataJspBean extends MVCAdminJspBean
     @Action( ACTION_INDEX )
     public String doIndex( HttpServletRequest request ) throws ElasticClientException
     {
+        StringBuilder sbLogs = new StringBuilder( );
+       
         String strDataSourceId = request.getParameter( PARAMETER_DATA_SOURCE );
         DataSource source = DataSourceService.getDataSource( strDataSourceId );
-        StringBuilder sbLogs = new StringBuilder( );
+
+        DataSourceService.setDatas( source );
+        DataSourceService.provideExternalAttributes( source );
         DataSourceService.insertData( sbLogs, source, true );
+        DataSourceService.clearData( source );
+        
         addInfo( sbLogs.toString( ) );
 
         return redirectView( request, VIEW_HOME );
