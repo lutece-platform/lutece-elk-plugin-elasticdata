@@ -76,7 +76,7 @@ public interface DataSource
      *
      * @return The collection
      */
-    Collection getDataObjects( );
+    Collection<DataObject> getDataObjects( );
 
     /**
      * An iterator of data object
@@ -84,18 +84,13 @@ public interface DataSource
      * @return an Iterator
      */
 
-    Iterator getDataObjectsIterator( );
+    Iterator<DataObject> getDataObjectsIterator( );
 
     /**
      * Fetch the data objects of the data source
      * @return the data objects of the data source
      */
-    Collection fetchDataObjects( );
-    
-    /**
-     * Set the data objects of the data source
-     */
-    void setDataObjects( );
+    Collection<DataObject> fetchDataObjects( );
     
     /**
      * Remove the data objects of the data source

@@ -52,7 +52,7 @@ public abstract class AbstractDataSource implements DataSource
     private boolean _bLocalizable;
     private boolean _bFullIndexingDaemon;
     private Collection<IDataSourceExternalAttributesProvider> _colExternalAttributesProvider;
-    private Collection _colDataObjects;
+    private Collection<DataObject> _colDataObjects;
 
     /**
      * Returns the Id
@@ -222,10 +222,10 @@ public abstract class AbstractDataSource implements DataSource
       * {@inheritDoc}
       */
     @Override
-    public Iterator getDataObjectsIterator( )
+    public Iterator<DataObject> getDataObjectsIterator( )
     {
 
-        Collection listDataObject = getDataObjects( );
+        Collection<DataObject> listDataObject = getDataObjects( );
         if ( listDataObject != null )
         {
             return getDataObjects( ).iterator( );
@@ -235,7 +235,11 @@ public abstract class AbstractDataSource implements DataSource
         return null;
     }
 
-    public Collection getDataObjects( )
+    /**
+      * {@inheritDoc}
+      */
+    @Override
+    public Collection<DataObject> getDataObjects( )
     {
         if ( _colDataObjects == null )
         {
