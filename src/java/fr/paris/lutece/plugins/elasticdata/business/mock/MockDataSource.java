@@ -35,6 +35,7 @@
 package fr.paris.lutece.plugins.elasticdata.business.mock;
 
 import fr.paris.lutece.plugins.elasticdata.business.AbstractDataSource;
+import fr.paris.lutece.plugins.elasticdata.business.DataObject;
 import fr.paris.lutece.plugins.elasticdata.business.DataSource;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -49,8 +50,8 @@ public class MockDataSource extends AbstractDataSource implements DataSource
      * {@inheritDoc }
      */
     @Override
-    public Collection<MockDataObject> fetchDataObjects() {
-        Collection<MockDataObject> list = new ArrayList<>( );
+    public Collection<DataObject> fetchDataObjects() {
+        Collection<DataObject> list = new ArrayList<>( );
         for ( int i = 1; i < 10; i++ )
         {
             MockDataObject object = new MockDataObject( "Object " + i );
