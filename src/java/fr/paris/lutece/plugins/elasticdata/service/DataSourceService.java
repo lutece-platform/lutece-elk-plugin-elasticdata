@@ -117,6 +117,8 @@ public final class DataSourceService
      */
     public static void processFullIndexing( StringBuilder sbLogs, DataSource dataSource, boolean bReset ) throws ElasticClientException
     {   
+        completeDataSourceWithFullData( dataSource );        
+        
         long timeBegin = System.currentTimeMillis();
         String strServerUrl = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL );
         Elastic elastic = new Elastic( strServerUrl );
@@ -158,6 +160,7 @@ public final class DataSourceService
         }
         elastic.create( dataSource.getTargetIndexName( ), dataSource.getDataType( ), dataObject );
     }    
+        completeDataObjectWithFullData( dataSource,dataObject );  
         
     /**
      * Insert one dataObject from a DataSource into Elastic Search
@@ -281,9 +284,19 @@ public final class DataSourceService
      * Set the datas objects in the data source
      * @param source 
      */
-    public static void setDatas( DataSource source )
+    private static void completeDataSourceWithFullData( DataSource source )
     {
-        source.setDataObjects();
+        //Complete the data source with the DAO
+        source.fetchDataObjects();
+        
+        //Complete the data source with the external attributes
+        provideExternalAttributes( source );
+    }
+    
+    private static void completeDataObjectWithFullData( DataSource dataSource, DataObject dataObject )
+    {   
+        //Complete the data source with the external attributes
+        provideExternalAttributes( dataSource, dataObject );
     }
     
         /**
