@@ -35,13 +35,18 @@ package fr.paris.lutece.plugins.elasticdata.business;
 
 /**
  * This interface is used for provisioning external attributes to data sources
- * @param <T> 
  */
-public interface IDataSourceExternalAttributesProvider<T extends DataSource>
+public interface IDataSourceExternalAttributesProvider
 {
     /**
      * Provide external attributes to data sources
      * @param dataSource the data source
      */
-    public void provideAttributes( T dataSource );
+    public void provideAttributes( DataSource dataSource );
+    
+    /**
+     * Provide external attributes to data objects
+     * @param dataObject the data object
+     */
+    public void provideAttributes( DataObject dataObject );
 }
