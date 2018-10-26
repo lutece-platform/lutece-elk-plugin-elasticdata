@@ -51,7 +51,7 @@ public abstract class AbstractDataSource implements DataSource
     private String _strMappings;
     private boolean _bLocalizable;
     private boolean _bFullIndexingDaemon;
-    private Collection<IDataSourceExternalAttributesProvider> _colExternalAttributesProvider;
+    protected Collection<IDataSourceExternalAttributesProvider> _colExternalAttributesProvider;
     private Collection<DataObject> _colDataObjects;
 
     /**
