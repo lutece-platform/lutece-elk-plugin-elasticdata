@@ -88,10 +88,8 @@ public class ManageElasticDataJspBean extends MVCAdminJspBean
         String strDataSourceId = request.getParameter( PARAMETER_DATA_SOURCE );
         DataSource source = DataSourceService.getDataSource( strDataSourceId );
 
-        DataSourceService.setDatas( source );
-        DataSourceService.provideExternalAttributes( source );
-        DataSourceService.insertData( sbLogs, source, true );
-        DataSourceService.clearData( source );
+        DataSourceService.processFullIndexing( sbLogs, source, true );
+        
         
         addInfo( sbLogs.toString( ) );
 

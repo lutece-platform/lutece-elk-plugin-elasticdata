@@ -60,7 +60,7 @@ public class DataSourceServiceTest extends LuteceTestCase
         ds.setBatchSize( 4 );  // actions will posted 4 + 4 + 1
 
         StringBuilder sbLogs = new StringBuilder( );
-        DataSourceService.insertData( sbLogs, ds, true );
+        DataSourceService.processFullIndexing( sbLogs, ds, true );
         System.out.println( sbLogs.toString( ) );
     }
 

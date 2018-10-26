@@ -115,8 +115,8 @@ public final class DataSourceService
      * @throws ElasticClientException
      *             If an error occurs accessing to ElasticSearch
      */
-    public static void insertData( StringBuilder sbLogs, DataSource dataSource, boolean bReset ) throws ElasticClientException
-    {     
+    public static void processFullIndexing( StringBuilder sbLogs, DataSource dataSource, boolean bReset ) throws ElasticClientException
+    {   
         long timeBegin = System.currentTimeMillis();
         String strServerUrl = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL );
         Elastic elastic = new Elastic( strServerUrl );
@@ -189,7 +189,7 @@ public final class DataSourceService
      * @throws ElasticClientException
      *             If an error occurs accessing to ElasticSearch
      */
-    private static void insertData( Elastic elastic, DataSource dataSource, DataObject dataObject ) throws ElasticClientException
+    public static void processIncrementalIndexing( DataSource dataSource, DataObject dataObject ) throws ElasticClientException
     {
         if ( elastic == null )
         {
@@ -221,21 +221,6 @@ public final class DataSourceService
         String strResponse = elastic.createByBulk( dataSource.getTargetIndexName( ), dataSource.getDataType( ), bulkRequest );
         AppLogService.debug( "ElasticData : Response of the posted bulk request : " + strResponse );
         
-    }
-
-    /**
-     * Insert one dataObject from a DataSource into Elastic Search
-     * 
-     * @param dataSource
-     *            The data source
-     * @param dataObject
-     *            The data object
-     * @throws ElasticClientException
-     *             If an error occurs accessing to ElasticSearch
-     */
-    public static void insertData( DataSource dataSource, DataObject dataObject ) throws ElasticClientException
-    {
-        insertData( null, dataSource, dataObject );
     }
 
     /**
@@ -271,7 +256,7 @@ public final class DataSourceService
         {
             if( dataSource.usesFullIndexingDaemon() || !bDaemon )
             {
-                insertData( sbLogs, dataSource, bReset );
+                processFullIndexing( sbLogs, dataSource, bReset );
             }
          }
         return sbLogs.toString( );
