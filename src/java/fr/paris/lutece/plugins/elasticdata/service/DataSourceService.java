@@ -153,36 +153,11 @@ public final class DataSourceService
      */
     public static void processIncrementalIndexing( DataSource dataSource, DataObject dataObject ) throws ElasticClientException
     {
-        if ( elastic == null )
-        {
-            String strServerUrl = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL );
-            elastic = new Elastic( strServerUrl );
-        }
-        elastic.create( dataSource.getTargetIndexName( ), dataSource.getDataType( ), dataObject );
-    }    
         completeDataObjectWithFullData( dataSource,dataObject );  
         
-    /**
-     * Insert one dataObject from a DataSource into Elastic Search
-     * 
-     * @param elastic
-     *            The elasticserver, can be null
-     * @param dataSource
-     *            The data source
-     * @param dataObject
-     *            The data object
-     * @throws ElasticClientException
-     *             If an error occurs accessing to ElasticSearch
-     */
-    private static void insertBulkData( Elastic elastic, DataSource dataSource, BulkRequest bulkRequest ) throws ElasticClientException
-    {
-        if ( elastic == null )
-        {
-            String strServerUrl = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL );
-            elastic = new Elastic( strServerUrl );
-        }
-        String strResponse = elastic.createByBulk( dataSource.getTargetIndexName( ), dataSource.getDataType( ), bulkRequest );
-        AppLogService.debug( "ElasticData : Response of the posted bulk request : " + strResponse );
+        String strServerUrl = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL );
+        Elastic elastic = new Elastic( strServerUrl );
+        elastic.create( dataSource.getTargetIndexName( ), dataSource.getDataType( ), dataObject );
         
     }
 
