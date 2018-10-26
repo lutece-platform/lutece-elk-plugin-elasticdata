@@ -248,12 +248,6 @@ public abstract class AbstractDataSource implements DataSource
         return _colDataObjects;
     }
     
-    @Override
-    public void setDataObjects( )
-    {
-        _colDataObjects = fetchDataObjects();
-    }
-    
     /**
      * {@inheritDoc}
      */
@@ -263,8 +257,6 @@ public abstract class AbstractDataSource implements DataSource
         _colDataObjects.clear();
     }
     
-    
-
     /**
      * {@inheritDoc}
      */
