@@ -268,18 +268,6 @@ public final class DataSourceService
     }
     
     /**
-     * Provide external attributes for the DataSource
-     * @param dataSource the data source
-     */
-    public static void provideExternalAttributes( DataSource dataSource )
-    {
-        for ( IDataSourceExternalAttributesProvider provider : dataSource.getExternalAttributesProvider() )
-        {
-            provider.provideAttributes(dataSource);
-        }
-    }
-    
-    /**
      * Clear the dataObjects from the data Source 
      * @param dataSource 
      *              the data source
@@ -344,4 +332,27 @@ public final class DataSourceService
         return nCount;
     }
     
+    /**
+     * Provide external attributes for the DataSource
+     * @param dataSource the data source
+     */
+    private static void provideExternalAttributes( DataSource dataSource )
+    {
+        for ( IDataSourceExternalAttributesProvider provider : dataSource.getExternalAttributesProvider() )
+        {
+            provider.provideAttributes(dataSource);
+        }
+    }
+    
+    /**
+     * Provide external attributes for the DataSource
+     * @param dataSource the data source
+     */
+    private static void provideExternalAttributes( DataSource dataSource, DataObject dataObject )
+    {
+        for ( IDataSourceExternalAttributesProvider provider : dataSource.getExternalAttributesProvider() )
+        {
+            provider.provideAttributes( dataObject );
+        }
+    }
 }
