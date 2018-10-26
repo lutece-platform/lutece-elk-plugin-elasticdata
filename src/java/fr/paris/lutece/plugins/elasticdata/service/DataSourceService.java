@@ -138,46 +138,6 @@ public final class DataSourceService
     }
     
     /**
-     * Insert a list of object in bulk mode  
-     * @param elastic The Elastic Server
-     * @param dataSource The data source
-     * @param listDataObjects The list of objects
-     * @param nBatchSize The number of objects in each bulk request
-     * @throws ElasticClientException  If a problem occurs connecting the server
-     * @return the number of documents posted 
-     */
-    static int insertObjects( Elastic elastic, DataSource dataSource, Iterator<DataObject> iterateDataObjects , int nBatchSize ) throws ElasticClientException
-    {
-        List<DataObject> listBatch = new ArrayList<DataObject>();
-
-       
-        int nCount = 0;
-      
-        while( iterateDataObjects.hasNext() )
-        {
-            DataObject object = iterateDataObjects.next();
-            nCount++;
-            listBatch.add( object );
-            if( ( listBatch.size() == nBatchSize ) || !iterateDataObjects.hasNext() )
-            {
-                BulkRequest br = new BulkRequest();
-                for( Object batchObject : listBatch )
-                {
-                    IndexSubRequest isr = new IndexSubRequest( null );
-                    br.addAction( isr, batchObject );
-                }
-                AppLogService.info( "ElasticData indexing : Posting bulk action for " + listBatch.size() + " documents of DataSource '" + dataSource.getName() + "'" );
-                insertBulkData( elastic, dataSource, br );
-                listBatch.clear();
-            }
-           
-        }
-        AppLogService.info( "ElasticData indexing : completed for " + nCount + " documents of DataSource '" + dataSource.getName() + "'" );
-       
-        return nCount;
-    }
-    
-    /**
      * Insert one dataObject from a DataSource into Elastic Search
      * 
      * @param elastic
@@ -337,4 +297,51 @@ public final class DataSourceService
     {
         source.setDataObjects();
     }
+    
+        /**
+     * Insert a list of object in bulk mode  
+     * @param elastic The Elastic Server
+     * @param dataSource The data source
+     * @param listDataObjects The list of objects
+     * @param nBatchSize The number of objects in each bulk request
+     * @throws ElasticClientException  If a problem occurs connecting the server
+     * @return the number of documents posted 
+     */
+    private static int insertObjects( Elastic elastic, DataSource dataSource, Iterator<DataObject> iterateDataObjects , int nBatchSize ) throws ElasticClientException
+    {
+        List<DataObject> listBatch = new ArrayList<DataObject>();
+
+       
+        int nCount = 0;
+      
+        while( iterateDataObjects.hasNext() )
+        {
+            DataObject object = iterateDataObjects.next();
+            nCount++;
+            listBatch.add( object );
+            if( ( listBatch.size() == nBatchSize ) || !iterateDataObjects.hasNext() )
+            {
+                BulkRequest br = new BulkRequest();
+                for( Object batchObject : listBatch )
+                {
+                    IndexSubRequest isr = new IndexSubRequest( null );
+                    br.addAction( isr, batchObject );
+                }
+                AppLogService.info( "ElasticData indexing : Posting bulk action for " + listBatch.size() + " documents of DataSource '" + dataSource.getName() + "'" );
+                if ( elastic == null )
+                {
+                    String strServerUrl = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL );
+                    elastic = new Elastic( strServerUrl );
+                }
+                String strResponse = elastic.createByBulk( dataSource.getTargetIndexName( ), dataSource.getDataType( ), br );
+                AppLogService.debug( "ElasticData : Response of the posted bulk request : " + strResponse );
+                listBatch.clear();
+            }
+           
+        }
+        AppLogService.info( "ElasticData indexing : completed for " + nCount + " documents of DataSource '" + dataSource.getName() + "'" );
+       
+        return nCount;
+    }
+    
 }
