@@ -33,7 +33,6 @@
  */
 package fr.paris.lutece.plugins.elasticdata.service;
 
-import fr.paris.lutece.plugins.elasticdata.business.AbstractDataObject;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -81,7 +80,7 @@ public final class DataSourceService
         {
             if ( _mapDataSources == null )
             {
-                _mapDataSources = new HashMap( );
+                _mapDataSources = new HashMap<>( );
                 for ( DataSource source : SpringContextService.getBeansOfType( DataSource.class ) )
                 {
                     _mapDataSources.put( source.getId( ), source );
@@ -132,18 +131,20 @@ public final class DataSourceService
         }
         
         int nBatchSize = ( dataSource.getBatchSize() != 0 ) ? dataSource.getBatchSize() : BATCH_SIZE;
+        
+        //Index the objects in bulk mode
         int nbDocsInsert=insertObjects( elastic , dataSource, dataSource.getDataObjectsIterator() , nBatchSize );
        
         long timeEnd = System.currentTimeMillis();
         sbLogs.append( "Number of object inserted for Data Source '" ).append( dataSource.getName( ) ).append( "' : " ).append( nbDocsInsert );
         sbLogs.append( " (duration : " ).append( timeEnd - timeBegin ).append( "ms)\n");
+        
+        clearData( dataSource );
     }
     
     /**
      * Insert one dataObject from a DataSource into Elastic Search
      * 
-     * @param elastic
-     *            The elasticserver, can be null
      * @param dataSource
      *            The data source
      * @param dataObject
