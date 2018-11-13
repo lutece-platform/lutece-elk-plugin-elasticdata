@@ -33,6 +33,7 @@
  */
 package fr.paris.lutece.plugins.elasticdata.business;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -53,7 +54,7 @@ public abstract class AbstractDataSource implements DataSource
     private boolean _bFullIndexingDaemon;
     protected Collection<IDataSourceExternalAttributesProvider> _colExternalAttributesProvider;
     private Collection<DataObject> _colDataObjects;
-
+    
     /**
      * Returns the Id
      *
@@ -263,6 +264,10 @@ public abstract class AbstractDataSource implements DataSource
     @Override
     public Collection<IDataSourceExternalAttributesProvider> getExternalAttributesProvider() 
     {
+        if ( _colExternalAttributesProvider == null)
+        {
+            _colExternalAttributesProvider = new ArrayList<>();
+        }
         return _colExternalAttributesProvider;
     }
     
