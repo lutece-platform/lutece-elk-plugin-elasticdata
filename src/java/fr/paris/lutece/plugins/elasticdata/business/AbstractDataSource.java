@@ -242,7 +242,7 @@ public abstract class AbstractDataSource implements DataSource
     @Override
     public Collection<DataObject> getDataObjects( )
     {
-        if ( _colDataObjects == null )
+        if ( _colDataObjects == null || _colDataObjects.isEmpty())
         {
             _colDataObjects = fetchDataObjects( );
         }
