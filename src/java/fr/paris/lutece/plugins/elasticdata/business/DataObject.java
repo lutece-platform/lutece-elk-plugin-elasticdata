@@ -34,6 +34,8 @@
 
 package fr.paris.lutece.plugins.elasticdata.business;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 /**
  * DataObject
  */
@@ -45,4 +47,10 @@ public interface DataObject
      * @return The timestamp
      */
     String getTimestamp( );
+    /**
+     * The _id of the data
+     * @return The id
+     */
+    @JsonIgnore
+    String getId();
 }

@@ -36,14 +36,23 @@
 package fr.paris.lutece.plugins.elasticdata.business;
 
 import fr.paris.lutece.portal.web.l10n.LocaleService;
+
 import java.util.Calendar;
 import java.util.Locale;
+
+import org.codehaus.jackson.annotate.JsonIgnore;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 
 /**
  * AbstractDataObject
  */
+
 public abstract class AbstractDataObject implements DataObject
 {
+	
+	private String _strId;
     private long _lTimestamp;
     private String _strDayOfWeek;
     private String _strMonth;
@@ -77,6 +86,16 @@ public abstract class AbstractDataObject implements DataObject
         _strMonth = calendar.getDisplayName( Calendar.MONTH, Calendar.LONG , locale );
         _strPrefixedMonth = String.format( "%02d" , calendar.get( Calendar.MONTH ) + 1 ) + " - " + _strMonth;
         _strHour = String.format( "%02d" , calendar.get(Calendar.HOUR_OF_DAY ));
+    }
+    @JsonIgnore
+    @Override
+    public String getId(){
+    	
+    	return _strId;
+    }
+    public void setId(String id){
+    	
+    	_strId= id;
     }
     
     /**

@@ -35,6 +35,7 @@
 package fr.paris.lutece.plugins.elasticdata.business.mock;
 
 import fr.paris.lutece.plugins.elasticdata.business.DataObject;
+
 import java.util.Date;
 
 /**
@@ -72,5 +73,10 @@ public class MockDataObject implements DataObject
     {
         return _strName;
     }
+
+	@Override
+	public String getId() {
+		return null;
+	}
 
 }

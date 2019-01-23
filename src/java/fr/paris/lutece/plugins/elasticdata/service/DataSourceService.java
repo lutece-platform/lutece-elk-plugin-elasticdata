@@ -263,7 +263,7 @@ public final class DataSourceService
     private static void completeDataSourceWithFullData( DataSource source )
     {
         //Complete the data source with the DAO
-        source.fetchDataObjects();
+        source.getDataObjects();//.fetchDataObjects();
         
         //Complete the data source with the external attributes
         provideExternalAttributes( source );
@@ -299,9 +299,10 @@ public final class DataSourceService
             if( ( listBatch.size() == nBatchSize ) || !iterateDataObjects.hasNext() )
             {
                 BulkRequest br = new BulkRequest();
-                for( Object batchObject : listBatch )
+                for( DataObject batchObject : listBatch )
                 {
-                    IndexSubRequest isr = new IndexSubRequest( null );
+                	String strId= batchObject.getId( );
+                    IndexSubRequest isr = new IndexSubRequest( strId );
                     br.addAction( isr, batchObject );
                 }
                 AppLogService.info( "ElasticData indexing : Posting bulk action for " + listBatch.size() + " documents of DataSource '" + dataSource.getName() + "'" );
