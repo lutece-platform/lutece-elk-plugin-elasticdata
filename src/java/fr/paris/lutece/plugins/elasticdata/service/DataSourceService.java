@@ -161,6 +161,64 @@ public final class DataSourceService
         elastic.create( dataSource.getTargetIndexName( ), dataSource.getDataType( ), dataObject );
         
     }
+    /**
+     * Insert a dataObject from a DataSource into Elastic Search
+     * @param sbLogs A log buffer
+     * @param dataSource The data source
+     * @param dataObject The collection of data object
+     * @throws ElasticClient Exception If an error occurs accessing to ElasticSearch
+     */
+    public static void processIncrementalIndexing( StringBuilder sbLogs,DataSource dataSource, Collection<DataObject> dataObject ) throws ElasticClientException
+    {
+    	//Complete the data source with the external attributes
+        provideExternalAttributes( dataSource );  
+        
+        long timeBegin = System.currentTimeMillis();
+        String strServerUrl = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL );
+        Elastic elastic = new Elastic( strServerUrl );
+        
+        int nBatchSize = ( dataSource.getBatchSize() != 0 ) ? dataSource.getBatchSize() : BATCH_SIZE;
+        
+        //Index the objects in bulk mode
+        int nbDocsInsert=insertObjects( elastic , dataSource, dataObject.iterator() , nBatchSize );
+       
+        long timeEnd = System.currentTimeMillis();
+        sbLogs.append( "Number of object inserted for Data Source '" ).append( dataSource.getName( ) ).append( "' : " ).append( nbDocsInsert );
+        sbLogs.append( " (duration : " ).append( timeEnd - timeBegin ).append( "ms)\n");
+        
+        
+    }
+    
+    
+    /**
+     * Delete a documents by Query
+     * @param dataSource The data source
+     * @param strQuery The Query
+     * @throws ElasticClientException Exception If an error occurs accessing to ElasticSearch
+     */
+    public static void deleteByQuery( DataSource dataSource, String strQuery ) throws ElasticClientException
+    {  
+        
+        String strServerUrl = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL );
+        Elastic elastic = new Elastic( strServerUrl );
+        elastic.deleteByQuery( dataSource.getTargetIndexName( ), dataSource.getDataType( ), strQuery );
+        
+    }
+    /**
+     * Delete a document based on its id in the index
+     * @param dataSource The data source
+     * @param strId The id
+     * @throws ElasticClientException Exception If an error occurs accessing to ElasticSearch
+     */
+    public static void deleteById( DataSource dataSource, String strId ) throws ElasticClientException
+    {  
+        
+        String strServerUrl = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL );
+        Elastic elastic = new Elastic( strServerUrl );
+        elastic.deleteDocument( dataSource.getTargetIndexName( ), dataSource.getDataType( ), strId );
+        
+    }
+
 
     /**
      * Insert All data sources
