@@ -40,6 +40,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+
 import fr.paris.lutece.plugins.elasticdata.business.DataObject;
 import fr.paris.lutece.plugins.elasticdata.business.DataSource;
 import fr.paris.lutece.plugins.elasticdata.business.IDataSourceExternalAttributesProvider;
@@ -158,7 +160,7 @@ public final class DataSourceService
         
         String strServerUrl = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL );
         Elastic elastic = new Elastic( strServerUrl );
-        elastic.create( dataSource.getTargetIndexName( ), dataSource.getDataType( ), dataObject );
+        elastic.create( dataSource.getTargetIndexName( ), dataSource.getDataType( ), (dataObject.getId( )!=null)?dataObject.getId( ):StringUtils.EMPTY, dataObject );
         
     }
     /**
@@ -188,7 +190,21 @@ public final class DataSourceService
         
         
     }
-    
+    /**
+     * Partial Updates to Documents
+     * @param dataSource The data source
+     * @param strId  The document id
+     * @param object The object
+     * @throws ElasticClientException Exception If an error occurs accessing to ElasticSearch
+     */
+    public static void partialUpdate( DataSource dataSource, String strId, Object object ) throws ElasticClientException
+    {  
+        
+        String strServerUrl = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL );
+        Elastic elastic = new Elastic( strServerUrl );
+        elastic.partialUpdate(dataSource.getTargetIndexName( ), dataSource.getDataType( ), strId, object);
+        
+    }
     
     /**
      * Delete a documents by Query
