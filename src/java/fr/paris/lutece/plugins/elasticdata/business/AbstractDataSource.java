@@ -255,7 +255,10 @@ public abstract class AbstractDataSource implements DataSource
     @Override
     public void removeDataObjects( )
     {
-        _colDataObjects.clear();
+        if ( _colDataObjects != null )
+        {
+            _colDataObjects.clear();
+        }
     }
     
     /**
