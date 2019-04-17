@@ -113,12 +113,13 @@ public final class DataSourceService
      *            The data source
      * @param bReset
      *            if the index should be reset before inserting
+     * @param status
+     *              the Indexing Status
      * @throws ElasticClientException
      *             If an error occurs accessing to ElasticSearch
      */
-    public static void processFullIndexing( StringBuilder sbLogs, DataSource dataSource, boolean bReset ) throws ElasticClientException
-    {   
-        completeDataSourceWithFullData( dataSource );        
+    public static void processFullIndexing( StringBuilder sbLogs, DataSource dataSource, boolean bReset, IndexingStatus status ) throws ElasticClientException
+    {          
         
         long timeBegin = System.currentTimeMillis();
         String strServerUrl = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL );
@@ -134,8 +135,10 @@ public final class DataSourceService
         
         int nBatchSize = ( dataSource.getBatchSize() != 0 ) ? dataSource.getBatchSize() : BATCH_SIZE;
         
+        status.setnNbTotalObj( dataSource.getIdDataObjects().size( ) );
+        
         //Index the objects in bulk mode
-        int nbDocsInsert=insertObjects( elastic , dataSource, dataSource.getDataObjectsIterator() , nBatchSize );
+        int nbDocsInsert=insertObjects( elastic , dataSource, dataSource.getDataObjectsIterator() , nBatchSize, status );
        
         long timeEnd = System.currentTimeMillis();
         sbLogs.append( "Number of object inserted for Data Source '" ).append( dataSource.getName( ) ).append( "' : " ).append( nbDocsInsert );
@@ -168,7 +171,7 @@ public final class DataSourceService
      * @param sbLogs A log buffer
      * @param dataSource The data source
      * @param dataObject The collection of data object
-     * @throws ElasticClient Exception If an error occurs accessing to ElasticSearch
+     * @throws fr.paris.lutece.plugins.libraryelastic.util.ElasticClientException
      */
     public static void processIncrementalIndexing( StringBuilder sbLogs,DataSource dataSource, Collection<DataObject> dataObject ) throws ElasticClientException
     {
@@ -182,7 +185,7 @@ public final class DataSourceService
         int nBatchSize = ( dataSource.getBatchSize() != 0 ) ? dataSource.getBatchSize() : BATCH_SIZE;
         
         //Index the objects in bulk mode
-        int nbDocsInsert=insertObjects( elastic , dataSource, dataObject.iterator() , nBatchSize );
+        int nbDocsInsert=insertObjects( elastic , dataSource, dataObject.iterator() , nBatchSize, new IndexingStatus( ) );
        
         long timeEnd = System.currentTimeMillis();
         sbLogs.append( "Number of object inserted for Data Source '" ).append( dataSource.getName( ) ).append( "' : " ).append( nbDocsInsert );
@@ -269,7 +272,7 @@ public final class DataSourceService
         {
             if( dataSource.usesFullIndexingDaemon() || !bDaemon )
             {
-                processFullIndexing( sbLogs, dataSource, bReset );
+                processFullIndexing( sbLogs, dataSource, bReset, new IndexingStatus( ) );
             }
          }
         return sbLogs.toString( );
@@ -329,21 +332,8 @@ public final class DataSourceService
     {
         dataSource.removeDataObjects();
     }
-   
-    /**
-     * Set the datas objects in the data source
-     * @param source 
-     */
-    private static void completeDataSourceWithFullData( DataSource source )
-    {
-        //Complete the data source with the DAO
-        source.getDataObjects();//.fetchDataObjects();
-        
-        //Complete the data source with the external attributes
-        provideExternalAttributes( source );
-    }
     
-    private static void completeDataObjectWithFullData( DataSource dataSource, DataObject dataObject )
+    public static void completeDataObjectWithFullData( DataSource dataSource, DataObject dataObject )
     {   
         //Complete the data source with the external attributes
         provideExternalAttributes( dataSource, dataObject );
@@ -358,7 +348,7 @@ public final class DataSourceService
      * @throws ElasticClientException  If a problem occurs connecting the server
      * @return the number of documents posted 
      */
-    private static int insertObjects( Elastic elastic, DataSource dataSource, Iterator<DataObject> iterateDataObjects , int nBatchSize ) throws ElasticClientException
+    private static int insertObjects( Elastic elastic, DataSource dataSource, Iterator<DataObject> iterateDataObjects , int nBatchSize, IndexingStatus status ) throws ElasticClientException
     {
         List<DataObject> listBatch = new ArrayList<DataObject>();
 
@@ -369,6 +359,7 @@ public final class DataSourceService
         {
             DataObject object = iterateDataObjects.next();
             nCount++;
+            status.setCurrentNbIndexedObj( nCount );
             listBatch.add( object );
             if( ( listBatch.size() == nBatchSize ) || !iterateDataObjects.hasNext() )
             {

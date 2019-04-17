@@ -35,6 +35,7 @@ package fr.paris.lutece.plugins.elasticdata.business;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * DataSource
@@ -77,7 +78,20 @@ public interface DataSource
      * @return The collection
      */
     Collection<DataObject> getDataObjects( );
-
+    
+    /**
+     * Get the business id of all the data objects to fetch
+     * @return collection of id of all the data objects of the datasource
+     */
+    List<String> getIdDataObjects( );
+    
+    /**
+     * Get the full data objects from given list of ids 
+     * @param listIdDataObjects
+     * @return the collection of the data objects corresponsing to given list of id objects. 
+     */
+    List<DataObject> getDataObjects( List<String> listIdDataObjects );
+    
     /**
      * An iterator of data object
      *

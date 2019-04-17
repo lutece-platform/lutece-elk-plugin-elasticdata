@@ -39,6 +39,7 @@ import fr.paris.lutece.plugins.elasticdata.business.DataObject;
 import fr.paris.lutece.plugins.elasticdata.business.DataSource;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * MockDataSource
@@ -58,6 +59,29 @@ public class MockDataSource extends AbstractDataSource implements DataSource
             list.add( object );
         }
         return list;
+    }
+
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public List<String> getIdDataObjects() 
+    {
+        List<String> list10firstInts = new ArrayList( );
+        for ( int i = 1; i<10 ; i++ )
+        {
+            list10firstInts.add( String.valueOf( i ) );
+        }
+        return list10firstInts;
+    }
+
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public List<DataObject> getDataObjects(List<String> listIdDataObjects) 
+    {
+        return null;
     }
 
 }
