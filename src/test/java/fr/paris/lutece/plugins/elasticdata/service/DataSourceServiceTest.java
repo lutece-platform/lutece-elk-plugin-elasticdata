@@ -57,7 +57,7 @@ public class DataSourceServiceTest extends LuteceTestCase
         ds.setName( "Mock Data Source" );
         ds.setTargetIndexName( "mockdatasource" );
         ds.setDataType( "mockdataobject" );
-        ds.setBatchSize( 4 );  // actions will posted 4 + 4 + 1
+        ds.setBatchSize( 4 ); // actions will posted 4 + 4 + 1
 
         StringBuilder sbLogs = new StringBuilder( );
         DataSourceService.processFullIndexing( sbLogs, ds, true, new IndexingStatus( ) );

@@ -63,8 +63,8 @@ public class ManageElasticDataJspBean extends MVCAdminJspBean
     private static final String PARAMETER_DATA_SOURCE = "data_source";
     private static final long serialVersionUID = 1L;
     private static final String ACTION_CHECK_INDEX_STATUS = "checkIndexStatus";
-    
-    private Map<String, IndexingStatus> mapIndexingStatus = new HashMap<>();
+
+    private Map<String, IndexingStatus> mapIndexingStatus = new HashMap<>( );
     ObjectMapper _mapper = new ObjectMapper( );
 
     /**
@@ -94,22 +94,22 @@ public class ManageElasticDataJspBean extends MVCAdminJspBean
     public String doIndex( HttpServletRequest request ) throws ElasticClientException
     {
         StringBuilder sbLogs = new StringBuilder( );
-       
+
         String strDataSourceId = request.getParameter( PARAMETER_DATA_SOURCE );
-        
+
         DataSource source = DataSourceService.getDataSource( strDataSourceId );
         mapIndexingStatus.put( strDataSourceId, new IndexingStatus( ) );
-        
+
         DataSourceService.processFullIndexing( sbLogs, source, true, mapIndexingStatus.get( strDataSourceId ) );
-            
+
         return getJsonStatus( strDataSourceId );
     }
-    
+
     /**
      *
      * @param request
      * @return
-     * @throws ElasticClientException 
+     * @throws ElasticClientException
      */
     @Action( ACTION_CHECK_INDEX_STATUS )
     public String doCheckIndexStatus( HttpServletRequest request ) throws ElasticClientException
@@ -117,7 +117,7 @@ public class ManageElasticDataJspBean extends MVCAdminJspBean
         String strDataSourceId = request.getParameter( PARAMETER_DATA_SOURCE );
         return getJsonStatus( strDataSourceId );
     }
-    
+
     /**
      * Get Json status of given data source id
      * 
@@ -130,9 +130,9 @@ public class ManageElasticDataJspBean extends MVCAdminJspBean
         {
             return _mapper.writeValueAsString( mapIndexingStatus.get( strDataSourceId ) );
         }
-        catch ( JsonProcessingException e )
+        catch( JsonProcessingException e )
         {
-            AppLogService.error( "Unable to serialize index status", e);
+            AppLogService.error( "Unable to serialize index status", e );
             return StringUtils.EMPTY;
         }
     }

@@ -63,7 +63,7 @@ public final class DataSourceService
     private static final String PROPERTY_BULK_BATCH_SIZE = "elasticdata.bulk_batch_size";
     private static final int DEFAULT_BATCH_SIZE = 10000;
     private static final int BATCH_SIZE = AppPropertiesService.getPropertyInt( PROPERTY_BULK_BATCH_SIZE, DEFAULT_BATCH_SIZE );
-            
+
     private static Map<String, DataSource> _mapDataSources;
 
     /** Package constructor */
@@ -114,14 +114,14 @@ public final class DataSourceService
      * @param bReset
      *            if the index should be reset before inserting
      * @param status
-     *              the Indexing Status
+     *            the Indexing Status
      * @throws ElasticClientException
      *             If an error occurs accessing to ElasticSearch
      */
     public static void processFullIndexing( StringBuilder sbLogs, DataSource dataSource, boolean bReset, IndexingStatus status ) throws ElasticClientException
-    {          
-        
-        long timeBegin = System.currentTimeMillis();
+    {
+
+        long timeBegin = System.currentTimeMillis( );
         String strServerUrl = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL );
         Elastic elastic = new Elastic( strServerUrl );
         if ( bReset )
@@ -130,23 +130,23 @@ public final class DataSourceService
             {
                 elastic.deleteIndex( dataSource.getTargetIndexName( ) );
             }
-            elastic.createMappings( dataSource.getTargetIndexName( ), getMappings( dataSource ));
+            elastic.createMappings( dataSource.getTargetIndexName( ), getMappings( dataSource ) );
         }
-        
-        int nBatchSize = ( dataSource.getBatchSize() != 0 ) ? dataSource.getBatchSize() : BATCH_SIZE;
-        
-        status.setnNbTotalObj( dataSource.getIdDataObjects().size( ) );
-        
-        //Index the objects in bulk mode
-        int nbDocsInsert=insertObjects( elastic , dataSource, dataSource.getDataObjectsIterator() , nBatchSize, status );
-       
-        long timeEnd = System.currentTimeMillis();
+
+        int nBatchSize = ( dataSource.getBatchSize( ) != 0 ) ? dataSource.getBatchSize( ) : BATCH_SIZE;
+
+        status.setnNbTotalObj( dataSource.getIdDataObjects( ).size( ) );
+
+        // Index the objects in bulk mode
+        int nbDocsInsert = insertObjects( elastic, dataSource, dataSource.getDataObjectsIterator( ), nBatchSize, status );
+
+        long timeEnd = System.currentTimeMillis( );
         sbLogs.append( "Number of object inserted for Data Source '" ).append( dataSource.getName( ) ).append( "' : " ).append( nbDocsInsert );
-        sbLogs.append( " (duration : " ).append( timeEnd - timeBegin ).append( "ms)\n");
-        
+        sbLogs.append( " (duration : " ).append( timeEnd - timeBegin ).append( "ms)\n" );
+
         clearData( dataSource );
     }
-    
+
     /**
      * Insert one dataObject from a DataSource into Elastic Search
      * 
@@ -159,85 +159,105 @@ public final class DataSourceService
      */
     public static void processIncrementalIndexing( DataSource dataSource, DataObject dataObject ) throws ElasticClientException
     {
-        completeDataObjectWithFullData( dataSource,dataObject );  
-        
+        completeDataObjectWithFullData( dataSource, dataObject );
+
         String strServerUrl = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL );
         Elastic elastic = new Elastic( strServerUrl );
-        elastic.create( dataSource.getTargetIndexName( ), dataSource.getDataType( ), (dataObject.getId( )!=null)?dataObject.getId( ):StringUtils.EMPTY, dataObject );
-        
+        elastic.create( dataSource.getTargetIndexName( ), dataSource.getDataType( ), ( dataObject.getId( ) != null ) ? dataObject.getId( ) : StringUtils.EMPTY,
+                dataObject );
+
     }
+
     /**
      * Insert a dataObject from a DataSource into Elastic Search
-     * @param sbLogs A log buffer
-     * @param dataSource The data source
-     * @param dataObject The collection of data object
+     * 
+     * @param sbLogs
+     *            A log buffer
+     * @param dataSource
+     *            The data source
+     * @param dataObject
+     *            The collection of data object
      * @throws fr.paris.lutece.plugins.libraryelastic.util.ElasticClientException
      */
-    public static void processIncrementalIndexing( StringBuilder sbLogs,DataSource dataSource, Collection<DataObject> dataObject ) throws ElasticClientException
+    public static void processIncrementalIndexing( StringBuilder sbLogs, DataSource dataSource, Collection<DataObject> dataObject )
+            throws ElasticClientException
     {
-    	//Complete the data source with the external attributes
-        provideExternalAttributes( dataSource );  
-        
-        long timeBegin = System.currentTimeMillis();
+        // Complete the data source with the external attributes
+        provideExternalAttributes( dataSource );
+
+        long timeBegin = System.currentTimeMillis( );
         String strServerUrl = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL );
         Elastic elastic = new Elastic( strServerUrl );
-        
-        int nBatchSize = ( dataSource.getBatchSize() != 0 ) ? dataSource.getBatchSize() : BATCH_SIZE;
-        
-        //Index the objects in bulk mode
-        int nbDocsInsert=insertObjects( elastic , dataSource, dataObject.iterator() , nBatchSize, new IndexingStatus( ) );
-       
-        long timeEnd = System.currentTimeMillis();
+
+        int nBatchSize = ( dataSource.getBatchSize( ) != 0 ) ? dataSource.getBatchSize( ) : BATCH_SIZE;
+
+        // Index the objects in bulk mode
+        int nbDocsInsert = insertObjects( elastic, dataSource, dataObject.iterator( ), nBatchSize, new IndexingStatus( ) );
+
+        long timeEnd = System.currentTimeMillis( );
         sbLogs.append( "Number of object inserted for Data Source '" ).append( dataSource.getName( ) ).append( "' : " ).append( nbDocsInsert );
-        sbLogs.append( " (duration : " ).append( timeEnd - timeBegin ).append( "ms)\n");
-        
-        
+        sbLogs.append( " (duration : " ).append( timeEnd - timeBegin ).append( "ms)\n" );
+
     }
+
     /**
      * Partial Updates to Documents
-     * @param dataSource The data source
-     * @param strId  The document id
-     * @param object The object
-     * @throws ElasticClientException Exception If an error occurs accessing to ElasticSearch
+     * 
+     * @param dataSource
+     *            The data source
+     * @param strId
+     *            The document id
+     * @param object
+     *            The object
+     * @throws ElasticClientException
+     *             Exception If an error occurs accessing to ElasticSearch
      */
     public static void partialUpdate( DataSource dataSource, String strId, Object object ) throws ElasticClientException
-    {  
-        
+    {
+
         String strServerUrl = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL );
         Elastic elastic = new Elastic( strServerUrl );
-        elastic.partialUpdate(dataSource.getTargetIndexName( ), dataSource.getDataType( ), strId, object);
-        
+        elastic.partialUpdate( dataSource.getTargetIndexName( ), dataSource.getDataType( ), strId, object );
+
     }
-    
+
     /**
      * Delete a documents by Query
-     * @param dataSource The data source
-     * @param strQuery The Query
-     * @throws ElasticClientException Exception If an error occurs accessing to ElasticSearch
+     * 
+     * @param dataSource
+     *            The data source
+     * @param strQuery
+     *            The Query
+     * @throws ElasticClientException
+     *             Exception If an error occurs accessing to ElasticSearch
      */
     public static void deleteByQuery( DataSource dataSource, String strQuery ) throws ElasticClientException
-    {  
-        
+    {
+
         String strServerUrl = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL );
         Elastic elastic = new Elastic( strServerUrl );
         elastic.deleteByQuery( dataSource.getTargetIndexName( ), dataSource.getDataType( ), strQuery );
-        
+
     }
+
     /**
      * Delete a document based on its id in the index
-     * @param dataSource The data source
-     * @param strId The id
-     * @throws ElasticClientException Exception If an error occurs accessing to ElasticSearch
+     * 
+     * @param dataSource
+     *            The data source
+     * @param strId
+     *            The id
+     * @throws ElasticClientException
+     *             Exception If an error occurs accessing to ElasticSearch
      */
     public static void deleteById( DataSource dataSource, String strId ) throws ElasticClientException
-    {  
-        
+    {
+
         String strServerUrl = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL );
         Elastic elastic = new Elastic( strServerUrl );
         elastic.deleteDocument( dataSource.getTargetIndexName( ), dataSource.getDataType( ), strId );
-        
-    }
 
+    }
 
     /**
      * Insert All data sources
@@ -250,9 +270,9 @@ public final class DataSourceService
      */
     public static String insertDataAllDatasources( boolean bReset ) throws ElasticClientException
     {
-        return insertDataAllDatasources( bReset , false );
+        return insertDataAllDatasources( bReset, false );
     }
-    
+
     /**
      * Insert All data sources
      * 
@@ -264,41 +284,43 @@ public final class DataSourceService
      * @throws ElasticClientException
      *             If an error occurs accessing to ElasticSearch
      */
-    public static String insertDataAllDatasources( boolean bReset , boolean bDaemon ) throws ElasticClientException
+    public static String insertDataAllDatasources( boolean bReset, boolean bDaemon ) throws ElasticClientException
     {
         StringBuilder sbLogs = new StringBuilder( );
 
         for ( DataSource dataSource : getDataSources( ) )
         {
-            if( dataSource.usesFullIndexingDaemon() || !bDaemon )
+            if ( dataSource.usesFullIndexingDaemon( ) || !bDaemon )
             {
                 processFullIndexing( sbLogs, dataSource, bReset, new IndexingStatus( ) );
             }
-         }
+        }
         return sbLogs.toString( );
     }
 
     /**
      * Return the mappings associated to a data source
-     * @param dataSource The data source
+     * 
+     * @param dataSource
+     *            The data source
      * @return The mappings string as JSON
      */
     private static String getMappings( DataSource dataSource )
     {
-        if( dataSource.getMappings() != null )
+        if ( dataSource.getMappings( ) != null )
         {
             // Datasource prodided mappings
-            return dataSource.getMappings();
-        }       
-        if( dataSource.isLocalizable() )
+            return dataSource.getMappings( );
+        }
+        if ( dataSource.isLocalizable( ) )
         {
             // Timestamp and location mappings
             return getTimestampAndLocationMappings( dataSource.getDataType( ) );
         }
         // Default timestamp mappings
-        return  getTimestampMappings( dataSource.getDataType( ));
+        return getTimestampMappings( dataSource.getDataType( ) );
     }
-    
+
     /**
      * Build a JSON mappings block to declare 'timestamp' field as a date
      * 
@@ -310,7 +332,7 @@ public final class DataSourceService
     {
         return "{ \"mappings\": { \"" + strType + "\" : { \"properties\": { \"timestamp\": { \"type\": \"date\", \"format\": \"epoch_millis\" }}}}}";
     }
-    
+
     /**
      * Build a JSON mappings block to declare 'timestamp' field as a date and 'location' field as a geo_point
      * 
@@ -320,57 +342,67 @@ public final class DataSourceService
      */
     private static String getTimestampAndLocationMappings( String strType )
     {
-        return "{ \"mappings\": { \"" + strType + "\" : { \"properties\": { \"timestamp\": { \"type\": \"date\", \"format\": \"epoch_millis\" }, \"location\": { \"type\": \"geo_point\"} } }}}";
+        return "{ \"mappings\": { \""
+                + strType
+                + "\" : { \"properties\": { \"timestamp\": { \"type\": \"date\", \"format\": \"epoch_millis\" }, \"location\": { \"type\": \"geo_point\"} } }}}";
     }
-    
+
     /**
-     * Clear the dataObjects from the data Source 
-     * @param dataSource 
-     *              the data source
+     * Clear the dataObjects from the data Source
+     * 
+     * @param dataSource
+     *            the data source
      */
     public static void clearData( DataSource dataSource )
     {
-        dataSource.removeDataObjects();
+        dataSource.removeDataObjects( );
     }
-    
+
     public static void completeDataObjectWithFullData( DataSource dataSource, DataObject dataObject )
-    {   
-        //Complete the data source with the external attributes
+    {
+        // Complete the data source with the external attributes
         provideExternalAttributes( dataSource, dataObject );
     }
-    
-        /**
-     * Insert a list of object in bulk mode  
-     * @param elastic The Elastic Server
-     * @param dataSource The data source
-     * @param listDataObjects The list of objects
-     * @param nBatchSize The number of objects in each bulk request
-     * @throws ElasticClientException  If a problem occurs connecting the server
-     * @return the number of documents posted 
-     */
-    private static int insertObjects( Elastic elastic, DataSource dataSource, Iterator<DataObject> iterateDataObjects , int nBatchSize, IndexingStatus status ) throws ElasticClientException
-    {
-        List<DataObject> listBatch = new ArrayList<DataObject>();
 
-       
+    /**
+     * Insert a list of object in bulk mode
+     * 
+     * @param elastic
+     *            The Elastic Server
+     * @param dataSource
+     *            The data source
+     * @param listDataObjects
+     *            The list of objects
+     * @param nBatchSize
+     *            The number of objects in each bulk request
+     * @throws ElasticClientException
+     *             If a problem occurs connecting the server
+     * @return the number of documents posted
+     */
+    private static int insertObjects( Elastic elastic, DataSource dataSource, Iterator<DataObject> iterateDataObjects, int nBatchSize, IndexingStatus status )
+            throws ElasticClientException
+    {
+        List<DataObject> listBatch = new ArrayList<DataObject>( );
+
         int nCount = 0;
-      
-        while( iterateDataObjects.hasNext() )
+
+        while ( iterateDataObjects.hasNext( ) )
         {
-            DataObject object = iterateDataObjects.next();
+            DataObject object = iterateDataObjects.next( );
             nCount++;
             status.setCurrentNbIndexedObj( nCount );
             listBatch.add( object );
-            if( ( listBatch.size() == nBatchSize ) || !iterateDataObjects.hasNext() )
+            if ( ( listBatch.size( ) == nBatchSize ) || !iterateDataObjects.hasNext( ) )
             {
-                BulkRequest br = new BulkRequest();
-                for( DataObject batchObject : listBatch )
+                BulkRequest br = new BulkRequest( );
+                for ( DataObject batchObject : listBatch )
                 {
-                	String strId= batchObject.getId( );
+                    String strId = batchObject.getId( );
                     IndexSubRequest isr = new IndexSubRequest( strId );
                     br.addAction( isr, batchObject );
                 }
-                AppLogService.info( "ElasticData indexing : Posting bulk action for " + listBatch.size() + " documents of DataSource '" + dataSource.getName() + "'" );
+                AppLogService.info( "ElasticData indexing : Posting bulk action for " + listBatch.size( ) + " documents of DataSource '" + dataSource.getName( )
+                        + "'" );
                 if ( elastic == null )
                 {
                     String strServerUrl = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL );
@@ -378,34 +410,38 @@ public final class DataSourceService
                 }
                 String strResponse = elastic.createByBulk( dataSource.getTargetIndexName( ), dataSource.getDataType( ), br );
                 AppLogService.debug( "ElasticData : Response of the posted bulk request : " + strResponse );
-                listBatch.clear();
+                listBatch.clear( );
             }
-           
+
         }
-        AppLogService.info( "ElasticData indexing : completed for " + nCount + " documents of DataSource '" + dataSource.getName() + "'" );
-       
+        AppLogService.info( "ElasticData indexing : completed for " + nCount + " documents of DataSource '" + dataSource.getName( ) + "'" );
+
         return nCount;
     }
-    
+
     /**
      * Provide external attributes for the DataSource
-     * @param dataSource the data source
+     * 
+     * @param dataSource
+     *            the data source
      */
     private static void provideExternalAttributes( DataSource dataSource )
     {
-        for ( IDataSourceExternalAttributesProvider provider : dataSource.getExternalAttributesProvider() )
+        for ( IDataSourceExternalAttributesProvider provider : dataSource.getExternalAttributesProvider( ) )
         {
-            provider.provideAttributes(dataSource);
+            provider.provideAttributes( dataSource );
         }
     }
-    
+
     /**
      * Provide external attributes for the DataSource
-     * @param dataSource the data source
+     * 
+     * @param dataSource
+     *            the data source
      */
     private static void provideExternalAttributes( DataSource dataSource, DataObject dataObject )
     {
-        for ( IDataSourceExternalAttributesProvider provider : dataSource.getExternalAttributesProvider() )
+        for ( IDataSourceExternalAttributesProvider provider : dataSource.getExternalAttributesProvider( ) )
         {
             provider.provideAttributes( dataObject );
         }

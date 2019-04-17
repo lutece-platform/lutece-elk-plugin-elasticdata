@@ -33,7 +33,7 @@
  */
 package fr.paris.lutece.plugins.elasticdata.service;
 
-public class IndexingStatus 
+public class IndexingStatus
 {
     private String _strIndexId;
     private int _nNbTotalObj;
@@ -41,66 +41,76 @@ public class IndexingStatus
 
     /**
      * Get the index id
+     * 
      * @return the index id
      */
-    public String getIndexId() {
+    public String getIndexId( )
+    {
         return _strIndexId;
     }
 
     /**
      * Set the index id
-     * @param strIndexId the index id 
+     * 
+     * @param strIndexId
+     *            the index id
      */
-    public void setIndexId( String strIndexId ) 
+    public void setIndexId( String strIndexId )
     {
         _strIndexId = strIndexId;
     }
 
     /**
      * Get the total number of data objects to index
+     * 
      * @return the total number or data objects to index
      */
-    public int getNbTotalObj() {
+    public int getNbTotalObj( )
+    {
         return _nNbTotalObj;
     }
 
     /**
      * Set the total number of data objects to index
-     * @param nNbTotalObj 
-     *              The total number of objs
+     * 
+     * @param nNbTotalObj
+     *            The total number of objs
      */
-    public void setnNbTotalObj( int nNbTotalObj ) 
+    public void setnNbTotalObj( int nNbTotalObj )
     {
         _nNbTotalObj = nNbTotalObj;
     }
 
     /**
      * Get the current number of indexed objects
+     * 
      * @return the current number of indexed objects
      */
-    public int getCurrentNbIndexedObj() 
+    public int getCurrentNbIndexedObj( )
     {
         return _nCurrentNbIndexedObj;
     }
 
     /**
      * Set the current number of indexed objects
-     * @param nCurrentNbIndexedObj 
-     *     the current
-     *              
+     * 
+     * @param nCurrentNbIndexedObj
+     *            the current
+     * 
      */
-    public void setCurrentNbIndexedObj( int nCurrentNbIndexedObj ) 
+    public void setCurrentNbIndexedObj( int nCurrentNbIndexedObj )
     {
         _nCurrentNbIndexedObj = nCurrentNbIndexedObj;
     }
-    
+
     /**
      * Get the percent of indexed objects
+     * 
      * @return the percent of the indexed objects
      */
     public double getPercent( )
     {
-        double dPercent = (double)_nCurrentNbIndexedObj / (double)_nNbTotalObj * 100.0;
-        return  dPercent;
+        double dPercent = (double) _nCurrentNbIndexedObj / (double) _nNbTotalObj * 100.0;
+        return dPercent;
     }
 }

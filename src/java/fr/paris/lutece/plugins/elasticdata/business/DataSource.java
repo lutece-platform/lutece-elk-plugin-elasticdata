@@ -38,8 +38,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * DataSource
- *            the dataObject type
+ * DataSource the dataObject type
  */
 public interface DataSource
 {
@@ -49,28 +48,28 @@ public interface DataSource
      *
      * @return The Id
      */
-    String getId();
+    String getId( );
 
     /**
      * The Data Source name
      *
      * @return The name
      */
-    String getName();
+    String getName( );
 
     /**
      * The target index name to be created
      *
      * @return The index name
      */
-    String getTargetIndexName();
+    String getTargetIndexName( );
 
     /**
      * The data type
      *
      * @return The type
      */
-    String getDataType();
+    String getDataType( );
 
     /**
      * A collection of object to create
@@ -78,20 +77,22 @@ public interface DataSource
      * @return The collection
      */
     Collection<DataObject> getDataObjects( );
-    
+
     /**
      * Get the business id of all the data objects to fetch
+     * 
      * @return collection of id of all the data objects of the datasource
      */
     List<String> getIdDataObjects( );
-    
+
     /**
-     * Get the full data objects from given list of ids 
+     * Get the full data objects from given list of ids
+     * 
      * @param listIdDataObjects
-     * @return the collection of the data objects corresponsing to given list of id objects. 
+     * @return the collection of the data objects corresponsing to given list of id objects.
      */
     List<DataObject> getDataObjects( List<String> listIdDataObjects );
-    
+
     /**
      * An iterator of data object
      *
@@ -102,10 +103,11 @@ public interface DataSource
 
     /**
      * Fetch the data objects of the data source
+     * 
      * @return the data objects of the data source
      */
     Collection<DataObject> fetchDataObjects( );
-    
+
     /**
      * Remove the data objects of the data source
      */
@@ -116,30 +118,34 @@ public interface DataSource
      *
      * @return The BatchSize
      */
-    int getBatchSize();
-    
+    int getBatchSize( );
+
     /**
      * Get specific mappings for the Data Source
+     * 
      * @return The mappings as JSON
      */
-    String getMappings();
-    
+    String getMappings( );
+
     /**
      * Contains Geo Point
+     * 
      * @return true if localizable
      */
-    boolean isLocalizable();
+    boolean isLocalizable( );
 
     /**
      * Uses the full indexing daemon
+     * 
      * @return true if the datasource should be fully indexed by the daemon
      */
-    boolean usesFullIndexingDaemon();
-    
+    boolean usesFullIndexingDaemon( );
+
     /**
      * Get the external providers of attributes for DataSources
+     * 
      * @return the list of DataSourceAttributesProvider
      */
-    Collection<IDataSourceExternalAttributesProvider> getExternalAttributesProvider();
-            
+    Collection<IDataSourceExternalAttributesProvider> getExternalAttributesProvider( );
+
 }

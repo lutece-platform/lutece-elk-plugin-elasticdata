@@ -40,13 +40,17 @@ public interface IDataSourceExternalAttributesProvider
 {
     /**
      * Provide external attributes to data sources
-     * @param dataSource the data source
+     * 
+     * @param dataSource
+     *            the data source
      */
     public void provideAttributes( DataSource dataSource );
-    
+
     /**
      * Provide external attributes to data objects
-     * @param dataObject the data object
+     * 
+     * @param dataObject
+     *            the data object
      */
     public void provideAttributes( DataObject dataObject );
 }

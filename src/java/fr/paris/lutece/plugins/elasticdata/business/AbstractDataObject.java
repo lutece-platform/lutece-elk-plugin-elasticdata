@@ -32,7 +32,6 @@
  * License 1.0
  */
 
-
 package fr.paris.lutece.plugins.elasticdata.business;
 
 import fr.paris.lutece.portal.web.l10n.LocaleService;
@@ -44,22 +43,21 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-
 /**
  * AbstractDataObject
  */
 
 public abstract class AbstractDataObject implements DataObject
 {
-	
-	private String _strId;
+
+    private String _strId;
     private long _lTimestamp;
     private String _strDayOfWeek;
     private String _strMonth;
     private String _strHour;
     private String _strPrefixedDayOfWeek;
     private String _strPrefixedMonth;
-    
+
     /**
      * {@inheritDoc }
      */
@@ -77,73 +75,79 @@ public abstract class AbstractDataObject implements DataObject
      */
     public final void setTimestamp( long lTimestamp )
     {
-        Locale locale = LocaleService.getDefault();
+        Locale locale = LocaleService.getDefault( );
         _lTimestamp = lTimestamp;
         Calendar calendar = Calendar.getInstance( locale );
         calendar.setTimeInMillis( lTimestamp );
-        _strDayOfWeek = calendar.getDisplayName( Calendar.DAY_OF_WEEK, Calendar.LONG , locale );
-        _strPrefixedDayOfWeek = ((( calendar.get( Calendar.DAY_OF_WEEK ) + 5 ) % 7 ) + 1 ) + " - " + _strDayOfWeek;
-        _strMonth = calendar.getDisplayName( Calendar.MONTH, Calendar.LONG , locale );
-        _strPrefixedMonth = String.format( "%02d" , calendar.get( Calendar.MONTH ) + 1 ) + " - " + _strMonth;
-        _strHour = String.format( "%02d" , calendar.get(Calendar.HOUR_OF_DAY ));
+        _strDayOfWeek = calendar.getDisplayName( Calendar.DAY_OF_WEEK, Calendar.LONG, locale );
+        _strPrefixedDayOfWeek = ( ( ( calendar.get( Calendar.DAY_OF_WEEK ) + 5 ) % 7 ) + 1 ) + " - " + _strDayOfWeek;
+        _strMonth = calendar.getDisplayName( Calendar.MONTH, Calendar.LONG, locale );
+        _strPrefixedMonth = String.format( "%02d", calendar.get( Calendar.MONTH ) + 1 ) + " - " + _strMonth;
+        _strHour = String.format( "%02d", calendar.get( Calendar.HOUR_OF_DAY ) );
     }
+
     @JsonIgnore
     @Override
-    public String getId(){
-    	
-    	return _strId;
+    public String getId( )
+    {
+
+        return _strId;
     }
-    public void setId(String id){
-    	
-    	_strId= id;
+
+    public void setId( String id )
+    {
+
+        _strId = id;
     }
-    
+
     /**
      * Returns the day of week
-     * @return the day of week 
+     * 
+     * @return the day of week
      */
-    public String getDayOfWeek()
+    public String getDayOfWeek( )
     {
         return _strDayOfWeek;
     }
 
-    
     /**
      * Returns the month
-     * @return the month 
+     * 
+     * @return the month
      */
-    public String getMonth()
+    public String getMonth( )
     {
         return _strMonth;
     }
 
     /**
      * Returns the Hour
-     * @return the Hour 
+     * 
+     * @return the Hour
      */
-    public String getHour()
+    public String getHour( )
     {
         return _strHour;
     }
 
     /**
      * Returns the day of week prefixed by the day number
+     * 
      * @return the day of week prefixed by the day number
      */
-    public String getPrefixedDayOfWeek()
+    public String getPrefixedDayOfWeek( )
     {
         return _strPrefixedDayOfWeek;
     }
 
-    
     /**
      * Returns the month prefixed by the day number
+     * 
      * @return the month prefixed by the day number
      */
-    public String getPrefixedMonth()
+    public String getPrefixedMonth( )
     {
         return _strPrefixedMonth;
     }
-
 
 }

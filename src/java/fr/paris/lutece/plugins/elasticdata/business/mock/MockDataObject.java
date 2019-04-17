@@ -74,9 +74,10 @@ public class MockDataObject implements DataObject
         return _strName;
     }
 
-	@Override
-	public String getId() {
-		return null;
-	}
+    @Override
+    public String getId( )
+    {
+        return null;
+    }
 
 }

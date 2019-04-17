@@ -44,7 +44,7 @@ import java.util.Optional;
 /**
  * Implementation of Iterator<DataObject> for fetching object in DAO by batchs
  */
-public class BatchDataObjectsIterator implements Iterator<DataObject> 
+public class BatchDataObjectsIterator implements Iterator<DataObject>
 {
     private static final String PROPERTY_BULK_BATCH_SIZE = "elasticdata.bulk_batch_size";
     private static final int DEFAULT_BATCH_SIZE = 10000;
@@ -52,54 +52,54 @@ public class BatchDataObjectsIterator implements Iterator<DataObject>
     protected final int _nBatchSize;
     protected final List<String> _listIdDataObjects;
     protected final DataSource _dataSource;
-    private LinkedHashMap<String,DataObject> _mapTmpIdDataObject;
+    private LinkedHashMap<String, DataObject> _mapTmpIdDataObject;
     private int _nNextFirstId = 0;
-    
-    public BatchDataObjectsIterator ( DataSource dataSource )
+
+    public BatchDataObjectsIterator( DataSource dataSource )
     {
-        _mapTmpIdDataObject = new LinkedHashMap<>();
+        _mapTmpIdDataObject = new LinkedHashMap<>( );
         _dataSource = dataSource;
-        _nBatchSize = ( dataSource.getBatchSize() < 1 ) ? BATCH_SIZE : dataSource.getBatchSize() ;
-        _listIdDataObjects = dataSource.getIdDataObjects();
-        
-        // Initialize the array of data objects with the firsts objects. 
+        _nBatchSize = ( dataSource.getBatchSize( ) < 1 ) ? BATCH_SIZE : dataSource.getBatchSize( );
+        _listIdDataObjects = dataSource.getIdDataObjects( );
+
+        // Initialize the array of data objects with the firsts objects.
         List<String> listIdDataObjectsSublist = loadNextDataObjectsId( 0 );
         _nNextFirstId = _nBatchSize;
-        
+
         for ( DataObject obj : dataSource.getDataObjects( listIdDataObjectsSublist ) )
         {
-            _mapTmpIdDataObject.put( obj.getId(), obj);
+            _mapTmpIdDataObject.put( obj.getId( ), obj );
         }
-            
-    }
-    
-    /**
-     * {@inheritDoc }
-     */
-    @Override
-    public boolean hasNext() 
-    {
-        return ( _mapTmpIdDataObject.size() > 0 );
+
     }
 
     /**
      * {@inheritDoc }
      */
     @Override
-    public DataObject next() 
+    public boolean hasNext( )
     {
-        if ( _mapTmpIdDataObject.isEmpty() ) return null;
-        
-        
-        Optional<DataObject> optDataObject = _mapTmpIdDataObject.values().stream().findFirst();
-        DataObject dataObj = optDataObject.get();
+        return ( _mapTmpIdDataObject.size( ) > 0 );
+    }
+
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public DataObject next( )
+    {
+        if ( _mapTmpIdDataObject.isEmpty( ) )
+            return null;
+
+        Optional<DataObject> optDataObject = _mapTmpIdDataObject.values( ).stream( ).findFirst( );
+        DataObject dataObj = optDataObject.get( );
         if ( dataObj != null )
         {
-            
-            DataSourceService.completeDataObjectWithFullData( _dataSource, dataObj ); 
-            
+
+            DataSourceService.completeDataObjectWithFullData( _dataSource, dataObj );
+
             _mapTmpIdDataObject.remove( dataObj.getId( ) );
-            
+
             if ( _mapTmpIdDataObject.isEmpty( ) )
             {
                 List<String> listIdDataObjectsSublist = loadNextDataObjectsId( _nNextFirstId );
@@ -108,31 +108,32 @@ public class BatchDataObjectsIterator implements Iterator<DataObject>
                     _nNextFirstId += _nBatchSize;
                     for ( DataObject obj : _dataSource.getDataObjects( listIdDataObjectsSublist ) )
                     {
-                        _mapTmpIdDataObject.put( obj.getId(), obj);
+                        _mapTmpIdDataObject.put( obj.getId( ), obj );
                     }
                 }
             }
         }
-        return dataObj; 
+        return dataObj;
     }
-    
+
     /**
      * Load the next data objects ids
+     * 
      * @return the next data objects ids
      */
     private List<String> loadNextDataObjectsId( int nFirstId )
     {
-        // Initialize the array of data objects with the firsts objects. 
-        if ( _listIdDataObjects.size( ) < nFirstId + 1   )
+        // Initialize the array of data objects with the firsts objects.
+        if ( _listIdDataObjects.size( ) < nFirstId + 1 )
         {
-            return new ArrayList<>();
+            return new ArrayList<>( );
         }
         else
         {
             int nLastId = nFirstId + _nBatchSize;
-            if ( _listIdDataObjects.size() < nLastId  )
+            if ( _listIdDataObjects.size( ) < nLastId )
             {
-                nLastId = _listIdDataObjects.size();
+                nLastId = _listIdDataObjects.size( );
             }
             return _listIdDataObjects.subList( nFirstId, nLastId );
         }

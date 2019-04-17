@@ -54,7 +54,7 @@ public abstract class AbstractDataSource implements DataSource
     private boolean _bFullIndexingDaemon;
     protected Collection<IDataSourceExternalAttributesProvider> _colExternalAttributesProvider;
     private Collection<DataObject> _colDataObjects;
-    
+
     /**
      * Returns the Id
      *
@@ -142,86 +142,98 @@ public abstract class AbstractDataSource implements DataSource
     {
         _strDataType = strDataType;
     }
-    
+
     /**
      * Returns the BatchSize
+     * 
      * @return The BatchSize
-     */ 
+     */
     @Override
-    public int getBatchSize()
+    public int getBatchSize( )
     {
         return _nBatchSize;
     }
 
     /**
      * Sets the BatchSize
-     * @param nBatchSize The BatchSize
-     */ 
+     * 
+     * @param nBatchSize
+     *            The BatchSize
+     */
     public void setBatchSize( int nBatchSize )
     {
         _nBatchSize = nBatchSize;
     }
 
-       /**
-        * Returns the Localizable
-        * @return The Localizable
-        */ 
+    /**
+     * Returns the Localizable
+     * 
+     * @return The Localizable
+     */
     @Override
-    public boolean isLocalizable()
+    public boolean isLocalizable( )
     {
         return _bLocalizable;
     }
 
-   /**
-    * Sets the Localizable
-    * @param bLocalizable The Localizable
-    */ 
+    /**
+     * Sets the Localizable
+     * 
+     * @param bLocalizable
+     *            The Localizable
+     */
     public void setLocalizable( boolean bLocalizable )
     {
         _bLocalizable = bLocalizable;
     }
 
-   /**
-    * Returns the Mappings
-    * @return The Mappings
-    */ 
+    /**
+     * Returns the Mappings
+     * 
+     * @return The Mappings
+     */
     @Override
-    public String getMappings()
+    public String getMappings( )
     {
         return _strMappings;
     }
 
-   /**
-    * Sets the Mappings
-    * @param strMappings The Mappings
-    */ 
+    /**
+     * Sets the Mappings
+     * 
+     * @param strMappings
+     *            The Mappings
+     */
     public void setMappings( String strMappings )
     {
         _strMappings = strMappings;
-    }    
+    }
 
     /**
      * Returns the FullIndexingDaemon
+     * 
      * @return The FullIndexingDaemon
-     */ 
+     */
     @Override
-     public boolean usesFullIndexingDaemon()
-     {
-         return _bFullIndexingDaemon;
-     }
+    public boolean usesFullIndexingDaemon( )
+    {
+        return _bFullIndexingDaemon;
+    }
 
     /**
      * Sets the FullIndexingDaemon
-     * @param bFullIndexingDaemon The FullIndexingDaemon
-     */ 
-     public void setFullIndexingDaemon( boolean bFullIndexingDaemon )
-     {
-         _bFullIndexingDaemon = bFullIndexingDaemon;
-     }
-    
-     /**
-      * {@inheritDoc}
-      */
+     * 
+     * @param bFullIndexingDaemon
+     *            The FullIndexingDaemon
+     */
+    public void setFullIndexingDaemon( boolean bFullIndexingDaemon )
+    {
+        _bFullIndexingDaemon = bFullIndexingDaemon;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Iterator<DataObject> getDataObjectsIterator( )
     {
@@ -237,18 +249,18 @@ public abstract class AbstractDataSource implements DataSource
     }
 
     /**
-      * {@inheritDoc}
-      */
+     * {@inheritDoc}
+     */
     @Override
     public Collection<DataObject> getDataObjects( )
     {
-        if ( _colDataObjects == null || _colDataObjects.isEmpty())
+        if ( _colDataObjects == null || _colDataObjects.isEmpty( ) )
         {
             _colDataObjects = fetchDataObjects( );
         }
         return _colDataObjects;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -257,28 +269,29 @@ public abstract class AbstractDataSource implements DataSource
     {
         if ( _colDataObjects != null )
         {
-            _colDataObjects.clear();
+            _colDataObjects.clear( );
         }
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public Collection<IDataSourceExternalAttributesProvider> getExternalAttributesProvider() 
+    public Collection<IDataSourceExternalAttributesProvider> getExternalAttributesProvider( )
     {
-        if ( _colExternalAttributesProvider == null)
+        if ( _colExternalAttributesProvider == null )
         {
-            _colExternalAttributesProvider = new ArrayList<>();
+            _colExternalAttributesProvider = new ArrayList<>( );
         }
         return _colExternalAttributesProvider;
     }
-    
+
     /**
      * Set the external attributes provider for the data source
-     * @param colExternalAttributesProvider 
+     * 
+     * @param colExternalAttributesProvider
      */
-    public void setExternalAttributesProvider(Collection<IDataSourceExternalAttributesProvider> colExternalAttributesProvider) 
+    public void setExternalAttributesProvider( Collection<IDataSourceExternalAttributesProvider> colExternalAttributesProvider )
     {
         _colExternalAttributesProvider = colExternalAttributesProvider;
     }

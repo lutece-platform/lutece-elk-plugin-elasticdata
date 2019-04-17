@@ -51,7 +51,8 @@ public class MockDataSource extends AbstractDataSource implements DataSource
      * {@inheritDoc }
      */
     @Override
-    public Collection<DataObject> fetchDataObjects() {
+    public Collection<DataObject> fetchDataObjects( )
+    {
         Collection<DataObject> list = new ArrayList<>( );
         for ( int i = 1; i < 10; i++ )
         {
@@ -65,10 +66,10 @@ public class MockDataSource extends AbstractDataSource implements DataSource
      * {@inheritDoc }
      */
     @Override
-    public List<String> getIdDataObjects() 
+    public List<String> getIdDataObjects( )
     {
         List<String> list10firstInts = new ArrayList( );
-        for ( int i = 1; i<10 ; i++ )
+        for ( int i = 1; i < 10; i++ )
         {
             list10firstInts.add( String.valueOf( i ) );
         }
@@ -79,7 +80,7 @@ public class MockDataSource extends AbstractDataSource implements DataSource
      * {@inheritDoc }
      */
     @Override
-    public List<DataObject> getDataObjects(List<String> listIdDataObjects) 
+    public List<DataObject> getDataObjects( List<String> listIdDataObjects )
     {
         return null;
     }

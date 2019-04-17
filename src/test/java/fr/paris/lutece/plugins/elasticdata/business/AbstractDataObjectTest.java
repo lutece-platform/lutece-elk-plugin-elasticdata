@@ -42,25 +42,25 @@ import org.junit.Test;
  */
 public class AbstractDataObjectTest extends LuteceTestCase
 {
-    
+
     class TestDataObject extends AbstractDataObject
     {
     }
- 
+
     /**
      * Test of getDayOfWeek method, of class AbstractDataObject.
      */
     @Test
-    public void testGetDayOfWeek()
+    public void testGetDayOfWeek( )
     {
         System.out.println( "getDayOfWeek" );
-        AbstractDataObject dataObject = new TestDataObject();
-        long lTime = ( new Date()).getTime();
-        
-        for( long i = 0 ; i < 7 ; i++ )
+        AbstractDataObject dataObject = new TestDataObject( );
+        long lTime = ( new Date( ) ).getTime( );
+
+        for ( long i = 0; i < 7; i++ )
         {
             dataObject.setTimestamp( lTime + ( i * 24L * 60L * 60L * 1000L ) );
-            System.out.println( dataObject.getPrefixedDayOfWeek() );
+            System.out.println( dataObject.getPrefixedDayOfWeek( ) );
         }
     }
 
@@ -68,18 +68,17 @@ public class AbstractDataObjectTest extends LuteceTestCase
      * Test of getMonth method, of class AbstractDataObject.
      */
     @Test
-    public void testGetMonth()
+    public void testGetMonth( )
     {
         System.out.println( "getMonth" );
-        AbstractDataObject dataObject = new TestDataObject();
-        long lTime = ( new Date()).getTime();
-        
-        for( long i = 0 ; i < 12 ; i++ )
+        AbstractDataObject dataObject = new TestDataObject( );
+        long lTime = ( new Date( ) ).getTime( );
+
+        for ( long i = 0; i < 12; i++ )
         {
-            dataObject.setTimestamp( lTime + (i * 30L * 24L * 60L * 60L * 1000L ) );
-            System.out.println( dataObject.getPrefixedMonth() );
+            dataObject.setTimestamp( lTime + ( i * 30L * 24L * 60L * 60L * 1000L ) );
+            System.out.println( dataObject.getPrefixedMonth( ) );
         }
     }
 
-    
 }

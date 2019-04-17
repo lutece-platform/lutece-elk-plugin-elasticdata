@@ -47,10 +47,12 @@ public interface DataObject
      * @return The timestamp
      */
     String getTimestamp( );
+
     /**
      * The _id of the data
+     * 
      * @return The id
      */
     @JsonIgnore
-    String getId();
+    String getId( );
 }
