@@ -33,15 +33,21 @@
  */
 package fr.paris.lutece.plugins.elasticdata.web;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.paris.lutece.plugins.elasticdata.business.DataSource;
 import fr.paris.lutece.plugins.elasticdata.service.DataSourceService;
+import fr.paris.lutece.plugins.elasticdata.service.IndexingStatus;
 import fr.paris.lutece.plugins.libraryelastic.util.ElasticClientException;
+import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.util.mvc.admin.MVCAdminJspBean;
 import fr.paris.lutece.portal.util.mvc.admin.annotations.Controller;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
+import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * ManageElasticData JSP Bean abstract class for JSP Bean
@@ -56,6 +62,10 @@ public class ManageElasticDataJspBean extends MVCAdminJspBean
     private static final String MARK_DATA_SOURCES_LIST = "data_sources_list";
     private static final String PARAMETER_DATA_SOURCE = "data_source";
     private static final long serialVersionUID = 1L;
+    private static final String ACTION_CHECK_INDEX_STATUS = "checkIndexStatus";
+    
+    private Map<String, IndexingStatus> mapIndexingStatus = new HashMap<>();
+    ObjectMapper _mapper = new ObjectMapper( );
 
     /**
      * View the home of the feature
@@ -86,13 +96,44 @@ public class ManageElasticDataJspBean extends MVCAdminJspBean
         StringBuilder sbLogs = new StringBuilder( );
        
         String strDataSourceId = request.getParameter( PARAMETER_DATA_SOURCE );
+        
         DataSource source = DataSourceService.getDataSource( strDataSourceId );
-
-        DataSourceService.processFullIndexing( sbLogs, source, true );
+        mapIndexingStatus.put( strDataSourceId, new IndexingStatus( ) );
         
-        
-        addInfo( sbLogs.toString( ) );
-
-        return redirectView( request, VIEW_HOME );
+        DataSourceService.processFullIndexing( sbLogs, source, true, mapIndexingStatus.get( strDataSourceId ) );
+            
+        return getJsonStatus( strDataSourceId );
+    }
+    
+    /**
+     *
+     * @param request
+     * @return
+     * @throws ElasticClientException 
+     */
+    @Action( ACTION_CHECK_INDEX_STATUS )
+    public String doCheckIndexStatus( HttpServletRequest request ) throws ElasticClientException
+    {
+        String strDataSourceId = request.getParameter( PARAMETER_DATA_SOURCE );
+        return getJsonStatus( strDataSourceId );
+    }
+    
+    /**
+     * Get Json status of given data source id
+     * 
+     * @param strDataSourceId
+     * @return JsonStatus of given datasource id
+     */
+    private String getJsonStatus( String strDataSourceId )
+    {
+        try
+        {
+            return _mapper.writeValueAsString( mapIndexingStatus.get( strDataSourceId ) );
+        }
+        catch ( JsonProcessingException e )
+        {
+            AppLogService.error( "Unable to serialize index status", e);
+            return StringUtils.EMPTY;
+        }
     }
 }

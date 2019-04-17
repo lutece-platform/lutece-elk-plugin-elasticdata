@@ -13,7 +13,7 @@
             <tr>
                 <td>${source.name}</td>
                 <td>
-                    <a class="btn btn-primary" href="jsp/admin/plugins/elasticdata/ManageElasticData.jsp?action=index&data_source=${source.id}">
+                    <a class="btn btn-primary btn-index" data-indexId="${source.id}" href="#">
                         <span class="fa fa-cogs"></span> 
                         #i18n{elasticdata.manage_elasticdata.buttonIndex}
                     </a>
@@ -23,4 +23,73 @@
         </table>
     </div>
 </div>
+
+<script>
+
+$(  function( )
+    {
+       var mapIndexingInterval = new Map();
+       addIndexingEvent( mapIndexingInterval );      
+    }
+);
+
+function addIndexingEvent( mapIndexingInterval )
+{ 
+    $('.btn-index').click( function ( e )
+    {
+        e.preventDefault();
+        var dataSourceId = $(this).attr( "data-indexId" );
+            console.log( "tata");
+        $.ajax({
+            url: "jsp/admin/plugins/elasticdata/IndexingElasticData.jsp",
+            method: "GET",
+            data: "action=index&data_source="+dataSourceId,
+            dataType: "json"
+        });
+        removeExistingProgressBar( dataSourceId );
+        addHtmlProgressBar( dataSourceId, $(this) );
+        var indexStatusInterval = setInterval( function(){checkIndexingStatus( dataSourceId, $(this), mapIndexingInterval)}, 1000);
+        mapIndexingInterval.set( dataSourceId , indexStatusInterval );
+    });
+}
+    
+function checkIndexingStatus( dataSourceId, aLink, mapIndexingInterval )
+{
+        $.ajax({
+            url: "jsp/admin/plugins/elasticdata/IndexingElasticData.jsp",
+            method: "GET",
+            data: "action=checkIndexStatus&data_source="+dataSourceId,
+            dataType: "json",
+            success: function( data, status )
+            {
+                percent = data.percent;
+                if ( percent > 99.9 )
+                {
+                    percent = 100
+                    clearInterval( mapIndexingInterval.get( dataSourceId ) );
+                }
+                editHtmlProgressBar( dataSourceId, percent );
+            },
+            
+        });
+}
+    
+function addHtmlProgressBar( dataSourceId, aLink )
+{
+    $(aLink).after("<div id=\"progress-div-"+dataSourceId+"\" class=\"progress\"><div class=\"progress-bar\" id=\"progress-"+dataSourceId+"\" role=\"progressbar\" style=\"width: 0%;\" aria-valuenow=\"0\" aria-valuemin=\"0\" aria-valuemax=\"100\">0%</div></div>");
+}
+    
+function editHtmlProgressBar( dataSourceId, percent )
+{
+    $("#progress-"+dataSourceId ).width( percent + "%" );
+    $("#progress-"+dataSourceId ).attr( "aria-valuenow", percent );
+    $("#progress-"+dataSourceId ).text( Math.floor(percent) + "%");
+}
+    
+function removeExistingProgressBar( dataSourceId )
+{
+    $("#progress-div-"+dataSourceId ).remove();
+}
+    
+</script>
 
