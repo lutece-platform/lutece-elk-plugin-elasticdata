@@ -10,8 +10,7 @@
                 <th>#i18n{elasticdata.manage_elasticdata.columnActions}</th>
             </tr>
             <#list data_sources_list as source>
-            <tr>
-                <td>${source.name}</td>
+            <tr><td>${source.name} <i class="fa fa-circle-o-notch fa-fw fa-spin"></i></td>
                 <td>
                     <a class="btn btn-primary btn-index" data-indexId="${source.id}" href="#">
                         <span class="fa fa-cogs"></span> 
@@ -21,6 +20,7 @@
             </tr>
             </#list>
         </table>
+	
     </div>
 </div>
 
@@ -28,6 +28,7 @@
 
 $(  function( )
     {
+$(".fa-spin").hide();
        var mapIndexingInterval = new Map();
        addIndexingEvent( mapIndexingInterval );      
     }
@@ -47,8 +48,9 @@ function addIndexingEvent( mapIndexingInterval )
             dataType: "json"
         });
         removeExistingProgressBar( dataSourceId );
-        addHtmlProgressBar( dataSourceId, $(this) );
-        var indexStatusInterval = setInterval( function(){checkIndexingStatus( dataSourceId, $(this), mapIndexingInterval)}, 1000);
+	var alink = $(this) ;
+        addHtmlProgressBar( dataSourceId, alink );
+        var indexStatusInterval = setInterval( function(){checkIndexingStatus( dataSourceId, alink, mapIndexingInterval)}, 1000);
         mapIndexingInterval.set( dataSourceId , indexStatusInterval );
     });
 }
@@ -68,7 +70,7 @@ function checkIndexingStatus( dataSourceId, aLink, mapIndexingInterval )
                     percent = 100
                     clearInterval( mapIndexingInterval.get( dataSourceId ) );
                 }
-                editHtmlProgressBar( dataSourceId, percent );
+                editHtmlProgressBar( dataSourceId, percent, aLink );
             },
             
         });
@@ -76,11 +78,16 @@ function checkIndexingStatus( dataSourceId, aLink, mapIndexingInterval )
     
 function addHtmlProgressBar( dataSourceId, aLink )
 {
-    $(aLink).after("<div id=\"progress-div-"+dataSourceId+"\" class=\"progress\"><div class=\"progress-bar progress-bar-striped active progress-bar-success\" id=\"progress-"+dataSourceId+"\" role=\"progressbar\" style=\"width: 0%;\" aria-valuenow=\"0\" aria-valuemin=\"0\" aria-valuemax=\"100\">0%</div></div>");
+    $(aLink).parents("tr").find(".fa-spin").show();
+    $(aLink).parents("tr").first().after("<div id=\"progress-div-"+dataSourceId+"\" class=\"progress\"><div class=\"progress-bar progress-bar-striped active progress-bar-success\" id=\"progress-"+dataSourceId+"\" role=\"progressbar\" style=\"width: 0%;\" aria-valuenow=\"0\" aria-valuemin=\"0\" aria-valuemax=\"100\">0%</div></div>");
 }
     
-function editHtmlProgressBar( dataSourceId, percent )
+function editHtmlProgressBar( dataSourceId, percent, aLink )
 {
+	if( percent > 99 ){    
+		$(aLink).parents("tr").find(".fa-spin").hide();
+		//$(aLink).parents("tr").first().append('<span class="label label-success"><i class="fa fa-check"></i> Complété !</span>');
+	}
     $("#progress-"+dataSourceId ).width( percent + "%" );
     $("#progress-"+dataSourceId ).attr( "aria-valuenow", percent );
     $("#progress-"+dataSourceId ).text( Math.floor(percent) + "%");
