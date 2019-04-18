@@ -39,7 +39,7 @@ function addIndexingEvent( mapIndexingInterval )
     {
         e.preventDefault();
         var dataSourceId = $(this).attr( "data-indexId" );
-            console.log( "tata");
+
         $.ajax({
             url: "jsp/admin/plugins/elasticdata/IndexingElasticData.jsp",
             method: "GET",
@@ -76,7 +76,7 @@ function checkIndexingStatus( dataSourceId, aLink, mapIndexingInterval )
     
 function addHtmlProgressBar( dataSourceId, aLink )
 {
-    $(aLink).after("<div id=\"progress-div-"+dataSourceId+"\" class=\"progress\"><div class=\"progress-bar\" id=\"progress-"+dataSourceId+"\" role=\"progressbar\" style=\"width: 0%;\" aria-valuenow=\"0\" aria-valuemin=\"0\" aria-valuemax=\"100\">0%</div></div>");
+    $(aLink).after("<div id=\"progress-div-"+dataSourceId+"\" class=\"progress\"><div class=\"progress-bar progress-bar-striped active progress-bar-success\" id=\"progress-"+dataSourceId+"\" role=\"progressbar\" style=\"width: 0%;\" aria-valuenow=\"0\" aria-valuemin=\"0\" aria-valuemax=\"100\">0%</div></div>");
 }
     
 function editHtmlProgressBar( dataSourceId, percent )
