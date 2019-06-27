@@ -35,7 +35,10 @@ package fr.paris.lutece.plugins.elasticdata.business;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * AbstractDataSource
@@ -259,6 +262,52 @@ public abstract class AbstractDataSource implements DataSource
             _colDataObjects = fetchDataObjects( );
         }
         return _colDataObjects;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<String> getIdDataObjects( )
+    {
+        List<String> list = new ArrayList<>( );
+        Iterator<DataObject> iteratorDataObjects = getDataObjectsIterator( );
+
+        if ( iteratorDataObjects != null )
+        {
+            while ( iteratorDataObjects.hasNext( ) )
+            {
+                DataObject dataObj = iteratorDataObjects.next( );
+                list.add( dataObj.getId( ) );
+            }
+        }
+
+        return list;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<DataObject> getDataObjects( List<String> idList )
+    {
+        Iterator<DataObject> iteratorlDataObjects = getDataObjectsIterator( );
+        Map<String,DataObject> mapDataObjetcs = new HashMap<>( );
+        List<DataObject> list = new ArrayList<>( );
+
+        while ( iteratorlDataObjects.hasNext( ) )
+        {
+            DataObject dataObj = iteratorlDataObjects.next( );
+            mapDataObjetcs.put( dataObj.getId( ) , dataObj );
+        }
+
+        for ( String strId : idList )
+        {
+            DataObject dataObj = mapDataObjetcs.get( strId );
+            if ( dataObj != null ) list.add( dataObj );
+        }
+
+        return list;
     }
 
     /**
