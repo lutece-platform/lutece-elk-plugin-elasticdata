@@ -135,7 +135,7 @@ public final class DataSourceService
 
         int nBatchSize = ( dataSource.getBatchSize( ) != 0 ) ? dataSource.getBatchSize( ) : BATCH_SIZE;
 
-        status.setnNbTotalObj( dataSource.getIdDataObjects( ).size( ) );
+        if (status != null) status.setnNbTotalObj( dataSource.getIdDataObjects( ).size( ) );
 
         // Index the objects in bulk mode
         int nbDocsInsert = insertObjects( elastic, dataSource, dataSource.getDataObjectsIterator( ), nBatchSize, status );
@@ -390,7 +390,7 @@ public final class DataSourceService
         {
             DataObject object = iterateDataObjects.next( );
             nCount++;
-            status.setCurrentNbIndexedObj( nCount );
+            if (status != null) status.setCurrentNbIndexedObj( nCount );
             listBatch.add( object );
             if ( ( listBatch.size( ) == nBatchSize ) || !iterateDataObjects.hasNext( ) )
             {
