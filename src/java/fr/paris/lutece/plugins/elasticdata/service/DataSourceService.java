@@ -58,11 +58,19 @@ import fr.paris.lutece.portal.service.util.AppPropertiesService;
  */
 public final class DataSourceService
 {
+    private static final String PROPERTY_ELASTIC_SERVER_LOGIN = "elasticdata.elastic_server.login";
+    private static final String PROPERTY_ELASTIC_SERVER_PWD = "elasticdata.elastic_server.pwd";
     private static final String PROPERTY_ELASTIC_SERVER_URL = "elasticdata.elastic_server.url";
-    private static final String DEFAULT_ELASTIC_SERVER_URL = "httt://localhost:9200";
     private static final String PROPERTY_BULK_BATCH_SIZE = "elasticdata.bulk_batch_size";
+
+
+    private static final String DEFAULT_ELASTIC_SERVER_URL = "httt://localhost:9200";
     private static final int DEFAULT_BATCH_SIZE = 10000;
+
     private static final int BATCH_SIZE = AppPropertiesService.getPropertyInt( PROPERTY_BULK_BATCH_SIZE, DEFAULT_BATCH_SIZE );
+    private static final String SERVER_URL = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL );
+    private static final String SERVER_LOGIN = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_LOGIN );
+    private static final String SERVEUR_PWD = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_PWD );
 
     private static Map<String, DataSource> _mapDataSources;
 
@@ -122,8 +130,7 @@ public final class DataSourceService
     {
 
         long timeBegin = System.currentTimeMillis( );
-        String strServerUrl = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL );
-        Elastic elastic = new Elastic( strServerUrl );
+        Elastic elastic = getElastic();
         if ( bReset )
         {
             if ( elastic.isExists( dataSource.getTargetIndexName( ) ) )
@@ -161,8 +168,7 @@ public final class DataSourceService
     {
         completeDataObjectWithFullData( dataSource, dataObject );
 
-        String strServerUrl = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL );
-        Elastic elastic = new Elastic( strServerUrl );
+        Elastic elastic = getElastic();
         elastic.create( dataSource.getTargetIndexName( ), dataSource.getDataType( ), ( dataObject.getId( ) != null ) ? dataObject.getId( ) : StringUtils.EMPTY,
                 dataObject );
 
@@ -186,9 +192,7 @@ public final class DataSourceService
         provideExternalAttributes( dataSource );
 
         long timeBegin = System.currentTimeMillis( );
-        String strServerUrl = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL );
-        Elastic elastic = new Elastic( strServerUrl );
-
+        Elastic elastic = getElastic();
         int nBatchSize = ( dataSource.getBatchSize( ) != 0 ) ? dataSource.getBatchSize( ) : BATCH_SIZE;
 
         // Index the objects in bulk mode
@@ -214,9 +218,7 @@ public final class DataSourceService
      */
     public static void partialUpdate( DataSource dataSource, String strId, Object object ) throws ElasticClientException
     {
-
-        String strServerUrl = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL );
-        Elastic elastic = new Elastic( strServerUrl );
+        Elastic elastic = getElastic();
         elastic.partialUpdate( dataSource.getTargetIndexName( ), dataSource.getDataType( ), strId, object );
 
     }
@@ -233,11 +235,8 @@ public final class DataSourceService
      */
     public static void deleteByQuery( DataSource dataSource, String strQuery ) throws ElasticClientException
     {
-
-        String strServerUrl = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL );
-        Elastic elastic = new Elastic( strServerUrl );
+        Elastic elastic = getElastic();
         elastic.deleteByQuery( dataSource.getTargetIndexName( ), dataSource.getDataType( ), strQuery );
-
     }
 
     /**
@@ -252,11 +251,8 @@ public final class DataSourceService
      */
     public static void deleteById( DataSource dataSource, String strId ) throws ElasticClientException
     {
-
-        String strServerUrl = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL );
-        Elastic elastic = new Elastic( strServerUrl );
+        Elastic elastic = getElastic();
         elastic.deleteDocument( dataSource.getTargetIndexName( ), dataSource.getDataType( ), strId );
-
     }
 
     /**
@@ -296,6 +292,17 @@ public final class DataSourceService
             }
         }
         return sbLogs.toString( );
+    }
+
+    /**Return elastic connection */
+    private static Elastic getElastic( ) {
+        Elastic elastic = null;
+        if( StringUtils.isNotEmpty( SERVER_LOGIN ) && StringUtils.isNotEmpty( SERVEUR_PWD ) ) {
+            elastic = new Elastic( SERVER_URL, SERVER_LOGIN, SERVEUR_PWD );
+        } else {
+            elastic = new Elastic( SERVER_URL );
+        }
+        return elastic;
     }
 
     /**
