@@ -39,9 +39,7 @@ import fr.paris.lutece.portal.web.l10n.LocaleService;
 import java.util.Calendar;
 import java.util.Locale;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * AbstractDataObject
