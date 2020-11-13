@@ -50,7 +50,6 @@ public abstract class AbstractDataSource implements DataSource
     private String _strId;
     private String _strName;
     private String _strTargetIndexName;
-    private String _strDataType;
     private int _nBatchSize;
     private String _strMappings;
     private boolean _bLocalizable;
@@ -122,28 +121,6 @@ public abstract class AbstractDataSource implements DataSource
     public void setTargetIndexName( String strTargetIndexName )
     {
         _strTargetIndexName = strTargetIndexName;
-    }
-
-    /**
-     * Returns the DataType
-     *
-     * @return The DataType
-     */
-    @Override
-    public String getDataType( )
-    {
-        return _strDataType;
-    }
-
-    /**
-     * Sets the DataType
-     *
-     * @param strDataType
-     *            The DataType
-     */
-    public void setDataType( String strDataType )
-    {
-        _strDataType = strDataType;
     }
 
     /**

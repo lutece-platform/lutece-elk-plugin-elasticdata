@@ -65,13 +65,6 @@ public interface DataSource
     String getTargetIndexName( );
 
     /**
-     * The data type
-     *
-     * @return The type
-     */
-    String getDataType( );
-
-    /**
      * A collection of object to create
      *
      * @return The collection

@@ -9,7 +9,6 @@
            <property name="id" value="MockDataSource" />
            <property name="name" value="Mock Data Source" />
            <property name="targetIndexName" value="mockdatasource" />
-           <property name="dataType" value="mockdataobject" />
            <property name="fullIndexingDaemon" value="true" />
        </bean>
     -->

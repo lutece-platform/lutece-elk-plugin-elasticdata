@@ -169,7 +169,7 @@ public final class DataSourceService
         completeDataObjectWithFullData( dataSource, dataObject );
 
         Elastic elastic = getElastic();
-        elastic.create( dataSource.getTargetIndexName( ), dataSource.getDataType( ), ( dataObject.getId( ) != null ) ? dataObject.getId( ) : StringUtils.EMPTY,
+        elastic.create( dataSource.getTargetIndexName( ), ( dataObject.getId( ) != null ) ? dataObject.getId( ) : StringUtils.EMPTY,
                 dataObject );
 
     }
@@ -219,7 +219,7 @@ public final class DataSourceService
     public static void partialUpdate( DataSource dataSource, String strId, Object object ) throws ElasticClientException
     {
         Elastic elastic = getElastic();
-        elastic.partialUpdate( dataSource.getTargetIndexName( ), dataSource.getDataType( ), strId, object );
+        elastic.partialUpdate( dataSource.getTargetIndexName( ), strId, object );
 
     }
 
@@ -236,7 +236,7 @@ public final class DataSourceService
     public static void deleteByQuery( DataSource dataSource, String strQuery ) throws ElasticClientException
     {
         Elastic elastic = getElastic();
-        elastic.deleteByQuery( dataSource.getTargetIndexName( ), dataSource.getDataType( ), strQuery );
+        elastic.deleteByQuery( dataSource.getTargetIndexName( ), strQuery );
     }
 
     /**
@@ -252,7 +252,7 @@ public final class DataSourceService
     public static void deleteById( DataSource dataSource, String strId ) throws ElasticClientException
     {
         Elastic elastic = getElastic();
-        elastic.deleteDocument( dataSource.getTargetIndexName( ), dataSource.getDataType( ), strId );
+        elastic.deleteDocument( dataSource.getTargetIndexName( ), strId );
     }
 
     /**
@@ -322,36 +322,30 @@ public final class DataSourceService
         if ( dataSource.isLocalizable( ) )
         {
             // Timestamp and location mappings
-            return getTimestampAndLocationMappings( dataSource.getDataType( ) );
+            return getTimestampAndLocationMappings( );
         }
         // Default timestamp mappings
-        return getTimestampMappings( dataSource.getDataType( ) );
+        return getTimestampMappings( );
     }
 
     /**
      * Build a JSON mappings block to declare 'timestamp' field as a date
      * 
-     * @param strType
-     *            The document type
      * @return The JSON
      */
-    private static String getTimestampMappings( String strType )
+    private static String getTimestampMappings(  )
     {
-        return "{ \"mappings\": { \"" + strType + "\" : { \"properties\": { \"timestamp\": { \"type\": \"date\", \"format\": \"epoch_millis\" }}}}}";
+        return "{ \"mappings\": { \"properties\": { \"timestamp\": { \"type\": \"date\", \"format\": \"yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis\" }}}}";
     }
 
     /**
      * Build a JSON mappings block to declare 'timestamp' field as a date and 'location' field as a geo_point
      * 
-     * @param strType
-     *            The document type
      * @return The JSON
      */
-    private static String getTimestampAndLocationMappings( String strType )
+    private static String getTimestampAndLocationMappings( )
     {
-        return "{ \"mappings\": { \""
-                + strType
-                + "\" : { \"properties\": { \"timestamp\": { \"type\": \"date\", \"format\": \"epoch_millis\" }, \"location\": { \"type\": \"geo_point\"} } }}}";
+        return "{ \"mappings\":  { \"properties\": { \"timestamp\": { \"type\": \"date\", \"format\": \"yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis\" }, \"location\": { \"type\": \"geo_point\"} } }}}";
     }
 
     /**
@@ -415,7 +409,7 @@ public final class DataSourceService
                     String strServerUrl = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL );
                     elastic = new Elastic( strServerUrl );
                 }
-                String strResponse = elastic.createByBulk( dataSource.getTargetIndexName( ), dataSource.getDataType( ), br );
+                String strResponse = elastic.createByBulk( dataSource.getTargetIndexName( ), br );
                 AppLogService.debug( "ElasticData : Response of the posted bulk request : " + strResponse );
                 listBatch.clear( );
             }
