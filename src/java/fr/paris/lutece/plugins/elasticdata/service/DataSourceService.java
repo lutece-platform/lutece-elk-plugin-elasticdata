@@ -49,6 +49,8 @@ import fr.paris.lutece.plugins.libraryelastic.business.bulk.BulkRequest;
 import fr.paris.lutece.plugins.libraryelastic.business.bulk.IndexSubRequest;
 import fr.paris.lutece.plugins.libraryelastic.util.Elastic;
 import fr.paris.lutece.plugins.libraryelastic.util.ElasticClientException;
+import fr.paris.lutece.portal.business.event.ResourceEvent;
+import fr.paris.lutece.portal.service.event.ResourceEventManager;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
@@ -63,7 +65,6 @@ public final class DataSourceService
     private static final String PROPERTY_ELASTIC_SERVER_URL = "elasticdata.elastic_server.url";
     private static final String PROPERTY_BULK_BATCH_SIZE = "elasticdata.bulk_batch_size";
 
-
     private static final String DEFAULT_ELASTIC_SERVER_URL = "httt://localhost:9200";
     private static final int DEFAULT_BATCH_SIZE = 10000;
 
@@ -71,6 +72,7 @@ public final class DataSourceService
     private static final String SERVER_URL = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL );
     private static final String SERVER_LOGIN = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_LOGIN );
     private static final String SERVEUR_PWD = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_PWD );
+    private static final String RESOURCE_TYPE_INDEXING = "ELASTICDATA_DATASOURCE_INDEXING";
 
     private static Map<String, DataSource> _mapDataSources;
 
@@ -130,7 +132,7 @@ public final class DataSourceService
     {
 
         long timeBegin = System.currentTimeMillis( );
-        Elastic elastic = getElastic();
+        Elastic elastic = getElastic( );
         if ( bReset )
         {
             if ( elastic.isExists( dataSource.getTargetIndexName( ) ) )
@@ -142,7 +144,8 @@ public final class DataSourceService
 
         int nBatchSize = ( dataSource.getBatchSize( ) != 0 ) ? dataSource.getBatchSize( ) : BATCH_SIZE;
 
-        if (status != null) status.setnNbTotalObj( dataSource.getIdDataObjects( ).size( ) );
+        if ( status != null )
+            status.setnNbTotalObj( dataSource.getIdDataObjects( ).size( ) );
 
         // Index the objects in bulk mode
         int nbDocsInsert = insertObjects( elastic, dataSource, dataSource.getDataObjectsIterator( ), nBatchSize, status );
@@ -150,6 +153,11 @@ public final class DataSourceService
         long timeEnd = System.currentTimeMillis( );
         sbLogs.append( "Number of object inserted for Data Source '" ).append( dataSource.getName( ) ).append( "' : " ).append( nbDocsInsert );
         sbLogs.append( " (duration : " ).append( timeEnd - timeBegin ).append( "ms)\n" );
+
+        ResourceEvent dataSourceFullIndexed = new ResourceEvent( );
+        dataSourceFullIndexed.setIdResource( dataSource.getId( ) );
+        dataSourceFullIndexed.setTypeResource( getIndexingResourceType( ) );
+        ResourceEventManager.fireAddedResource( dataSourceFullIndexed );
 
         clearData( dataSource );
     }
@@ -168,9 +176,8 @@ public final class DataSourceService
     {
         completeDataObjectWithFullData( dataSource, dataObject );
 
-        Elastic elastic = getElastic();
-        elastic.create( dataSource.getTargetIndexName( ), ( dataObject.getId( ) != null ) ? dataObject.getId( ) : StringUtils.EMPTY,
-                dataObject );
+        Elastic elastic = getElastic( );
+        elastic.create( dataSource.getTargetIndexName( ), ( dataObject.getId( ) != null ) ? dataObject.getId( ) : StringUtils.EMPTY, dataObject );
 
     }
 
@@ -192,7 +199,7 @@ public final class DataSourceService
         provideExternalAttributes( dataSource );
 
         long timeBegin = System.currentTimeMillis( );
-        Elastic elastic = getElastic();
+        Elastic elastic = getElastic( );
         int nBatchSize = ( dataSource.getBatchSize( ) != 0 ) ? dataSource.getBatchSize( ) : BATCH_SIZE;
 
         // Index the objects in bulk mode
@@ -218,7 +225,7 @@ public final class DataSourceService
      */
     public static void partialUpdate( DataSource dataSource, String strId, Object object ) throws ElasticClientException
     {
-        Elastic elastic = getElastic();
+        Elastic elastic = getElastic( );
         elastic.partialUpdate( dataSource.getTargetIndexName( ), strId, object );
 
     }
@@ -235,7 +242,7 @@ public final class DataSourceService
      */
     public static void deleteByQuery( DataSource dataSource, String strQuery ) throws ElasticClientException
     {
-        Elastic elastic = getElastic();
+        Elastic elastic = getElastic( );
         elastic.deleteByQuery( dataSource.getTargetIndexName( ), strQuery );
     }
 
@@ -251,7 +258,7 @@ public final class DataSourceService
      */
     public static void deleteById( DataSource dataSource, String strId ) throws ElasticClientException
     {
-        Elastic elastic = getElastic();
+        Elastic elastic = getElastic( );
         elastic.deleteDocument( dataSource.getTargetIndexName( ), strId );
     }
 
@@ -294,12 +301,16 @@ public final class DataSourceService
         return sbLogs.toString( );
     }
 
-    /**Return elastic connection */
-    private static Elastic getElastic( ) {
+    /** Return elastic connection */
+    public static Elastic getElastic( )
+    {
         Elastic elastic = null;
-        if( StringUtils.isNotEmpty( SERVER_LOGIN ) && StringUtils.isNotEmpty( SERVEUR_PWD ) ) {
+        if ( StringUtils.isNotEmpty( SERVER_LOGIN ) && StringUtils.isNotEmpty( SERVEUR_PWD ) )
+        {
             elastic = new Elastic( SERVER_URL, SERVER_LOGIN, SERVEUR_PWD );
-        } else {
+        }
+        else
+        {
             elastic = new Elastic( SERVER_URL );
         }
         return elastic;
@@ -333,7 +344,7 @@ public final class DataSourceService
      * 
      * @return The JSON
      */
-    private static String getTimestampMappings(  )
+    private static String getTimestampMappings( )
     {
         return "{ \"mappings\": { \"properties\": { \"timestamp\": { \"type\": \"date\", \"format\": \"yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis\" }}}}";
     }
@@ -391,7 +402,8 @@ public final class DataSourceService
         {
             DataObject object = iterateDataObjects.next( );
             nCount++;
-            if (status != null) status.setCurrentNbIndexedObj( nCount );
+            if ( status != null )
+                status.setCurrentNbIndexedObj( nCount );
             listBatch.add( object );
             if ( ( listBatch.size( ) == nBatchSize ) || !iterateDataObjects.hasNext( ) )
             {
@@ -402,8 +414,8 @@ public final class DataSourceService
                     IndexSubRequest isr = new IndexSubRequest( strId );
                     br.addAction( isr, batchObject );
                 }
-                AppLogService.info( "ElasticData indexing : Posting bulk action for " + listBatch.size( ) + " documents of DataSource '" + dataSource.getName( )
-                        + "'" );
+                AppLogService.info(
+                        "ElasticData indexing : Posting bulk action for " + listBatch.size( ) + " documents of DataSource '" + dataSource.getName( ) + "'" );
                 if ( elastic == null )
                 {
                     String strServerUrl = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL );
@@ -446,5 +458,16 @@ public final class DataSourceService
         {
             provider.provideAttributes( dataObject );
         }
+    }
+
+    /**
+     * Return the indexing resource type
+     * 
+     * @param dataSource
+     *            the data source
+     */
+    public static String getIndexingResourceType( )
+    {
+        return RESOURCE_TYPE_INDEXING;
     }
 }

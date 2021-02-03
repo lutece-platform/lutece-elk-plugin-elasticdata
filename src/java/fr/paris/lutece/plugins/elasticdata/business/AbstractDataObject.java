@@ -55,6 +55,9 @@ public abstract class AbstractDataObject implements DataObject
     private String _strHour;
     private String _strPrefixedDayOfWeek;
     private String _strPrefixedMonth;
+    private String _strParentId;
+    private String _strParentName;
+    private String _strDocumentTypeName;
 
     /**
      * {@inheritDoc }
@@ -94,10 +97,42 @@ public abstract class AbstractDataObject implements DataObject
 
     public void setId( String id )
     {
-
         _strId = id;
     }
 
+    @Override
+    public String getParentId( )
+    {
+        return _strParentId;
+    }
+
+    public void setParentId( String parentId )
+    {
+        _strParentId = parentId;
+    }
+
+    @Override
+    public String getParentName( )
+    {
+        return _strParentName;
+    }
+
+    public void setParentName( String parentName )
+    {
+        _strParentName = parentName;
+    }
+
+    @Override
+    public String getDocumentTypeName( )
+    {
+        return _strDocumentTypeName;
+    }
+
+    public void setDocumentTypeName( String documentTypeName )
+    {
+        _strDocumentTypeName = documentTypeName;
+    }
+       
     /**
      * Returns the day of week
      * 

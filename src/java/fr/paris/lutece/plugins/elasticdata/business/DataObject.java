@@ -55,4 +55,26 @@ public interface DataObject
      */
     @JsonIgnore
     String getId( );
+
+    /**
+     * The parent Id
+     * 
+     * @return The parent Id
+     */
+    String getParentId( );
+
+    /**
+     * The parent Id
+     * 
+     * @return The parent Id
+     */
+    String getParentName( );
+
+    /**
+     * The parent Id
+     * 
+     * @return The parent Id
+     */
+    String getDocumentTypeName( );
+
 }

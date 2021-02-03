@@ -80,4 +80,25 @@ public class MockDataObject implements DataObject
         return null;
     }
 
+    @Override
+    public String getParentId( )
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public String getParentName( )
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public String getDocumentTypeName( )
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

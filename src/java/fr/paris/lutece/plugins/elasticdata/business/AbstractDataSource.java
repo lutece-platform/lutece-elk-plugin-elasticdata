@@ -269,19 +269,20 @@ public abstract class AbstractDataSource implements DataSource
     public List<DataObject> getDataObjects( List<String> idList )
     {
         Iterator<DataObject> iteratorlDataObjects = getDataObjectsIterator( );
-        Map<String,DataObject> mapDataObjetcs = new HashMap<>( );
+        Map<String, DataObject> mapDataObjetcs = new HashMap<>( );
         List<DataObject> list = new ArrayList<>( );
 
         while ( iteratorlDataObjects.hasNext( ) )
         {
             DataObject dataObj = iteratorlDataObjects.next( );
-            mapDataObjetcs.put( dataObj.getId( ) , dataObj );
+            mapDataObjetcs.put( dataObj.getId( ), dataObj );
         }
 
         for ( String strId : idList )
         {
             DataObject dataObj = mapDataObjetcs.get( strId );
-            if ( dataObj != null ) list.add( dataObj );
+            if ( dataObj != null )
+                list.add( dataObj );
         }
 
         return list;

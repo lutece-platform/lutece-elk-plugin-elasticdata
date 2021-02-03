@@ -1,102 +1,101 @@
-<div class="row">
-    <div class="col-md-10 col-md-offset-1">
-        <h1>#i18n{elasticdata.manage_elasticdata.title}</h1>
-
-        <@messages infos=infos />
-
-        <table class="table table-condensed table-striped table-bordered">
-            <tr>
-                <th>#i18n{elasticdata.manage_elasticdata.columnDataSource}</th>
-                <th>#i18n{elasticdata.manage_elasticdata.columnActions}</th>
-            </tr>
-            <#list data_sources_list as source>
-            <tr><td>${source.name} <i class="fa fa-circle-o-notch fa-fw fa-spin"></i></td>
-                <td>
-                    <a class="btn btn-primary btn-index" data-indexId="${source.id}" href="#">
-                        <span class="fa fa-cogs"></span> 
-                        #i18n{elasticdata.manage_elasticdata.buttonIndex}
-                    </a>
-                </td>
-            </tr>
-            </#list>
-        </table>
-	
-    </div>
-</div>
-
+<@row>
+    <@columns>
+        <@box color='primary'>
+            <@boxHeader title='#i18n{elasticdata.manage_elasticdata.title}' boxTools=true>
+            </@boxHeader>
+            <@boxBody>
+                <@table>
+                    <tr>
+                        <th>#i18n{elasticdata.manage_elasticdata.columnDataSource}</th>
+                        <th>#i18n{elasticdata.manage_elasticdata.columnActions}</th>
+                    </tr>
+                    <#list data_sources_list as source>
+                        <tr>
+                            <td>${source.name}</td>
+                            <td>
+                                <a class="btn btn-primary btn-index" data-indexId="${source.id}" href="#">
+                                    <span class="fa fa-cogs"></span>
+                                    #i18n{elasticdata.manage_elasticdata.buttonIndex}
+                                </a>
+                            </td>
+                        </tr>
+                    </#list>
+                </@table>
+            </@boxBody>
+        </@box>
+    </@columns>
+</@row>
+<@scrollTopBtn />
 <script>
-
-$(  function( )
-    {
-$(".fa-spin").hide();
-       var mapIndexingInterval = new Map();
-       addIndexingEvent( mapIndexingInterval );      
-    }
-);
-
-function addIndexingEvent( mapIndexingInterval )
-{ 
-    $('.btn-index').click( function ( e )
-    {
-        e.preventDefault();
-        var dataSourceId = $(this).attr( "data-indexId" );
-
-        $.ajax({
-            url: "jsp/admin/plugins/elasticdata/IndexingElasticData.jsp",
-            method: "GET",
-            data: "action=index&data_source="+dataSourceId,
-            dataType: "json"
-        });
-        removeExistingProgressBar( dataSourceId );
-	var alink = $(this) ;
-        addHtmlProgressBar( dataSourceId, alink );
-        var indexStatusInterval = setInterval( function(){checkIndexingStatus( dataSourceId, alink, mapIndexingInterval)}, 1000);
-        mapIndexingInterval.set( dataSourceId , indexStatusInterval );
+    $(function () {
+        $(".fa-spin").hide();
+        var mapIndexingInterval = new Map();
+        addIndexingEvent(mapIndexingInterval);
     });
-}
-    
-function checkIndexingStatus( dataSourceId, aLink, mapIndexingInterval )
-{
+
+    function addIndexingEvent(mapIndexingInterval) {
+        $('.btn-index').click(function (e) {
+            e.preventDefault();
+            var dataSourceId = $(this).attr("data-indexId");
+            $.ajax({
+                url: "jsp/admin/plugins/elasticdata/IndexingElasticData.jsp",
+                method: "GET",
+                data: "action=index&data_source=" + dataSourceId,
+                dataType: "json"
+            });
+            removeExistingProgressBar(dataSourceId);
+            var alink = $(this);
+            addHtmlProgressBar(dataSourceId, alink);
+            var indexStatusInterval = setInterval(function () {
+                checkIndexingStatus(dataSourceId, alink, mapIndexingInterval)
+            }, 1000);
+            mapIndexingInterval.set(dataSourceId, indexStatusInterval);
+        });
+    }
+
+    function checkIndexingStatus(dataSourceId, aLink, mapIndexingInterval) {
         $.ajax({
             url: "jsp/admin/plugins/elasticdata/IndexingElasticData.jsp",
             method: "GET",
-            data: "action=checkIndexStatus&data_source="+dataSourceId,
+            data: "action=checkIndexStatus&data_source=" + dataSourceId,
             dataType: "json",
-            success: function( data, status )
-            {
+            success: function (data, status) {
                 percent = data.percent;
-                if ( percent > 99.9 )
-                {
+                if (percent > 99.9) {
                     percent = 100
-                    clearInterval( mapIndexingInterval.get( dataSourceId ) );
+                    clearInterval(mapIndexingInterval.get(dataSourceId));
                 }
-                editHtmlProgressBar( dataSourceId, percent, aLink );
+                editHtmlProgressBar(dataSourceId, percent, aLink);
             },
-            
         });
-}
-    
-function addHtmlProgressBar( dataSourceId, aLink )
-{
-    $(aLink).parents("tr").find(".fa-spin").show();
-    $(aLink).parents("tr").first().after("<div id=\"progress-div-"+dataSourceId+"\" class=\"progress\"><div class=\"progress-bar progress-bar-striped active progress-bar-success\" id=\"progress-"+dataSourceId+"\" role=\"progressbar\" style=\"width: 0%;\" aria-valuenow=\"0\" aria-valuemin=\"0\" aria-valuemax=\"100\">0%</div></div>");
-}
-    
-function editHtmlProgressBar( dataSourceId, percent, aLink )
-{
-	if( percent > 99 ){    
-		$(aLink).parents("tr").find(".fa-spin").hide();
-		//$(aLink).parents("tr").first().append('<span class="label label-success"><i class="fa fa-check"></i> Complété !</span>');
-	}
-    $("#progress-"+dataSourceId ).width( percent + "%" );
-    $("#progress-"+dataSourceId ).attr( "aria-valuenow", percent );
-    $("#progress-"+dataSourceId ).text( Math.floor(percent) + "%");
-}
-    
-function removeExistingProgressBar( dataSourceId )
-{
-    $("#progress-div-"+dataSourceId ).remove();
-}
-    
-</script>
+    }
 
+    function addHtmlProgressBar(dataSourceId, aLink) {
+        $(aLink).parents("tr").find("td:first-child").append('<div class="progress"><div id="progress-' + dataSourceId +
+            '" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" ></div></div>'
+            );
+    }
+
+    function editHtmlProgressBar(dataSourceId, percent, aLink) {
+        if (percent > 99) {
+            $(aLink).parents("tr").find(".fa-spin").hide();
+            //$(aLink).parents("tr").first().append('<span class="label label-success"><i class="fa fa-check"></i> Complété !</span>');
+        }
+        if( percent > 0 ) {
+        $("#progress-" + dataSourceId).width(percent + "%");
+        $("#progress-" + dataSourceId).attr("aria-valuenow", percent);
+        $("#progress-" + dataSourceId).text(Math.floor(percent) + "%");
+        }
+ 
+    }
+
+    function removeExistingProgressBar(dataSourceId) {
+        $("#progress-" + dataSourceId).remove();
+    }
+</script>
+<style>
+    table .progress,
+    table .progress-bar {
+        height: 15px !important;
+    }
+</style>
