@@ -43,7 +43,7 @@
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>library-elastic</artifactId>
-            <version>[1.0.7-SNAPSHOT,)</version>
+            <version>[1.0.8-SNAPSHOT,)</version>
         </dependency>
     </dependencies>
 
