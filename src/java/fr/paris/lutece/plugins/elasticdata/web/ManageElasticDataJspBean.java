@@ -38,13 +38,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.paris.lutece.plugins.elasticdata.business.DataSource;
 import fr.paris.lutece.plugins.elasticdata.service.DataSourceService;
 import fr.paris.lutece.plugins.elasticdata.service.IndexingStatus;
+import fr.paris.lutece.plugins.elasticdata.service.IndexingStatusService;
 import fr.paris.lutece.plugins.libraryelastic.util.ElasticClientException;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.util.mvc.admin.MVCAdminJspBean;
 import fr.paris.lutece.portal.util.mvc.admin.annotations.Controller;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
-import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.StringUtils;
@@ -64,7 +64,6 @@ public class ManageElasticDataJspBean extends MVCAdminJspBean
     private static final long serialVersionUID = 1L;
     private static final String ACTION_CHECK_INDEX_STATUS = "checkIndexStatus";
 
-    private Map<String, IndexingStatus> mapIndexingStatus = new HashMap<>( );
     ObjectMapper _mapper = new ObjectMapper( );
 
     /**
@@ -98,9 +97,10 @@ public class ManageElasticDataJspBean extends MVCAdminJspBean
         String strDataSourceId = request.getParameter( PARAMETER_DATA_SOURCE );
 
         DataSource source = DataSourceService.getDataSource( strDataSourceId );
-        mapIndexingStatus.put( strDataSourceId, new IndexingStatus( ) );
 
-        DataSourceService.processFullIndexing( sbLogs, source, true, mapIndexingStatus.get( strDataSourceId ) );
+        IndexingStatusService.getInstance( ).registerIndexingStatus( strDataSourceId, new IndexingStatus( ) );
+
+        DataSourceService.processFullIndexing( sbLogs, source, true, IndexingStatusService.getInstance( ).getIndexingStatus( strDataSourceId ) );
 
         return getJsonStatus( strDataSourceId );
     }
@@ -128,7 +128,7 @@ public class ManageElasticDataJspBean extends MVCAdminJspBean
     {
         try
         {
-            return _mapper.writeValueAsString( mapIndexingStatus.get( strDataSourceId ) );
+            return _mapper.writeValueAsString( IndexingStatusService.getInstance( ).getIndexingStatus( strDataSourceId ) );
         }
         catch( JsonProcessingException e )
         {
