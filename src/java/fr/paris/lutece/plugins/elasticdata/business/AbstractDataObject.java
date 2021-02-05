@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2017, Mairie de Paris
+ * Copyright (c) 2002-2021, City of Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,6 @@
  *
  * License 1.0
  */
-
 package fr.paris.lutece.plugins.elasticdata.business;
 
 import fr.paris.lutece.portal.web.l10n.LocaleService;
@@ -132,7 +131,7 @@ public abstract class AbstractDataObject implements DataObject
     {
         _strDocumentTypeName = documentTypeName;
     }
-       
+
     /**
      * Returns the day of week
      * 
