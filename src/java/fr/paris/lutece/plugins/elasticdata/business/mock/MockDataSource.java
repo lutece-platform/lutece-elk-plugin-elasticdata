@@ -45,22 +45,6 @@ import java.util.List;
  */
 public class MockDataSource extends AbstractDataSource implements DataSource
 {
-
-    /**
-     * {@inheritDoc }
-     */
-    @Override
-    public Collection<DataObject> fetchDataObjects( )
-    {
-        Collection<DataObject> list = new ArrayList<>( );
-        for ( int i = 1; i < 10; i++ )
-        {
-            MockDataObject object = new MockDataObject( "Object " + i );
-            list.add( object );
-        }
-        return list;
-    }
-
     /**
      * {@inheritDoc }
      */

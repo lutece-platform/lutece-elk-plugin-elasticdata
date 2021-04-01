@@ -217,75 +217,7 @@ public abstract class AbstractDataSource implements DataSource
     @Override
     public Iterator<DataObject> getDataObjectsIterator( )
     {
-
-        Collection<DataObject> listDataObject = getDataObjects( );
-        if ( listDataObject != null )
-        {
-            return getDataObjects( ).iterator( );
-
-        }
-
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Collection<DataObject> getDataObjects( )
-    {
-        if ( _colDataObjects == null || _colDataObjects.isEmpty( ) )
-        {
-            _colDataObjects = fetchDataObjects( );
-        }
-        return _colDataObjects;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<String> getIdDataObjects( )
-    {
-        List<String> list = new ArrayList<>( );
-        Iterator<DataObject> iteratorDataObjects = getDataObjectsIterator( );
-
-        if ( iteratorDataObjects != null )
-        {
-            while ( iteratorDataObjects.hasNext( ) )
-            {
-                DataObject dataObj = iteratorDataObjects.next( );
-                list.add( dataObj.getId( ) );
-            }
-        }
-
-        return list;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<DataObject> getDataObjects( List<String> idList )
-    {
-        Iterator<DataObject> iteratorlDataObjects = getDataObjectsIterator( );
-        Map<String, DataObject> mapDataObjetcs = new HashMap<>( );
-        List<DataObject> list = new ArrayList<>( );
-
-        while ( iteratorlDataObjects.hasNext( ) )
-        {
-            DataObject dataObj = iteratorlDataObjects.next( );
-            mapDataObjetcs.put( dataObj.getId( ), dataObj );
-        }
-
-        for ( String strId : idList )
-        {
-            DataObject dataObj = mapDataObjetcs.get( strId );
-            if ( dataObj != null )
-                list.add( dataObj );
-        }
-
-        return list;
+        return new BatchDataObjectsIterator( this );
     }
 
     /**
