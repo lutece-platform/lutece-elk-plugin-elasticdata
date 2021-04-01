@@ -65,13 +65,6 @@ public interface DataSource
     String getTargetIndexName( );
 
     /**
-     * A collection of object to create
-     *
-     * @return The collection
-     */
-    Collection<DataObject> getDataObjects( );
-
-    /**
      * Get the business id of all the data objects to fetch
      * 
      * @return collection of id of all the data objects of the datasource
@@ -93,13 +86,6 @@ public interface DataSource
      */
 
     Iterator<DataObject> getDataObjectsIterator( );
-
-    /**
-     * Fetch the data objects of the data source
-     * 
-     * @return the data objects of the data source
-     */
-    Collection<DataObject> fetchDataObjects( );
 
     /**
      * Remove the data objects of the data source
