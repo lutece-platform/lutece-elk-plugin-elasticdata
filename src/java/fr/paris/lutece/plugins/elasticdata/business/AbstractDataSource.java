@@ -35,10 +35,7 @@ package fr.paris.lutece.plugins.elasticdata.business;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 /**
  * AbstractDataSource
@@ -55,7 +52,6 @@ public abstract class AbstractDataSource implements DataSource
     private boolean _bLocalizable;
     private boolean _bFullIndexingDaemon;
     protected Collection<IDataSourceExternalAttributesProvider> _colExternalAttributesProvider;
-    private Collection<DataObject> _colDataObjects;
 
     /**
      * Returns the Id
@@ -218,18 +214,6 @@ public abstract class AbstractDataSource implements DataSource
     public Iterator<DataObject> getDataObjectsIterator( )
     {
         return new BatchDataObjectsIterator( this );
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void removeDataObjects( )
-    {
-        if ( _colDataObjects != null )
-        {
-            _colDataObjects.clear( );
-        }
     }
 
     /**

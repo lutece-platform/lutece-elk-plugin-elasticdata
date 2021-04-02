@@ -37,7 +37,6 @@ import fr.paris.lutece.plugins.elasticdata.business.AbstractDataSource;
 import fr.paris.lutece.plugins.elasticdata.business.DataObject;
 import fr.paris.lutece.plugins.elasticdata.business.DataSource;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**

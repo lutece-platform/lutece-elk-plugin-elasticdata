@@ -159,7 +159,6 @@ public final class DataSourceService
         dataSourceFullIndexed.setTypeResource( getIndexingResourceType( ) );
         ResourceEventManager.fireAddedResource( dataSourceFullIndexed );
 
-        clearData( dataSource );
     }
 
     /**
@@ -356,21 +355,9 @@ public final class DataSourceService
         return "{ \"mappings\":  { \"properties\": { \"timestamp\": { \"type\": \"date\", \"format\": \"yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis\" }, \"location\": { \"type\": \"geo_point\"} } }}}";
     }
 
-    /**
-     * Clear the dataObjects from the data Source
-     * 
-     * @param dataSource
-     *            the data source
-     */
-    public static void clearData( DataSource dataSource )
-    {
-        dataSource.removeDataObjects( );
-    }
-
     public static void completeDataObjectWithFullData( DataSource dataSource, DataObject dataObject )
     {
         // Complete the data source with the external attributes
-        provideExternalAttributes( dataSource );
         provideExternalAttributes( dataSource, dataObject );
     }
 
@@ -395,7 +382,6 @@ public final class DataSourceService
         List<DataObject> listBatch = new ArrayList<DataObject>( );
 
         int nCount = 0;
-        provideExternalAttributes( dataSource );
 
         while ( iterateDataObjects.hasNext( ) )
         {
@@ -430,20 +416,6 @@ public final class DataSourceService
         AppLogService.info( "ElasticData indexing : completed for " + nCount + " documents of DataSource '" + dataSource.getName( ) + "'" );
 
         return nCount;
-    }
-
-    /**
-     * Provide external attributes for the DataSource
-     * 
-     * @param dataSource
-     *            the data source
-     */
-    private static void provideExternalAttributes( DataSource dataSource )
-    {
-        for ( IDataSourceExternalAttributesProvider provider : dataSource.getExternalAttributesProvider( ) )
-        {
-            provider.provideAttributes( dataSource );
-        }
     }
 
     /**
