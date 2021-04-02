@@ -33,6 +33,8 @@
  */
 package fr.paris.lutece.plugins.elasticdata.business;
 
+import java.util.List;
+
 /**
  * This interface is used for provisioning external attributes to data sources
  */
@@ -53,4 +55,13 @@ public interface IDataSourceExternalAttributesProvider
      *            the data object
      */
     public void provideAttributes( DataObject dataObject );
+
+    /**
+     * Provide external attributes to data objects
+     * 
+     * @param listDataObject
+     *            list of data objects
+     *
+     */
+    public void provideAttributes( List<DataObject> listDataObject );
 }

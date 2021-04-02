@@ -195,9 +195,6 @@ public final class DataSourceService
     public static void processIncrementalIndexing( StringBuilder sbLogs, DataSource dataSource, Collection<DataObject> dataObject )
             throws ElasticClientException
     {
-        // Complete the data source with the external attributes
-        provideExternalAttributes( dataSource );
-
         long timeBegin = System.currentTimeMillis( );
         Elastic elastic = getElastic( );
         int nBatchSize = ( dataSource.getBatchSize( ) != 0 ) ? dataSource.getBatchSize( ) : BATCH_SIZE;
@@ -373,6 +370,7 @@ public final class DataSourceService
     public static void completeDataObjectWithFullData( DataSource dataSource, DataObject dataObject )
     {
         // Complete the data source with the external attributes
+        provideExternalAttributes( dataSource );
         provideExternalAttributes( dataSource, dataObject );
     }
 
@@ -397,6 +395,7 @@ public final class DataSourceService
         List<DataObject> listBatch = new ArrayList<DataObject>( );
 
         int nCount = 0;
+        provideExternalAttributes( dataSource );
 
         while ( iterateDataObjects.hasNext( ) )
         {
@@ -407,6 +406,7 @@ public final class DataSourceService
             listBatch.add( object );
             if ( ( listBatch.size( ) == nBatchSize ) || !iterateDataObjects.hasNext( ) )
             {
+                provideExternalAttributes( dataSource, listBatch );
                 BulkRequest br = new BulkRequest( );
                 for ( DataObject batchObject : listBatch )
                 {
@@ -457,6 +457,22 @@ public final class DataSourceService
         for ( IDataSourceExternalAttributesProvider provider : dataSource.getExternalAttributesProvider( ) )
         {
             provider.provideAttributes( dataObject );
+        }
+    }
+
+    /**
+     * Provide external attributes for the DataSource
+     * 
+     * @param dataSource
+     *            the data source
+     * @param listDataObject
+     *            list of data objects
+     */
+    private static void provideExternalAttributes( DataSource dataSource, List<DataObject> listDataObject )
+    {
+        for ( IDataSourceExternalAttributesProvider provider : dataSource.getExternalAttributesProvider( ) )
+        {
+            provider.provideAttributes( listDataObject );
         }
     }
 
