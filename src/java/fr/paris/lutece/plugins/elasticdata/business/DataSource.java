@@ -88,11 +88,6 @@ public interface DataSource
     Iterator<DataObject> getDataObjectsIterator( );
 
     /**
-     * Remove the data objects of the data source
-     */
-    void removeDataObjects( );
-
-    /**
      * Returns the BatchSize
      *
      * @return The BatchSize

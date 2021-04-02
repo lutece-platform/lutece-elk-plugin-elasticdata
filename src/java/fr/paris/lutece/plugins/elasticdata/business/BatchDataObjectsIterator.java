@@ -33,7 +33,6 @@
  */
 package fr.paris.lutece.plugins.elasticdata.business;
 
-import fr.paris.lutece.plugins.elasticdata.service.DataSourceService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import java.util.ArrayList;
 import java.util.Iterator;

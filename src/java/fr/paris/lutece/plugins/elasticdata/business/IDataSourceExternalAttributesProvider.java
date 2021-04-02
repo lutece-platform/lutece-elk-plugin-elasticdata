@@ -41,14 +41,6 @@ import java.util.List;
 public interface IDataSourceExternalAttributesProvider
 {
     /**
-     * Provide external attributes to data sources
-     * 
-     * @param dataSource
-     *            the data source
-     */
-    public void provideAttributes( DataSource dataSource );
-
-    /**
      * Provide external attributes to data objects
      * 
      * @param dataObject
