@@ -95,9 +95,6 @@ public class BatchDataObjectsIterator implements Iterator<DataObject>
         DataObject dataObj = optDataObject.get( );
         if ( dataObj != null )
         {
-
-            DataSourceService.completeDataObjectWithFullData( _dataSource, dataObj );
-
             _mapTmpIdDataObject.remove( dataObj.getId( ) );
 
             if ( _mapTmpIdDataObject.isEmpty( ) )
