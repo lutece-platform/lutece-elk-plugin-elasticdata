@@ -51,16 +51,11 @@ public class DataSourceServiceTest extends LuteceTestCase
     @Test
     public void testInsertData( ) throws Exception
     {
-        System.out.println( "insertData" );
-        DataSourceService instance = new DataSourceService( );
-        MockDataSource ds = new MockDataSource( );
+       /* MockDataSource ds = new MockDataSource( );
         ds.setName( "Mock Data Source" );
         ds.setTargetIndexName( "mockdatasource" );
         ds.setBatchSize( 4 ); // actions will posted 4 + 4 + 1
-
-        StringBuilder sbLogs = new StringBuilder( );
-        DataSourceService.processFullIndexing( sbLogs, ds, true, new IndexingStatus( ) );
-        System.out.println( sbLogs.toString( ) );
+        DataSourceService.processFullIndexing( ds, true );*/
     }
 
     /**
@@ -71,10 +66,7 @@ public class DataSourceServiceTest extends LuteceTestCase
     @Test
     public void testInsertDataAllDatasources( ) throws Exception
     {
-        System.out.println( "insertDataAllDatasources" );
-        DataSourceService instance = new DataSourceService( );
-        String result = instance.insertDataAllDatasources( true );
-        System.out.println( result );
+       // DataSourceService.insertDataAllDatasources( true );
     }
 
 }

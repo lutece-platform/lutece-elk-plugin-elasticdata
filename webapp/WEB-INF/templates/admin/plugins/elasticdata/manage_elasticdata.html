@@ -39,7 +39,7 @@
             for (const datasource of datasources) {
                 const dataSourceId = datasource.getAttribute('data-indexId');
                 await getStatus(dataSourceId).then(json => {
-                    progressBar(dataSourceId, json)
+                	progressBar(dataSourceId, json)
                 });
             }
         }
@@ -62,12 +62,12 @@
     // checking
     setInterval(function () {
         check()
-    }, 500);
+    }, 3000);
     // progress bar
     function progressBar(dataSourceId, json) {
         const progressBar = document.getElementById(dataSourceId);
         if (json !== null) {
-            const percent = json.percent;
+            const percent = json.progress;
             const nbTotalObj = json.nbTotalObj;
             const currentNbIndexedObj = json.currentNbIndexedObj;
             if (percent > 0) {

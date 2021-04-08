@@ -31,40 +31,55 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.elasticdata.business.mock;
+package fr.paris.lutece.plugins.elasticdata.service;
 
-import fr.paris.lutece.plugins.elasticdata.business.AbstractDataSource;
-import fr.paris.lutece.plugins.elasticdata.business.DataObject;
-import fr.paris.lutece.plugins.elasticdata.business.DataSource;
-import java.util.ArrayList;
-import java.util.List;
+import fr.paris.lutece.plugins.elasticdata.business.AbstractDataObject;
+import fr.paris.lutece.test.LuteceTestCase;
+import java.util.Date;
+import org.junit.Test;
 
 /**
- * MockDataSource
+ * AbstractDataObjectTest
  */
-public class MockDataSource extends AbstractDataSource implements DataSource
+public class AbstractDataObjectTest extends LuteceTestCase
 {
-    /**
-     * {@inheritDoc }
-     */
-    @Override
-    public List<String> getIdDataObjects( )
+
+    class TestDataObject extends AbstractDataObject
     {
-        List<String> list10firstInts = new ArrayList( );
-        for ( int i = 1; i < 10; i++ )
-        {
-            list10firstInts.add( String.valueOf( i ) );
-        }
-        return list10firstInts;
     }
 
     /**
-     * {@inheritDoc }
+     * Test of getDayOfWeek method, of class AbstractDataObject.
      */
-    @Override
-    public List<DataObject> getDataObjects( List<String> listIdDataObjects )
+    @Test
+    public void testGetDayOfWeek( )
     {
-        return null;
+      /*  AbstractDataObject dataObject = new TestDataObject( );
+        long lTime = ( new Date( ) ).getTime( );
+
+        for ( long i = 0; i < 7; i++ )
+        {
+            dataObject.setTimestamp( lTime + ( i * 24L * 60L * 60L * 1000L ) );
+            dataObject.getPrefixedDayOfWeek( );
+        }
+        */
+    }
+
+    /**
+     * Test of getMonth method, of class AbstractDataObject.
+     */
+    @Test
+    public void testGetMonth( )
+    {
+       /* AbstractDataObject dataObject = new TestDataObject( );
+        long lTime = ( new Date( ) ).getTime( );
+
+        for ( long i = 0; i < 12; i++ )
+        {
+            dataObject.setTimestamp( lTime + ( i * 30L * 24L * 60L * 60L * 1000L ) );
+            dataObject.getPrefixedMonth( ) ;
+        }
+        */
     }
 
 }

@@ -31,54 +31,45 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.elasticdata.business;
+package fr.paris.lutece.plugins.elasticdata.business.mock;
 
-import fr.paris.lutece.test.LuteceTestCase;
-import java.util.Date;
-import org.junit.Test;
+import fr.paris.lutece.plugins.elasticdata.business.AbstractDataSource;
+import fr.paris.lutece.plugins.elasticdata.business.DataObject;
+import fr.paris.lutece.plugins.elasticdata.business.DataSource;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * AbstractDataObjectTest
+ * MockDataSource
  */
-public class AbstractDataObjectTest extends LuteceTestCase
+public class MockDataSource extends AbstractDataSource implements DataSource
 {
-
-    class TestDataObject extends AbstractDataObject
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public List<String> getIdDataObjects( )
     {
+        List<String> list10firstInts = new ArrayList< >( );
+        for ( int i = 1; i < 10; i++ )
+        {
+            list10firstInts.add( String.valueOf( i ) );
+        }
+        return list10firstInts;
     }
 
     /**
-     * Test of getDayOfWeek method, of class AbstractDataObject.
+     * {@inheritDoc }
      */
-    @Test
-    public void testGetDayOfWeek( )
+    @Override
+    public List<DataObject> getDataObjects( List<String> listIdDataObjects )
     {
-        System.out.println( "getDayOfWeek" );
-        AbstractDataObject dataObject = new TestDataObject( );
-        long lTime = ( new Date( ) ).getTime( );
-
-        for ( long i = 0; i < 7; i++ )
+    	List<DataObject> list10firstInts = new ArrayList< >( );
+        for ( int i = 1; i < 10; i++ )
         {
-            dataObject.setTimestamp( lTime + ( i * 24L * 60L * 60L * 1000L ) );
-            System.out.println( dataObject.getPrefixedDayOfWeek( ) );
+            list10firstInts.add( new MockDataObject( String.valueOf( i  )));
         }
-    }
-
-    /**
-     * Test of getMonth method, of class AbstractDataObject.
-     */
-    @Test
-    public void testGetMonth( )
-    {
-        System.out.println( "getMonth" );
-        AbstractDataObject dataObject = new TestDataObject( );
-        long lTime = ( new Date( ) ).getTime( );
-
-        for ( long i = 0; i < 12; i++ )
-        {
-            dataObject.setTimestamp( lTime + ( i * 30L * 24L * 60L * 60L * 1000L ) );
-            System.out.println( dataObject.getPrefixedMonth( ) );
-        }
+        return list10firstInts;
     }
 
 }

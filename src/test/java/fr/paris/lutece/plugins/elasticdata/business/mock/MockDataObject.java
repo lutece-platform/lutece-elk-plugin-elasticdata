@@ -42,17 +42,17 @@ import java.util.Date;
  */
 public class MockDataObject implements DataObject
 {
-    private String _strName;
+    private String _strId;
 
     /**
      * Constructor
      * 
-     * @param strName
-     *            An object name
+     * @param strId
+     *            An object id
      */
-    MockDataObject( String strName )
+    MockDataObject( String strId )
     {
-        _strName = strName;
+    	_strId = strId;
     }
 
     /**
@@ -70,33 +70,30 @@ public class MockDataObject implements DataObject
      */
     public String getName( )
     {
-        return _strName;
+        return null;
     }
 
     @Override
     public String getId( )
     {
-        return null;
+        return _strId;
     }
 
     @Override
     public String getParentId( )
     {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public String getParentName( )
     {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public String getDocumentTypeName( )
     {
-        // TODO Auto-generated method stub
         return null;
     }
 

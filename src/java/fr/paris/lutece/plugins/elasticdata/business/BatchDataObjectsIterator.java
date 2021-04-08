@@ -33,43 +33,35 @@
  */
 package fr.paris.lutece.plugins.elasticdata.business;
 
-import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Optional;
+import java.util.NoSuchElementException;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Implementation of Iterator<DataObject> for fetching object in DAO by batchs
  */
 public class BatchDataObjectsIterator implements Iterator<DataObject>
 {
-    private static final String PROPERTY_BULK_BATCH_SIZE = "elasticdata.bulk_batch_size";
-    private static final int DEFAULT_BATCH_SIZE = 10000;
-    private static final int BATCH_SIZE = AppPropertiesService.getPropertyInt( PROPERTY_BULK_BATCH_SIZE, DEFAULT_BATCH_SIZE );
     protected final int _nBatchSize;
     protected final List<String> _listIdDataObjects;
     protected final DataSource _dataSource;
-    private LinkedHashMap<String, DataObject> _mapTmpIdDataObject;
+    private Queue<DataObject> _queueTmpDataObject; 
     private int _nNextFirstId = 0;
 
-    public BatchDataObjectsIterator( DataSource dataSource )
+    public BatchDataObjectsIterator( DataSource dataSource, List<String> listIdDataObjects )
     {
-        _mapTmpIdDataObject = new LinkedHashMap<>( );
+    	_queueTmpDataObject = new ConcurrentLinkedQueue< >();
         _dataSource = dataSource;
-        _nBatchSize = ( dataSource.getBatchSize( ) < 1 ) ? BATCH_SIZE : dataSource.getBatchSize( );
-        _listIdDataObjects = dataSource.getIdDataObjects( );
-
+        _nBatchSize = dataSource.getBatchSize( ) ;
+        _listIdDataObjects = listIdDataObjects;
         // Initialize the array of data objects with the firsts objects.
         List<String> listIdDataObjectsSublist = loadNextDataObjectsId( 0 );
         _nNextFirstId = _nBatchSize;
-
-        for ( DataObject obj : dataSource.getDataObjects( listIdDataObjectsSublist ) )
-        {
-            _mapTmpIdDataObject.put( obj.getId( ), obj );
-        }
-
+        _queueTmpDataObject.addAll(dataSource.getDataObjects( listIdDataObjectsSublist ));
+    
     }
 
     /**
@@ -78,7 +70,7 @@ public class BatchDataObjectsIterator implements Iterator<DataObject>
     @Override
     public boolean hasNext( )
     {
-        return ( _mapTmpIdDataObject.size( ) > 0 );
+        return ( _queueTmpDataObject.size( ) > 0 );
     }
 
     /**
@@ -87,28 +79,23 @@ public class BatchDataObjectsIterator implements Iterator<DataObject>
     @Override
     public DataObject next( )
     {
-        if ( _mapTmpIdDataObject.isEmpty( ) )
-            return null;
+        if ( _queueTmpDataObject.isEmpty( ) )
+             throw new NoSuchElementException( );
 
-        Optional<DataObject> optDataObject = _mapTmpIdDataObject.values( ).stream( ).findFirst( );
-        DataObject dataObj = optDataObject.get( );
-        if ( dataObj != null )
+        DataObject dataObj = _queueTmpDataObject.poll();
+        while ( _queueTmpDataObject.isEmpty( ) )
         {
-            _mapTmpIdDataObject.remove( dataObj.getId( ) );
-
-            if ( _mapTmpIdDataObject.isEmpty( ) )
+            List<String> listIdDataObjectsSublist = loadNextDataObjectsId( _nNextFirstId );
+            if ( !listIdDataObjectsSublist.isEmpty( ) )
             {
-                List<String> listIdDataObjectsSublist = loadNextDataObjectsId( _nNextFirstId );
-                if ( !listIdDataObjectsSublist.isEmpty( ) )
-                {
-                    _nNextFirstId += _nBatchSize;
-                    for ( DataObject obj : _dataSource.getDataObjects( listIdDataObjectsSublist ) )
-                    {
-                        _mapTmpIdDataObject.put( obj.getId( ), obj );
-                    }
-                }
+                 _nNextFirstId += _nBatchSize;
+                 _queueTmpDataObject.addAll(_dataSource.getDataObjects( listIdDataObjectsSublist ) );                   
             }
-        }
+            else {
+            	break;
+            }
+          }
+        
         return dataObj;
     }
 

@@ -34,7 +34,6 @@
 package fr.paris.lutece.plugins.elasticdata.service.daemon;
 
 import fr.paris.lutece.plugins.elasticdata.service.DataSourceService;
-import fr.paris.lutece.plugins.libraryelastic.util.ElasticClientException;
 import fr.paris.lutece.portal.service.daemon.Daemon;
 
 /**
@@ -48,14 +47,7 @@ public class FullIndexingDaemon extends Daemon
     @Override
     public void run( )
     {
-        try
-        {
-            setLastRunLogs( DataSourceService.insertDataAllDatasources( true, true ) );
-        }
-        catch( ElasticClientException ex )
-        {
-            setLastRunLogs( "Error connecting Elastic Search : " + ex.getMessage( ) );
-        }
+        setLastRunLogs( DataSourceService.insertDataAllDatasources( true, true ) );
     }
 
 }

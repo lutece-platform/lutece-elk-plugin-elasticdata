@@ -36,6 +36,10 @@ package fr.paris.lutece.plugins.elasticdata.business;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+
+import fr.paris.lutece.plugins.elasticdata.service.IndexingStatus;
+
 
 /**
  * AbstractDataSource
@@ -43,14 +47,16 @@ import java.util.Iterator;
 public abstract class AbstractDataSource implements DataSource
 {
 
+
     // Variables declarations
     private String _strId;
     private String _strName;
     private String _strTargetIndexName;
-    private int _nBatchSize;
+    private int _nBatchSize = DataSource.BATCH_SIZE;
     private String _strMappings;
     private boolean _bLocalizable;
     private boolean _bFullIndexingDaemon;
+    private IndexingStatus _indexingStatus;
     protected Collection<IDataSourceExternalAttributesProvider> _colExternalAttributesProvider;
 
     /**
@@ -213,7 +219,10 @@ public abstract class AbstractDataSource implements DataSource
     @Override
     public Iterator<DataObject> getDataObjectsIterator( )
     {
-        return new BatchDataObjectsIterator( this );
+    	List<String> listIdDataObject= this.getIdDataObjects( );
+        this.getIndexingStatus().setnNbTotalObj(listIdDataObject.size( ));
+
+        return new BatchDataObjectsIterator( this, listIdDataObject );
     }
 
     /**
@@ -228,7 +237,18 @@ public abstract class AbstractDataSource implements DataSource
         }
         return _colExternalAttributesProvider;
     }
-
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public  IndexingStatus getIndexingStatus( ) {
+    	
+    	if( _indexingStatus == null ) {
+    		
+    		_indexingStatus= new IndexingStatus( );
+    	}
+    	return _indexingStatus ;
+    }
     /**
      * Set the external attributes provider for the data source
      * 
@@ -238,4 +258,5 @@ public abstract class AbstractDataSource implements DataSource
     {
         _colExternalAttributesProvider = colExternalAttributesProvider;
     }
+    
 }

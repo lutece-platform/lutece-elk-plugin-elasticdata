@@ -37,8 +37,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.paris.lutece.plugins.elasticdata.business.DataSource;
 import fr.paris.lutece.plugins.elasticdata.service.DataSourceService;
-import fr.paris.lutece.plugins.elasticdata.service.IndexingStatus;
-import fr.paris.lutece.plugins.elasticdata.service.IndexingStatusService;
 import fr.paris.lutece.plugins.libraryelastic.util.ElasticClientException;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.util.mvc.admin.MVCAdminJspBean;
@@ -92,17 +90,12 @@ public class ManageElasticDataJspBean extends MVCAdminJspBean
     @Action( ACTION_INDEX )
     public String doIndex( HttpServletRequest request ) throws ElasticClientException
     {
-        StringBuilder sbLogs = new StringBuilder( );
-
         String strDataSourceId = request.getParameter( PARAMETER_DATA_SOURCE );
-
         DataSource source = DataSourceService.getDataSource( strDataSourceId );
+        DataSourceService.processFullIndexing( source, true );
 
-        IndexingStatusService.getInstance( ).registerIndexingStatus( strDataSourceId, new IndexingStatus( ) );
+        return redirect( request, VIEW_HOME );
 
-        DataSourceService.processFullIndexing( sbLogs, source, true, IndexingStatusService.getInstance( ).getIndexingStatus( strDataSourceId ) );
-
-        return getJsonStatus( strDataSourceId );
     }
 
     /**
@@ -111,7 +104,7 @@ public class ManageElasticDataJspBean extends MVCAdminJspBean
      * @return
      * @throws ElasticClientException
      */
-    @Action( ACTION_CHECK_INDEX_STATUS )
+   @Action( ACTION_CHECK_INDEX_STATUS )
     public String doCheckIndexStatus( HttpServletRequest request ) throws ElasticClientException
     {
         String strDataSourceId = request.getParameter( PARAMETER_DATA_SOURCE );
@@ -128,7 +121,7 @@ public class ManageElasticDataJspBean extends MVCAdminJspBean
     {
         try
         {
-            return _mapper.writeValueAsString( IndexingStatusService.getInstance( ).getIndexingStatus( strDataSourceId ) );
+            return _mapper.writeValueAsString( DataSourceService.getDataSource( strDataSourceId ).getIndexingStatus( ) );
         }
         catch( JsonProcessingException e )
         {
