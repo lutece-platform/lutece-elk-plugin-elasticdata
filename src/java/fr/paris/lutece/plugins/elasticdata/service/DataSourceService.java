@@ -386,34 +386,34 @@ public final class DataSourceService
     {
         List<DataObject> listBatch = new ArrayList<>( );
         int nCount = 0;
+        BulkRequest br;
         while ( iterateDataObjects.hasNext( ) )
         {
-            DataObject object = iterateDataObjects.next( );
-            nCount++;
-            dataSource.getIndexingStatus().setCurrentNbIndexedObj( nCount );
-            listBatch.add( object );            
+            listBatch.add( iterateDataObjects.next( ) );            
+            nCount++;            
             if ( ( listBatch.size( ) == dataSource.getBatchSize( ) ) || !iterateDataObjects.hasNext( ) )
             {
                 provideExternalAttributes( dataSource, listBatch );
-                BulkRequest br = new BulkRequest( );
+                br = new BulkRequest( );
                 for ( DataObject batchObject : listBatch )
                 {
-                    String strId = batchObject.getId( );
-                    IndexSubRequest isr = new IndexSubRequest( strId );
-                    br.addAction( isr, batchObject );
+                    br.addAction( new IndexSubRequest( batchObject.getId( ) ), batchObject );
                 }
                 AppLogService.info(
                         "ElasticData indexing : Posting bulk action for " + listBatch.size( ) + " documents of DataSource '" + dataSource.getName( ) + "'" );
                 if ( elastic == null )
                 {
-                    String strServerUrl = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL );
-                    elastic = new Elastic( strServerUrl );
+                    elastic = new Elastic( AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL ) );
                 }
                 String strResponse = elastic.createByBulk( dataSource.getTargetIndexName( ), br );
                 AppLogService.debug( "ElasticData : Response of the posted bulk request : " + strResponse );
                 listBatch.clear( );
             }
-
+            if( dataSource.getIndexingStatus().getNbTotalObj( ) < nCount ) {
+            	
+            	dataSource.getIndexingStatus().setnNbTotalObj( nCount );
+            }
+            dataSource.getIndexingStatus().setCurrentNbIndexedObj( nCount );
         }
         AppLogService.info( "ElasticData indexing : completed for " + nCount + " documents of DataSource '" + dataSource.getName( ) + "'" );
         return nCount;
