@@ -38,5 +38,11 @@
             <daemon-description>elasticdata.daemon.fullIndexing.description</daemon-description>
             <daemon-class>fr.paris.lutece.plugins.elasticdata.service.daemon.FullIndexingDaemon</daemon-class>
         </daemon>
+         <daemon>
+            <daemon-id>incrementalIndexingDaemon</daemon-id>
+            <daemon-name>elasticdata.daemon.incrementalIndexing.name</daemon-name>
+            <daemon-description>elasticdata.daemon.incrementalIndexing.description</daemon-description>
+            <daemon-class>fr.paris.lutece.plugins.elasticdata.service.daemon.IncrementalIndexingDaemon</daemon-class>
+        </daemon>
     </daemons>
 </plug-in>

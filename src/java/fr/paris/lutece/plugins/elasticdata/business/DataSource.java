@@ -93,6 +93,15 @@ public interface DataSource
 
     Iterator<DataObject> getDataObjectsIterator( );
 
+      /**
+     * An iterator of incremental data object according to task
+     *
+     * @return an Iterator
+     */
+
+    Iterator<DataObject> getIncrementalDataObjectsIterator( List<String> listIdDataObjects );
+
+
     /**
      * Returns the BatchSize
      *
@@ -122,6 +131,13 @@ public interface DataSource
      * @return true if the datasource should be fully indexed by the daemon
      */
     boolean usesFullIndexingDaemon( );
+
+    /**
+     * Uses the full indexing daemon
+     * 
+     * @return true if the datasource should be fully indexed by the daemon
+     */
+    boolean usesIncrementalIndexingDaemon( );
 
     /**
      * Get the external providers of attributes for DataSources

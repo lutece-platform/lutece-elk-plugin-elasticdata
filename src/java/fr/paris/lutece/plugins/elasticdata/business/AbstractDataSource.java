@@ -56,6 +56,7 @@ public abstract class AbstractDataSource implements DataSource
     private String _strMappings;
     private boolean _bLocalizable;
     private boolean _bFullIndexingDaemon;
+    private boolean _bIncrementalIndexingDaemon;
     private IndexingStatus _indexingStatus;
     protected Collection<IDataSourceExternalAttributesProvider> _colExternalAttributesProvider;
 
@@ -214,6 +215,28 @@ public abstract class AbstractDataSource implements DataSource
     }
 
     /**
+     * Returns the IncrementalIndexingDaemon
+     * 
+     * @return The IncrementalIndexingDaemon
+     */
+    @Override
+    public boolean usesIncrementalIndexingDaemon( )
+    {
+        return _bIncrementalIndexingDaemon;
+    }
+
+    /**
+     * Sets the IncrementalIndexingDaemon
+     * 
+     * @param bIncrementalIndexingDaemon
+     *            The IncrementalIndexingDaemon
+     */
+    public void setIncrementalIndexingDaemon( boolean bIncrementalIndexingDaemon )
+    {
+        _bIncrementalIndexingDaemon = bIncrementalIndexingDaemon;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -223,6 +246,15 @@ public abstract class AbstractDataSource implements DataSource
         this.getIndexingStatus().setnNbTotalObj(listIdDataObject.size( ));
 
         return new BatchDataObjectsIterator( this, listIdDataObject );
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Iterator<DataObject> getIncrementalDataObjectsIterator( List<String> listIdDataObjects )
+    {
+        return new BatchDataObjectsIterator( this, listIdDataObjects );
     }
 
     /**
