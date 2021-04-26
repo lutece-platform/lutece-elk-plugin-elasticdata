@@ -49,7 +49,7 @@ public class MockDataSource extends AbstractDataSource
     @Override
     public List<String> getIdDataObjects( )
     {
-        List<String> list10firstInts = new ArrayList< >( );
+        List<String> list10firstInts = new ArrayList<>( );
         for ( int i = 1; i < 10; i++ )
         {
             list10firstInts.add( String.valueOf( i ) );
@@ -63,10 +63,10 @@ public class MockDataSource extends AbstractDataSource
     @Override
     public List<DataObject> getDataObjects( List<String> listIdDataObjects )
     {
-    	List<DataObject> list10firstInts = new ArrayList< >( );
+        List<DataObject> list10firstInts = new ArrayList<>( );
         for ( int i = 1; i < 10; i++ )
         {
-            list10firstInts.add( new MockDataObject( String.valueOf( i  )));
+            list10firstInts.add( new MockDataObject( String.valueOf( i ) ) );
         }
         return list10firstInts;
     }

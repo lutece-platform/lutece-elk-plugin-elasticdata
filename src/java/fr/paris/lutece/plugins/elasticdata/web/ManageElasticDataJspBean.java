@@ -104,7 +104,7 @@ public class ManageElasticDataJspBean extends MVCAdminJspBean
      * @return
      * @throws ElasticClientException
      */
-   @Action( ACTION_CHECK_INDEX_STATUS )
+    @Action( ACTION_CHECK_INDEX_STATUS )
     public String doCheckIndexStatus( HttpServletRequest request ) throws ElasticClientException
     {
         String strDataSourceId = request.getParameter( PARAMETER_DATA_SOURCE );

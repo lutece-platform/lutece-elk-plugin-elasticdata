@@ -31,7 +31,7 @@
  *
  * License 1.0
  */
- package fr.paris.lutece.plugins.elasticdata.business;
+package fr.paris.lutece.plugins.elasticdata.business;
 
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
@@ -52,14 +52,16 @@ public final class IndexerActionHome
     /**
      * Private constructor - this class need not be instantiated
      */
-    private IndexerActionHome(  )
+    private IndexerActionHome( )
     {
     }
 
     /**
      * Create an instance of the indexerAction class
-     * @param indexerAction The instance of the IndexerAction which contains the informations to store
-     * @return The  instance of indexerAction which has been created with its primary key.
+     * 
+     * @param indexerAction
+     *            The instance of the IndexerAction which contains the informations to store
+     * @return The instance of indexerAction which has been created with its primary key.
      */
     public static IndexerAction create( IndexerAction indexerAction )
     {
@@ -70,8 +72,10 @@ public final class IndexerActionHome
 
     /**
      * Update of the indexerAction which is specified in parameter
-     * @param indexerAction The instance of the IndexerAction which contains the data to store
-     * @return The instance of the  indexerAction which has been updated
+     * 
+     * @param indexerAction
+     *            The instance of the IndexerAction which contains the data to store
+     * @return The instance of the indexerAction which has been updated
      */
     public static IndexerAction update( IndexerAction indexerAction )
     {
@@ -82,7 +86,9 @@ public final class IndexerActionHome
 
     /**
      * Remove the indexerAction whose identifier is specified in parameter
-     * @param nKey The indexerAction Id
+     * 
+     * @param nKey
+     *            The indexerAction Id
      */
     public static void remove( int nKey )
     {
@@ -91,7 +97,9 @@ public final class IndexerActionHome
 
     /**
      * Returns an instance of a indexerAction whose identifier is specified in parameter
-     * @param nKey The indexerAction primary key
+     * 
+     * @param nKey
+     *            The indexerAction primary key
      * @return an instance of IndexerAction
      */
     public static IndexerAction findByPrimaryKey( int nKey )
@@ -101,7 +109,9 @@ public final class IndexerActionHome
 
     /**
      * Returns an instance of a indexerAction whose resource identifier is specified in parameter
-     * @param nKey The indexerAction primary key
+     * 
+     * @param nKey
+     *            The indexerAction primary key
      * @return an instance of IndexerAction
      */
     public static IndexerAction findByIdRessource( String strIdRessource, String strIdDataSource )
@@ -111,6 +121,7 @@ public final class IndexerActionHome
 
     /**
      * Load the data of all the indexerAction objects and returns them as a list
+     * 
      * @return the list which contains the data of all the indexerAction objects
      */
     public static List<IndexerAction> getIndexerActionsList( )
@@ -120,15 +131,17 @@ public final class IndexerActionHome
 
     /**
      * Load the data of all the indexerAction objects and returns them as a list
+     * 
      * @return the list which contains the data of all the indexerAction objects
      */
     public static List<IndexerAction> getIndexerActionsList( String strIdDataSource, int nIdTask )
     {
         return _dao.selectIndexerActionsList( strIdDataSource, nIdTask, _plugin );
     }
-    
+
     /**
      * Load the id of all the indexerAction objects and returns them as a list
+     * 
      * @return the list which contains the id of all the indexerAction objects
      */
     public static List<Integer> getIdIndexerActionsList( )
@@ -136,18 +149,19 @@ public final class IndexerActionHome
         return _dao.selectIdIndexerActionsList( _plugin );
     }
 
-     /**
+    /**
      * Load the id of all the indexerAction objects and returns them as a list
+     * 
      * @return the list which contains the id of all the indexerAction objects
      */
-    public static List<String> getIdRessourceIndexerActionsList( String strIdDataSource, int nIdTask  )
+    public static List<String> getIdRessourceIndexerActionsList( String strIdDataSource, int nIdTask )
     {
         return _dao.selectIdRessourceIndexerActionsList( strIdDataSource, nIdTask, _plugin );
     }
-    
-    
+
     /**
      * Load the data of all the indexerAction objects and returns them as a referenceList
+     * 
      * @return the referenceList which contains the data of all the indexerAction objects
      */
     public static ReferenceList getIndexerActionsReferenceList( )
@@ -155,4 +169,3 @@ public final class IndexerActionHome
         return _dao.selectIndexerActionsReferenceList( _plugin );
     }
 }
-

@@ -31,7 +31,7 @@
  *
  * License 1.0
  */
- 
+
 package fr.paris.lutece.plugins.elasticdata.business;
 
 import fr.paris.lutece.portal.service.plugin.Plugin;
@@ -45,22 +45,31 @@ public interface IIndexerActionDAO
 {
     /**
      * Insert a new record in the table.
-     * @param indexerAction instance of the IndexerAction object to insert
-     * @param plugin the Plugin
+     * 
+     * @param indexerAction
+     *            instance of the IndexerAction object to insert
+     * @param plugin
+     *            the Plugin
      */
     void insert( IndexerAction indexerAction, Plugin plugin );
 
     /**
      * Update the record in the table
-     * @param indexerAction the reference of the IndexerAction
-     * @param plugin the Plugin
+     * 
+     * @param indexerAction
+     *            the reference of the IndexerAction
+     * @param plugin
+     *            the Plugin
      */
     void store( IndexerAction indexerAction, Plugin plugin );
 
     /**
      * Delete a record from the table
-     * @param nKey The identifier of the IndexerAction to delete
-     * @param plugin the Plugin
+     * 
+     * @param nKey
+     *            The identifier of the IndexerAction to delete
+     * @param plugin
+     *            the Plugin
      */
     void delete( int nKey, Plugin plugin );
 
@@ -69,54 +78,73 @@ public interface IIndexerActionDAO
 
     /**
      * Load the data from the table
-     * @param nKey The identifier of the indexerAction
-     * @param plugin the Plugin
+     * 
+     * @param nKey
+     *            The identifier of the indexerAction
+     * @param plugin
+     *            the Plugin
      * @return The instance of the indexerAction
      */
     IndexerAction load( int nKey, Plugin plugin );
 
     /**
      * Load the data from the table
-     * @param strIdResource The identifier of the resource
-     * @param strIdDataSource the identifier of the DataSource
-     * @param plugin the Plugin
+     * 
+     * @param strIdResource
+     *            The identifier of the resource
+     * @param strIdDataSource
+     *            the identifier of the DataSource
+     * @param plugin
+     *            the Plugin
      * @return The instance of the indexerAction
      */
     IndexerAction loadByIdResource( String strIdResource, String strIdDataSource, Plugin plugin );
 
     /**
      * Load the data of all the indexerAction objects and returns them as a list
-     * @param plugin the Plugin
+     * 
+     * @param plugin
+     *            the Plugin
      * @return The list which contains the data of all the indexerAction objects
      */
     List<IndexerAction> selectIndexerActionsList( Plugin plugin );
-    
+
     /**
      * Load the data of all the indexerAction objects and returns them as a list
-     * @param strIdDataSource the identifier of data source
-     * @param nIdTask the identifier of task
-     * @param plugin the Plugin
+     * 
+     * @param strIdDataSource
+     *            the identifier of data source
+     * @param nIdTask
+     *            the identifier of task
+     * @param plugin
+     *            the Plugin
      * @return The list which contains the data of all the indexerAction objects
      */
     List<IndexerAction> selectIndexerActionsList( String strIdDataSource, int nIdTask, Plugin plugin );
 
     /**
      * Load the id of all the indexerAction objects and returns them as a list
-     * @param plugin the Plugin
+     * 
+     * @param plugin
+     *            the Plugin
      * @return The list which contains the id of all the indexerAction objects
      */
     List<Integer> selectIdIndexerActionsList( Plugin plugin );
 
-        /**
+    /**
      * Load the IdRessource of all the indexerAction objects and returns them as a list
-     * @param plugin the Plugin
+     * 
+     * @param plugin
+     *            the Plugin
      * @return The list which contains the IdRessource of all the indexerAction objects
      */
     List<String> selectIdRessourceIndexerActionsList( String strIdDataSource, int nIdTask, Plugin plugin );
-    
+
     /**
      * Load the data of all the indexerAction objects and returns them as a referenceList
-     * @param plugin the Plugin
+     * 
+     * @param plugin
+     *            the Plugin
      * @return The referenceList which contains the data of all the indexerAction objects
      */
     ReferenceList selectIndexerActionsReferenceList( Plugin plugin );

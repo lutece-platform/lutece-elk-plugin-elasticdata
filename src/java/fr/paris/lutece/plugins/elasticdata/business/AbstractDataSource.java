@@ -40,13 +40,11 @@ import java.util.List;
 
 import fr.paris.lutece.plugins.elasticdata.service.IndexingStatus;
 
-
 /**
  * AbstractDataSource
  */
 public abstract class AbstractDataSource implements DataSource
 {
-
 
     // Variables declarations
     private String _strId;
@@ -219,8 +217,8 @@ public abstract class AbstractDataSource implements DataSource
     @Override
     public Iterator<DataObject> getDataObjectsIterator( )
     {
-    	List<String> listIdDataObject= this.getIdDataObjects( );
-        this.getIndexingStatus().setnNbTotalObj(listIdDataObject.size( ));
+        List<String> listIdDataObject = this.getIdDataObjects( );
+        this.getIndexingStatus( ).setnNbTotalObj( listIdDataObject.size( ) );
 
         return new BatchDataObjectsIterator( this, listIdDataObject );
     }
@@ -246,18 +244,22 @@ public abstract class AbstractDataSource implements DataSource
         }
         return _colExternalAttributesProvider;
     }
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public  IndexingStatus getIndexingStatus( ) {
-    	
-    	if( _indexingStatus == null ) {
-    		
-    		_indexingStatus= new IndexingStatus( );
-    	}
-    	return _indexingStatus ;
+    public IndexingStatus getIndexingStatus( )
+    {
+
+        if ( _indexingStatus == null )
+        {
+
+            _indexingStatus = new IndexingStatus( );
+        }
+        return _indexingStatus;
     }
+
     /**
      * Set the external attributes provider for the data source
      * 
@@ -267,5 +269,5 @@ public abstract class AbstractDataSource implements DataSource
     {
         _colExternalAttributesProvider = colExternalAttributesProvider;
     }
-    
+
 }

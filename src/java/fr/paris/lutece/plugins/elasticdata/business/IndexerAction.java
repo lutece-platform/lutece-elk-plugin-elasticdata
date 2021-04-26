@@ -37,12 +37,12 @@ import java.io.Serializable;
 
 /**
  * This is the business class for the object IndexerAction
- */ 
+ */
 public class IndexerAction implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    // Variables declarations 
+    // Variables declarations
     public static final int TASK_CREATE = 1;
     public static final int TASK_MODIFY = 2;
     public static final int TASK_DELETE = 3;
@@ -53,6 +53,7 @@ public class IndexerAction implements Serializable
 
     /**
      * Returns the Id
+     * 
      * @return The Id
      */
     public int getId( )
@@ -62,15 +63,18 @@ public class IndexerAction implements Serializable
 
     /**
      * Sets the Id
-     * @param nId The Id
-     */ 
+     * 
+     * @param nId
+     *            The Id
+     */
     public void setId( int nId )
     {
         _nId = nId;
     }
-    
+
     /**
      * Returns the IdResource
+     * 
      * @return The IdResource
      */
     public String getIdResource( )
@@ -80,15 +84,18 @@ public class IndexerAction implements Serializable
 
     /**
      * Sets the IdResource
-     * @param strIdResource The IdResource
-     */ 
+     * 
+     * @param strIdResource
+     *            The IdResource
+     */
     public void setIdResource( String strIdResource )
     {
         _strIdResource = strIdResource;
     }
-    
+
     /**
      * Returns the IdTask
+     * 
      * @return The IdTask
      */
     public int getIdTask( )
@@ -98,15 +105,18 @@ public class IndexerAction implements Serializable
 
     /**
      * Sets the IdTask
-     * @param nIdTask The IdTask
-     */ 
+     * 
+     * @param nIdTask
+     *            The IdTask
+     */
     public void setIdTask( int nIdTask )
     {
         _nIdTask = nIdTask;
     }
-    
+
     /**
      * Returns the IdDataSource
+     * 
      * @return The IdDataSource
      */
     public String getIdDataSource( )
@@ -116,8 +126,10 @@ public class IndexerAction implements Serializable
 
     /**
      * Sets the IdDataSource
-     * @param strIdDataSource The IdDataSource
-     */ 
+     * 
+     * @param strIdDataSource
+     *            The IdDataSource
+     */
     public void setIdDataSource( String strIdDataSource )
     {
         _strIdDataSource = strIdDataSource;
