@@ -35,14 +35,13 @@ package fr.paris.lutece.plugins.elasticdata.business.mock;
 
 import fr.paris.lutece.plugins.elasticdata.business.AbstractDataSource;
 import fr.paris.lutece.plugins.elasticdata.business.DataObject;
-import fr.paris.lutece.plugins.elasticdata.business.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * MockDataSource
  */
-public class MockDataSource extends AbstractDataSource implements DataSource
+public class MockDataSource extends AbstractDataSource
 {
     /**
      * {@inheritDoc }

@@ -170,7 +170,7 @@ public final class DataSourceService
 	        ResourceEvent dataSourceFullIndexed = new ResourceEvent( );
 		    dataSourceFullIndexed.setIdResource( dataSource.getId( ) );
 		    dataSourceFullIndexed.setTypeResource( getIndexingResourceType( ) );
-		    ResourceEventManager.fireAddedResource( dataSourceFullIndexed );
+            ResourceEventManager.fireAddedResource( dataSourceFullIndexed );
     	
     	} catch (ElasticClientException e) {
     		
@@ -276,7 +276,7 @@ public final class DataSourceService
     public static void deleteById( DataSource dataSource, String strId ) throws ElasticClientException
     {
         Elastic elastic = getElastic( );
-        elastic.deleteDocument( dataSource.getTargetIndexName( ), strId );
+        elastic.deleteDocument( dataSource.getTargetIndexName( ), getIdDocument( dataSource.getId( ),  strId ) );
     }
 
     /**
@@ -356,14 +356,36 @@ public final class DataSourceService
         return DataSourceUtils.TIMESTAMP_MAPPINGS;
     }
     /**
-     * Complete the data source with the external attributes
+     * Complete the data source with the external attributes and set elastic docuement id
      * @param dataSource the data source
      * @param dataObject the data object
      */
     public static void completeDataObjectWithFullData( DataSource dataSource, DataObject dataObject )
     {
-        // Complete the data source with the external attributes
+        dataObject.setId( getIdDocument( dataSource.getId( ),  dataObject.getId( ) ) );
         provideExternalAttributes( dataSource, dataObject );
+    }
+
+    /**
+     * Complete the data source with the external attributes and set elastic docuement id
+     * @param dataSource the data source
+     * @param dataObject the data object
+     */
+    public static void completeDataObjectWithFullData( DataSource dataSource, List<DataObject> dataObjectList )
+    {
+        for( DataObject dataObject : dataObjectList ) {
+            dataObject.setId( getIdDocument( dataSource.getId( ),  dataObject.getId( ) ) );
+        }
+        provideExternalAttributes( dataSource, dataObjectList );
+    }
+
+    /**
+     * Return the unique id of the elastic document
+     * @param strIdDataSource the data source id
+     * @param strIdDataObject the data object id
+     */
+    public static String getIdDocument( String strIdDataSource, String strIdDataObject ) {
+        return DataSourceUtils.INSTANCE_NAME + "_" + strIdDataSource + "_" + strIdDataObject;
     }
 
     /**
@@ -381,7 +403,7 @@ public final class DataSourceService
      *             If a problem occurs connecting the server
      * @return the number of documents posted
      */
-    private static int insertObjects( Elastic elastic, DataSource dataSource, Iterator<DataObject> iterateDataObjects )
+    public static int insertObjects( Elastic elastic, DataSource dataSource, Iterator<DataObject> iterateDataObjects )
             throws ElasticClientException
     {
         List<DataObject> listBatch = new ArrayList<>( );
@@ -393,7 +415,7 @@ public final class DataSourceService
             nCount++;            
             if ( ( listBatch.size( ) == dataSource.getBatchSize( ) ) || !iterateDataObjects.hasNext( ) )
             {
-                provideExternalAttributes( dataSource, listBatch );
+                completeDataObjectWithFullData( dataSource, listBatch );
                 br = new BulkRequest( );
                 for ( DataObject batchObject : listBatch )
                 {
@@ -416,6 +438,48 @@ public final class DataSourceService
             dataSource.getIndexingStatus().setCurrentNbIndexedObj( nCount );
         }
         AppLogService.info( "ElasticData indexing : completed for " + nCount + " documents of DataSource '" + dataSource.getName( ) + "'" );
+        return nCount;
+    }
+
+    /**
+     * update a list of object
+     * 
+     * @param elastic
+     *            The Elastic Server
+     * @param dataSource
+     *            The data source
+     * @param listDataObjects
+     *            The list of objects
+     * @throws ElasticClientException
+     *             If a problem occurs connecting the server
+     * @return the number of documents posted
+     */
+    public static int updateObjects( Elastic elastic, DataSource dataSource, Iterator<DataObject> iterateDataObjects )
+            throws ElasticClientException
+    {
+        List<DataObject> listBatch = new ArrayList<>( );
+        int nCount = 0;
+        if ( elastic == null )
+        {
+            elastic = new Elastic( AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL ) );
+        }
+
+        while ( iterateDataObjects.hasNext( ) )
+        {
+            listBatch.add( iterateDataObjects.next( ) );            
+            if ( ( listBatch.size( ) == dataSource.getBatchSize( ) ) || !iterateDataObjects.hasNext( ) )
+            {
+                completeDataObjectWithFullData( dataSource, listBatch );
+                for ( DataObject batchObject : listBatch )
+                {
+                    String strResponse = elastic.partialUpdate( dataSource.getTargetIndexName( ), batchObject.getId( ), batchObject);
+                    AppLogService.debug( "ElasticData : Response of the partial update : " + strResponse );
+                    nCount++;
+                }
+                listBatch.clear( );
+            }
+        }
+        AppLogService.info( "ElasticData partial update indexing : completed for " + nCount + " documents of DataSource '" + dataSource.getName( ) + "'" );
         return nCount;
     }
 

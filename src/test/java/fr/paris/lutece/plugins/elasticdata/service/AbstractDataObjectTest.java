@@ -35,7 +35,6 @@ package fr.paris.lutece.plugins.elasticdata.service;
 
 import fr.paris.lutece.plugins.elasticdata.business.AbstractDataObject;
 import fr.paris.lutece.test.LuteceTestCase;
-import java.util.Date;
 import org.junit.Test;
 
 /**

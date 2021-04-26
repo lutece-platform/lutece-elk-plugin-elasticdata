@@ -229,6 +229,15 @@ public abstract class AbstractDataSource implements DataSource
      * {@inheritDoc}
      */
     @Override
+    public Iterator<DataObject> getDataObjectsIterator( List<String> listIdDataObjects )
+    {
+        return new BatchDataObjectsIterator( this, listIdDataObjects );
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Collection<IDataSourceExternalAttributesProvider> getExternalAttributesProvider( )
     {
         if ( _colExternalAttributesProvider == null )

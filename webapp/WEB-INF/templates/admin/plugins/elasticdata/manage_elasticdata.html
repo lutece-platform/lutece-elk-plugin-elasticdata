@@ -12,15 +12,17 @@
                     <#list data_sources_list as source>
                         <tr>
                             <td>${source.name}
-                                <div class="progress" id="${source.id}">
+                                <div class="progress" id="${source.id}" style="display:none">
                                     <div class="progress-bar progress-bar-striped progress-bar-animated"
                                         role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
                                     </div>
                                 </div>
+                                <div id="log-${source.id}">
+                                </div>
                             </td>
                             <td>
                                 <@button title='#i18n{elasticdata.manage_elasticdata.buttonIndex}' buttonIcon='cogs'
-                                    color="primary" params='data-indexId="${source.id}"' id='btn-${source.id}' />
+                                    color="primary" params='data-indexId="${source.id}" check=true' id='btn-${source.id}' />
                             </td>
                         </tr>
                     </#list>
@@ -38,9 +40,11 @@
         if (datasources != null) {
             for (const datasource of datasources) {
                 const dataSourceId = datasource.getAttribute('data-indexId');
-                await getStatus(dataSourceId).then(json => {
+                 if( datasource.getAttribute('check') === "true" ) {
+                     await getStatus(dataSourceId).then(json => {
                 	progressBar(dataSourceId, json)
-                });
+                    });
+                }
             }
         }
     }
@@ -62,37 +66,38 @@
     // checking
     setInterval(function () {
         check()
-    }, 3000);
+    }, 500);
     // progress bar
     function progressBar(dataSourceId, json) {
         const progressBar = document.getElementById(dataSourceId);
+        const btn = document.getElementById("btn-" + dataSourceId);
         if (json !== null) {
-            const percent = json.progress;
-            const nbTotalObj = json.nbTotalObj;
-            const currentNbIndexedObj = json.currentNbIndexedObj;
-            if (percent > 0) {
+            document.getElementById("log-"+dataSourceId).innerHTML = "<i>" + json.sbLogs + "</i>"
+            if ( json.isRunning ) {
                 progressBar.style.display = 'block';
                 progressBar.getElementsByClassName('.progress');
-                document.getElementById("btn-" + dataSourceId).disabled = true
+                btn.disabled = true;
                 const bar = progressBar.querySelector("*[aria-valuenow]");
-                bar.setAttribute("aria-valuenow", percent);
-                bar.style.width = percent + "%"
-                bar.innerHTML = percent.toFixed(2) + "%" + " (" + currentNbIndexedObj + "/" + nbTotalObj + ")";
-                if (percent >= 100) {
-                    document.getElementById("btn-" + dataSourceId).disabled = false;
-                }
+                bar.setAttribute("aria-valuenow", json.progress);
+                bar.style.width = json.progress + "%";
+                bar.innerHTML = json.progress.toFixed(2) + "%" + " (" + json.currentNbIndexedObj + "/" + json.nbTotalObj + ")";
+            } else {
+               btn.setAttribute("check",false)
+               progressBar.style.display = 'none';
+               btn.disabled = false;
             };
         }
     }
+
     // register btn listeners
     for (datasource of datasources) {
         datasource.addEventListener('click', async function (event) {
             event.preventDefault();
             const dataSourceId = event.target.getAttribute('data-indexId');
-            event.target.disabled = true
+            event.target.disabled = true;
             const progressBar = document.getElementById(dataSourceId);
             runIndex(dataSourceId);
-            progressBar.style.display = 'block';
+            event.target.setAttribute("check",true);
         }, false);
     }
 </script>

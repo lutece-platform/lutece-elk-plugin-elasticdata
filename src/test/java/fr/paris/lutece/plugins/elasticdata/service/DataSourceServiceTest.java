@@ -33,7 +33,6 @@
  */
 package fr.paris.lutece.plugins.elasticdata.service;
 
-import fr.paris.lutece.plugins.elasticdata.business.mock.MockDataSource;
 import fr.paris.lutece.test.LuteceTestCase;
 import org.junit.Test;
 

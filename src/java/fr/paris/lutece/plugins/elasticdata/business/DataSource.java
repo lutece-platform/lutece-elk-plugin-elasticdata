@@ -93,6 +93,15 @@ public interface DataSource
 
     Iterator<DataObject> getDataObjectsIterator( );
 
+      /**
+     * An iterator of data object from a list of data objects identifiers
+     *
+     * @return an Iterator
+     */
+
+    Iterator<DataObject> getDataObjectsIterator( List<String> listIdDataObjects );
+
+
     /**
      * Returns the BatchSize
      *

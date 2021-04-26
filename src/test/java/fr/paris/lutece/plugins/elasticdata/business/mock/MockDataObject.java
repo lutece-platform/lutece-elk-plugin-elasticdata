@@ -97,4 +97,9 @@ public class MockDataObject implements DataObject
         return null;
     }
 
+    @Override
+    public void setId(String strId) {
+    	_strId = strId;
+    }
+
 }
