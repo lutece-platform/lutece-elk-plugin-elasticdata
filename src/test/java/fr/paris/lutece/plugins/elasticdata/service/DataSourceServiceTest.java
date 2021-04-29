@@ -33,7 +33,6 @@
  */
 package fr.paris.lutece.plugins.elasticdata.service;
 
-import fr.paris.lutece.plugins.elasticdata.business.mock.MockDataSource;
 import fr.paris.lutece.test.LuteceTestCase;
 import org.junit.Test;
 
@@ -51,11 +50,10 @@ public class DataSourceServiceTest extends LuteceTestCase
     @Test
     public void testInsertData( ) throws Exception
     {
-       /* MockDataSource ds = new MockDataSource( );
-        ds.setName( "Mock Data Source" );
-        ds.setTargetIndexName( "mockdatasource" );
-        ds.setBatchSize( 4 ); // actions will posted 4 + 4 + 1
-        DataSourceService.processFullIndexing( ds, true );*/
+        /*
+         * MockDataSource ds = new MockDataSource( ); ds.setName( "Mock Data Source" ); ds.setTargetIndexName( "mockdatasource" ); ds.setBatchSize( 4 ); //
+         * actions will posted 4 + 4 + 1 DataSourceService.processFullIndexing( ds, true );
+         */
     }
 
     /**
@@ -66,7 +64,7 @@ public class DataSourceServiceTest extends LuteceTestCase
     @Test
     public void testInsertDataAllDatasources( ) throws Exception
     {
-       // DataSourceService.insertDataAllDatasources( true );
+        // DataSourceService.insertDataAllDatasources( true );
     }
 
 }

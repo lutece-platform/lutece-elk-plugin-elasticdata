@@ -38,11 +38,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class IndexingStatus
 {
     private int _nNbTotalObj;
-    private int _nCurrentNbIndexedObj;  
+    private int _nCurrentNbIndexedObj;
     private AtomicBoolean _bIsRunning = new AtomicBoolean( );
     private StringBuilder _sbLogs;
-    
-    
+
     /**
      * Get the total number of data objects to index
      * 
@@ -85,23 +84,27 @@ public class IndexingStatus
     {
         _nCurrentNbIndexedObj = nCurrentNbIndexedObj;
     }
+
     /**
      * Returns the IsRunning
+     * 
      * @return The IsRunning
-     */ 
-     public AtomicBoolean getIsRunning()
-     {
-         return _bIsRunning;
-     }
- 
+     */
+    public AtomicBoolean getIsRunning( )
+    {
+        return _bIsRunning;
+    }
+
     /**
      * Sets the IsRunning
-     * @param bIsRunning The IsRunning
-     */ 
-     public void setIsRunning( AtomicBoolean bIsRunning )
-     {
-         _bIsRunning = bIsRunning;
-     }
+     * 
+     * @param bIsRunning
+     *            The IsRunning
+     */
+    public void setIsRunning( AtomicBoolean bIsRunning )
+    {
+        _bIsRunning = bIsRunning;
+    }
 
     /**
      * Get the percent of indexed objects
@@ -110,58 +113,70 @@ public class IndexingStatus
      */
     public double getProgress( )
     {
-    	if(_nNbTotalObj == 0) {
-    		
-    		return 0;
-    	}
+        if ( _nNbTotalObj == 0 )
+        {
+
+            return 0;
+        }
         return (double) _nCurrentNbIndexedObj / (double) _nNbTotalObj * 100.0;
     }
+
     /**
      * Returns the SbLogs
+     * 
      * @return The SbLogs
-     */ 
-     public String getStringSbLogs()
-     {
-    	 if( _sbLogs == null )
-    	 {
-    		 _sbLogs =new StringBuilder( ); 
-    	 }
-         return _sbLogs.toString( );
-     } 
+     */
+    public String getStringSbLogs( )
+    {
+        if ( _sbLogs == null )
+        {
+            _sbLogs = new StringBuilder( );
+        }
+        return _sbLogs.toString( );
+    }
+
     /**
      * Returns the SbLogs
+     * 
      * @return The SbLogs
-     */ 
-     public StringBuilder getSbLogs()
-     {
-    	 if( _sbLogs == null )
-    	 {
-    		 _sbLogs =new StringBuilder( ); 
-    	 }
-         return _sbLogs;
-     } 
+     */
+    public StringBuilder getSbLogs( )
+    {
+        if ( _sbLogs == null )
+        {
+            _sbLogs = new StringBuilder( );
+        }
+        return _sbLogs;
+    }
+
     /**
      * Sets the SbLogs
-     * @param sbLogs The SbLogs
-     */ 
-     public void setSbLogs( StringBuilder sbLogs )
-     {
-         _sbLogs = sbLogs;
-     }
+     * 
+     * @param sbLogs
+     *            The SbLogs
+     */
+    public void setSbLogs( StringBuilder sbLogs )
+    {
+        _sbLogs = sbLogs;
+    }
+
     /**
      * Reset the Indexing Status
      */
-    public void reset() {
-    	
-    	_nNbTotalObj= 0;
-    	_nCurrentNbIndexedObj= 0;
-    	if( _sbLogs != null )
-    	{
-    		_sbLogs.setLength( 0 );
-    	}else {
-    		
-    		 _sbLogs =new StringBuilder( );
-    	}
-    	
+    public void reset( )
+    {
+
+        _nNbTotalObj = 0;
+        _nCurrentNbIndexedObj = 0;
+        if ( _sbLogs != null )
+        {
+            _sbLogs.setLength( 0 );
+        }
+        else
+        {
+
+            _sbLogs = new StringBuilder( );
+        }
+
     }
 }
