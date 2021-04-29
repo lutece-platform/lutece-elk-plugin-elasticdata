@@ -255,7 +255,7 @@ public final class DataSourceService
     public static void partialUpdate( DataSource dataSource, String strId, Object object ) throws ElasticClientException
     {
         Elastic elastic = getElastic( );
-        elastic.partialUpdate( dataSource.getTargetIndexName( ), strId, object );
+        elastic.partialUpdate( dataSource.getTargetIndexName( ), getIdDocument( dataSource.getId( ), strId ), object );
     }
 
     /**
@@ -475,7 +475,7 @@ public final class DataSourceService
                         "ElasticData indexing : Posting bulk action for " + listBatch.size( ) + " documents of DataSource '" + dataSource.getName( ) + "'" );
                 if ( elastic == null )
                 {
-                    elastic = new Elastic( AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL ) );
+                    elastic = getElastic( );
                 }
 
                 try
@@ -523,7 +523,7 @@ public final class DataSourceService
         int nCount = 0;
         if ( elastic == null )
         {
-            elastic = new Elastic( AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL ) );
+            elastic = getElastic( );
         }
 
         while ( iterateDataObjects.hasNext( ) )
