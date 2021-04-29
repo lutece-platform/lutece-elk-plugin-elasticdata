@@ -1,16 +1,23 @@
 package fr.paris.lutece.plugins.elasticdata.service;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.json.JSONArray;
 
+import fr.paris.lutece.plugins.elasticdata.business.DataObject;
 import fr.paris.lutece.plugins.elasticdata.business.DataSource;
 import fr.paris.lutece.plugins.elasticdata.business.IndexerAction;
 import fr.paris.lutece.plugins.elasticdata.business.IndexerActionHome;
+import fr.paris.lutece.plugins.libraryelastic.business.bulk.BulkRequest;
+import fr.paris.lutece.plugins.libraryelastic.business.bulk.IndexSubRequest;
 import fr.paris.lutece.plugins.libraryelastic.util.Elastic;
 import fr.paris.lutece.plugins.libraryelastic.util.ElasticClientException;
 import fr.paris.lutece.portal.service.util.AppLogService;
+import fr.paris.lutece.util.sql.TransactionManager;
 
 public final class DataSourceIncrementalService
 {
@@ -139,20 +146,168 @@ public final class DataSourceIncrementalService
             switch( nIdTask )
             {
                 case IndexerAction.TASK_CREATE:
-                    nCount += DataSourceService.insertObjects( elastic, dataSource, dataSource.getDataObjectsIterator( listIdResource ) );
+                    nCount += insertObjects( elastic, dataSource, dataSource.getDataObjectsIterator( listIdResource ) );
                     break;
                 case IndexerAction.TASK_MODIFY:
-                    nCount += DataSourceService.updateObjects( elastic, dataSource, dataSource.getDataObjectsIterator( listIdResource ) );
+                    nCount += updateObjects( elastic, dataSource, dataSource.getDataObjectsIterator( listIdResource ) );
                     break;
                 case IndexerAction.TASK_DELETE:
-                    nCount += DataSourceService.deleteByQuery( dataSource, listIdResource );
+                    nCount += deleteByQuery( dataSource, listIdResource );
                     break;
                default://do nothing
             }
         }
         return nCount;
     }
+    /**
+     * Insert a list of object in bulk mode
+     * 
+     * @param elastic
+     *            The Elastic Server
+     * @param dataSource
+     *            The data source
+     * @param iterateDataObjects
+     *            The iterator of objects
+     * @throws ElasticClientException
+     *             If a problem occurs connecting the server
+     * @return the number of documents posted
+     */
+    public static int insertObjects( Elastic elastic, DataSource dataSource, Iterator<DataObject> iterateDataObjects ) throws ElasticClientException
+    {
+        List<DataObject> listBatch = new ArrayList<>( );
+        int nCount = 0;
+        BulkRequest br;
+        List<String> listIdResource = new ArrayList<>( );
+        while ( iterateDataObjects.hasNext( ) )
+        {
+            DataObject dataObject = iterateDataObjects.next( );
+            listIdResource.add( dataObject.getId( ) );
+            listBatch.add( dataObject );
+            nCount++;
+            if ( ( listBatch.size( ) == dataSource.getBatchSize( ) ) || !iterateDataObjects.hasNext( ) )
+            {
+            	DataSourceService.completeDataObjectWithFullData( dataSource, listBatch );
+                br = new BulkRequest( );
+                for ( DataObject batchObject : listBatch )
+                {
+                    br.addAction( new IndexSubRequest( batchObject.getId( ) ), batchObject );
+                }
+                if ( elastic == null )
+                {
+                    elastic = DataSourceService.getElastic( );
+                }
 
+                try
+                {
+                    TransactionManager.beginTransaction( DataSourceUtils.getPlugin( ) );
+                    String strResponse = elastic.createByBulk( dataSource.getTargetIndexName( ), br );
+                    AppLogService.debug( "ElasticData : Response of the posted bulk request : " + strResponse );
+
+                    IndexerActionHome.removeByIdResourceList( listIdResource, dataSource.getId( ) );
+                    listBatch.clear( );
+
+                    TransactionManager.commitTransaction( DataSourceUtils.getPlugin( ) );
+                }
+                catch( ElasticClientException e )
+                {
+                    TransactionManager.rollBack( DataSourceUtils.getPlugin( ) );
+                    AppLogService.error( e.getMessage(), e );
+                    throw new ElasticClientException( "ElasticData createByBulk error", e );
+                }
+            }
+            DataSourceService.updateIndexingStatus( dataSource, nCount );
+        }
+        AppLogService.debug( "ElasticData indexing : completed for " + nCount + " documents of DataSource: " + dataSource.getName( ) );
+        
+        return nCount;
+    }
+    /**
+     * update a list of object
+     * 
+     * @param elastic
+     *            The Elastic Server
+     * @param dataSource
+     *            The data source
+     * @param iterateDataObjects
+     *            The iterator of objects
+     * @throws ElasticClientException
+     *             If a problem occurs connecting the server
+     * @return the number of documents posted
+     */
+    public static int updateObjects( Elastic elastic, DataSource dataSource, Iterator<DataObject> iterateDataObjects ) throws ElasticClientException
+    {
+        List<DataObject> listBatch = new ArrayList<>( );
+        List<String> listIdResource = new ArrayList<>( );
+        int nCount = 0;
+        if ( elastic == null )
+        {
+            elastic = DataSourceService.getElastic( );
+        }
+
+        while ( iterateDataObjects.hasNext( ) )
+        {
+            listBatch.add( iterateDataObjects.next( ) );
+            if ( ( listBatch.size( ) == dataSource.getBatchSize( ) ) || !iterateDataObjects.hasNext( ) )
+            {
+            	DataSourceService.completeDataObjectWithFullData( dataSource, listBatch );
+
+                try
+                {
+                    TransactionManager.beginTransaction( DataSourceUtils.getPlugin( ) );
+                    for ( DataObject batchObject : listBatch )
+                    {
+                        String strResponse = elastic.partialUpdate( dataSource.getTargetIndexName( ), batchObject.getId( ), batchObject );
+                        AppLogService.debug( "ElasticData : Response of the partial update : " + strResponse );
+                        nCount++;
+                    }
+                    IndexerActionHome.removeByIdResourceList( listIdResource, dataSource.getId( ) );
+                    listBatch.clear( );
+                    TransactionManager.commitTransaction( DataSourceUtils.getPlugin( ) );
+                }
+                catch( ElasticClientException e )
+                {
+                    TransactionManager.rollBack( DataSourceUtils.getPlugin( ) );
+                    AppLogService.error( e.getMessage(), e );
+                    throw new ElasticClientException( "ElasticData partialUpdate error", e );
+                }
+            }
+            DataSourceService.updateIndexingStatus( dataSource, nCount );
+        }
+        AppLogService.info( "ElasticData partial update indexing : completed for " + nCount + " documents of DataSource '" + dataSource.getName( ) + "'" );
+        return nCount;
+    }
+    /**
+     * Delete a documents by Query
+     * 
+     * @param dataSource
+     *            The data source
+     * @param listIdResource
+     *            The list of resource identifiers
+     * @throws ElasticClientException
+     *             Exception If an error occurs accessing to ElasticSearch
+     */
+    public static int deleteByQuery( DataSource dataSource, List<String> listIdResource ) throws ElasticClientException
+    {
+        try
+        {
+            TransactionManager.beginTransaction( DataSourceUtils.getPlugin( ) );
+            Elastic elastic = DataSourceService.getElastic( );
+            List<String> idDocumentList = listIdResource.stream( ).map( idDataObject -> DataSourceService.getIdDocument( dataSource.getId( ), idDataObject ) )
+                    .collect( Collectors.toList( ) );
+            elastic.deleteByQuery( dataSource.getTargetIndexName( ), "{\"query\" : { \"terms\" : {\"_id\" : " + new JSONArray( idDocumentList ) + "}}}" );
+            IndexerActionHome.removeByIdResourceList( listIdResource, dataSource.getId( ) );
+            TransactionManager.commitTransaction( DataSourceUtils.getPlugin( ) );
+            int nSize = idDocumentList.size( );
+            DataSourceService.updateIndexingStatus( dataSource, nSize );
+            return nSize;
+        }
+        catch( ElasticClientException e )
+        {
+            TransactionManager.rollBack( DataSourceUtils.getPlugin( ) );
+            AppLogService.error( e.getMessage(), e );
+            throw new ElasticClientException( "ElasticData createByBulk error", e );
+        }
+    }
     /**
      * Create incremental task
      * 
