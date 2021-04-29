@@ -72,7 +72,6 @@ public final class DataSourceService
     private static final String SERVER_URL = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL );
     private static final String SERVER_LOGIN = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_LOGIN );
     private static final String SERVEUR_PWD = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_PWD );
-    private static final String RESOURCE_TYPE_INDEXING = "ELASTICDATA_DATASOURCE_INDEXING";
 
     private static Map<String, DataSource> _mapDataSources;
 
@@ -178,7 +177,7 @@ public final class DataSourceService
 
             ResourceEvent dataSourceFullIndexed = new ResourceEvent( );
             dataSourceFullIndexed.setIdResource( dataSource.getId( ) );
-            dataSourceFullIndexed.setTypeResource( getIndexingResourceType( ) );
+            dataSourceFullIndexed.setTypeResource( DataSourceUtils.RESOURCE_TYPE_INDEXING );
             ResourceEventManager.fireAddedResource( dataSourceFullIndexed );
 
         }
@@ -606,14 +605,4 @@ public final class DataSourceService
         dataSource.getIndexingStatus( ).setCurrentNbIndexedObj( nCount );
     }
 
-    /**
-     * Return the indexing resource type
-     * 
-     * @param dataSource
-     *            the data source
-     */
-    public static String getIndexingResourceType( )
-    {
-        return RESOURCE_TYPE_INDEXING;
-    }
 }

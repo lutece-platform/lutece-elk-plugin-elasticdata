@@ -105,9 +105,8 @@ public final class DataSourceIncrementalService
         long timeBegin = System.currentTimeMillis( );
         for ( int nTask : taskList )
         {
-            nCount += processIncrementalIndexing( dataSource, IndexerActionHome.getIndexerActionsList( dataSource.getId( ), nTask ), nTask );
+            nCount += processIncrementalIndexing( dataSource, IndexerActionHome.getIdResourceIndexerActionsList( dataSource.getId( ), nTask ), nTask );
            
-
         }
         dataSource.getIndexingStatus( ).getSbLogs( ).append( "Number of documents processed by the incremental service from the Data Source '" )
         .append( dataSource.getName( ) ).append( "' : " ).append( nCount ); 
@@ -129,12 +128,10 @@ public final class DataSourceIncrementalService
      * @return the total count of documents processed
      */
 
-    public static int processIncrementalIndexing( DataSource dataSource, List<IndexerAction> indexerActionList, int nIdTask ) throws ElasticClientException
+    public static int processIncrementalIndexing( DataSource dataSource, List<String> listIdResource, int nIdTask ) throws ElasticClientException
     {
 
         Elastic elastic = DataSourceService.getElastic( );
-        List<String> listIdResource = indexerActionList.stream( ).map( indexerAction -> indexerAction.getIdResource( ) )
-                .collect( Collectors.toList( ) );
         int nCount = 0;
 
         if ( elastic != null && !CollectionUtils.isEmpty( listIdResource ) )

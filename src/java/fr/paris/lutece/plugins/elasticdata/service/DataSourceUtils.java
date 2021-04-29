@@ -15,6 +15,8 @@ public class DataSourceUtils
     public static final String PLUGIN_NAME = "elasticdata";
     public static final String INSTANCE_NAME = AppPropertiesService.getProperty( "lutece.name" );
     public static final String PREFIX_DATA_OBJECT_ID = INSTANCE_NAME + "_";
+    public static final String RESOURCE_TYPE_INDEXING = "ELASTICDATA_DATASOURCE_INDEXING";
+
 
     private DataSourceUtils( )
     {
