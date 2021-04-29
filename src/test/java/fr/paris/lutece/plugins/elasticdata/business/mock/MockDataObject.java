@@ -52,7 +52,7 @@ public class MockDataObject implements DataObject
      */
     MockDataObject( String strId )
     {
-    	_strId = strId;
+        _strId = strId;
     }
 
     /**
@@ -95,6 +95,12 @@ public class MockDataObject implements DataObject
     public String getDocumentTypeName( )
     {
         return null;
+    }
+
+    @Override
+    public void setId( String strId )
+    {
+        _strId = strId;
     }
 
 }

@@ -35,14 +35,13 @@ package fr.paris.lutece.plugins.elasticdata.business.mock;
 
 import fr.paris.lutece.plugins.elasticdata.business.AbstractDataSource;
 import fr.paris.lutece.plugins.elasticdata.business.DataObject;
-import fr.paris.lutece.plugins.elasticdata.business.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * MockDataSource
  */
-public class MockDataSource extends AbstractDataSource implements DataSource
+public class MockDataSource extends AbstractDataSource
 {
     /**
      * {@inheritDoc }
@@ -50,7 +49,7 @@ public class MockDataSource extends AbstractDataSource implements DataSource
     @Override
     public List<String> getIdDataObjects( )
     {
-        List<String> list10firstInts = new ArrayList< >( );
+        List<String> list10firstInts = new ArrayList<>( );
         for ( int i = 1; i < 10; i++ )
         {
             list10firstInts.add( String.valueOf( i ) );
@@ -64,10 +63,10 @@ public class MockDataSource extends AbstractDataSource implements DataSource
     @Override
     public List<DataObject> getDataObjects( List<String> listIdDataObjects )
     {
-    	List<DataObject> list10firstInts = new ArrayList< >( );
+        List<DataObject> list10firstInts = new ArrayList<>( );
         for ( int i = 1; i < 10; i++ )
         {
-            list10firstInts.add( new MockDataObject( String.valueOf( i  )));
+            list10firstInts.add( new MockDataObject( String.valueOf( i ) ) );
         }
         return list10firstInts;
     }

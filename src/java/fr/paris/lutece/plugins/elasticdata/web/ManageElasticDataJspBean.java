@@ -36,6 +36,7 @@ package fr.paris.lutece.plugins.elasticdata.web;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.paris.lutece.plugins.elasticdata.business.DataSource;
+import fr.paris.lutece.plugins.elasticdata.service.DataSourceIncrementalService;
 import fr.paris.lutece.plugins.elasticdata.service.DataSourceService;
 import fr.paris.lutece.plugins.libraryelastic.util.ElasticClientException;
 import fr.paris.lutece.portal.service.util.AppLogService;
@@ -57,6 +58,7 @@ public class ManageElasticDataJspBean extends MVCAdminJspBean
     private static final String PROPERTY_PAGE_TITLE = "elasticdata.manage_elasticdata.title";
     private static final String VIEW_HOME = "home";
     private static final String ACTION_INDEX = "index";
+    private static final String ACTION_INDEX_INCREMENTAL = "index_incremental";
     private static final String MARK_DATA_SOURCES_LIST = "data_sources_list";
     private static final String PARAMETER_DATA_SOURCE = "data_source";
     private static final long serialVersionUID = 1L;
@@ -91,11 +93,28 @@ public class ManageElasticDataJspBean extends MVCAdminJspBean
     public String doIndex( HttpServletRequest request ) throws ElasticClientException
     {
         String strDataSourceId = request.getParameter( PARAMETER_DATA_SOURCE );
-        DataSource source = DataSourceService.getDataSource( strDataSourceId );
-        DataSourceService.processFullIndexing( source, true );
+        DataSource dataSource = DataSourceService.getDataSource( strDataSourceId );
+        DataSourceService.processFullIndexing( dataSource, true );
 
         return redirect( request, VIEW_HOME );
 
+    }
+
+    /**
+     * Process the incremental indexing of a given data source
+     * 
+     * @param request
+     *            The HTTP request
+     * @return The redirected page
+     */
+    @Action( ACTION_INDEX_INCREMENTAL )
+    public String doIncrementalIndexing( HttpServletRequest request ) throws ElasticClientException
+    {
+        String strDataSourceId = request.getParameter( PARAMETER_DATA_SOURCE );
+        DataSource dataSource = DataSourceService.getDataSource( strDataSourceId );
+        DataSourceIncrementalService.insertDataIncrementalDatasource( dataSource );
+
+        return redirect( request, VIEW_HOME );
     }
 
     /**
@@ -104,7 +123,7 @@ public class ManageElasticDataJspBean extends MVCAdminJspBean
      * @return
      * @throws ElasticClientException
      */
-   @Action( ACTION_CHECK_INDEX_STATUS )
+    @Action( ACTION_CHECK_INDEX_STATUS )
     public String doCheckIndexStatus( HttpServletRequest request ) throws ElasticClientException
     {
         String strDataSourceId = request.getParameter( PARAMETER_DATA_SOURCE );

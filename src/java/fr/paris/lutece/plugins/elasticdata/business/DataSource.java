@@ -48,7 +48,6 @@ public interface DataSource
     public static final String PROPERTY_BULK_BATCH_SIZE = "elasticdata.bulk_batch_size";
     public static final int BATCH_SIZE = AppPropertiesService.getPropertyInt( PROPERTY_BULK_BATCH_SIZE, 10000 );
 
-    
     /**
      * The Data Source Id
      *
@@ -94,12 +93,21 @@ public interface DataSource
     Iterator<DataObject> getDataObjectsIterator( );
 
     /**
+     * An iterator of data object from a list of data objects identifiers
+     *
+     * @return an Iterator
+     */
+
+    Iterator<DataObject> getDataObjectsIterator( List<String> listIdDataObjects );
+
+    /**
      * Returns the BatchSize
      *
      * @return The BatchSize
      */
-    default int getBatchSize( ) {
-    	return BATCH_SIZE;
+    default int getBatchSize( )
+    {
+        return BATCH_SIZE;
     }
 
     /**
@@ -129,10 +137,12 @@ public interface DataSource
      * @return the list of DataSourceAttributesProvider
      */
     Collection<IDataSourceExternalAttributesProvider> getExternalAttributesProvider( );
+
     /**
      * return the IndexingStatus of this datasource
+     * 
      * @return IndexingStatus the Indexing status
      */
     IndexingStatus getIndexingStatus( );
-  
+
 }

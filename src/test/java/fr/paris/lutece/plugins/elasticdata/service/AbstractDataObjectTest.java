@@ -35,7 +35,6 @@ package fr.paris.lutece.plugins.elasticdata.service;
 
 import fr.paris.lutece.plugins.elasticdata.business.AbstractDataObject;
 import fr.paris.lutece.test.LuteceTestCase;
-import java.util.Date;
 import org.junit.Test;
 
 /**
@@ -54,15 +53,11 @@ public class AbstractDataObjectTest extends LuteceTestCase
     @Test
     public void testGetDayOfWeek( )
     {
-      /*  AbstractDataObject dataObject = new TestDataObject( );
-        long lTime = ( new Date( ) ).getTime( );
-
-        for ( long i = 0; i < 7; i++ )
-        {
-            dataObject.setTimestamp( lTime + ( i * 24L * 60L * 60L * 1000L ) );
-            dataObject.getPrefixedDayOfWeek( );
-        }
-        */
+        /*
+         * AbstractDataObject dataObject = new TestDataObject( ); long lTime = ( new Date( ) ).getTime( );
+         * 
+         * for ( long i = 0; i < 7; i++ ) { dataObject.setTimestamp( lTime + ( i * 24L * 60L * 60L * 1000L ) ); dataObject.getPrefixedDayOfWeek( ); }
+         */
     }
 
     /**
@@ -71,15 +66,11 @@ public class AbstractDataObjectTest extends LuteceTestCase
     @Test
     public void testGetMonth( )
     {
-       /* AbstractDataObject dataObject = new TestDataObject( );
-        long lTime = ( new Date( ) ).getTime( );
-
-        for ( long i = 0; i < 12; i++ )
-        {
-            dataObject.setTimestamp( lTime + ( i * 30L * 24L * 60L * 60L * 1000L ) );
-            dataObject.getPrefixedMonth( ) ;
-        }
-        */
+        /*
+         * AbstractDataObject dataObject = new TestDataObject( ); long lTime = ( new Date( ) ).getTime( );
+         * 
+         * for ( long i = 0; i < 12; i++ ) { dataObject.setTimestamp( lTime + ( i * 30L * 24L * 60L * 60L * 1000L ) ); dataObject.getPrefixedMonth( ) ; }
+         */
     }
 
 }

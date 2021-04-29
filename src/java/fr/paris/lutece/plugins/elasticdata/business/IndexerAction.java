@@ -33,55 +33,105 @@
  */
 package fr.paris.lutece.plugins.elasticdata.business;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.io.Serializable;
 
 /**
- * DataObject
+ * This is the business class for the object IndexerAction
  */
-public interface DataObject
+public class IndexerAction implements Serializable
 {
-    /**
-     * The timestamp of the data
-     * 
-     * @return The timestamp
-     */
-    String getTimestamp( );
+    private static final long serialVersionUID = 1L;
+
+    // Variables declarations
+    public static final int TASK_CREATE = 1;
+    public static final int TASK_MODIFY = 2;
+    public static final int TASK_DELETE = 3;
+    private int _nId;
+    private String _strIdResource;
+    private int _nIdTask;
+    private String _strIdDataSource;
 
     /**
-     * The _id of the data
+     * Returns the Id
      * 
-     * @return The id
+     * @return The Id
      */
-    @JsonIgnore
-    String getId( );
+    public int getId( )
+    {
+        return _nId;
+    }
 
     /**
-     * The _id of the data
+     * Sets the Id
      * 
-     * @return The id
+     * @param nId
+     *            The Id
      */
-    @JsonIgnore
-    void setId( String strId );
+    public void setId( int nId )
+    {
+        _nId = nId;
+    }
 
     /**
-     * The parent Id
+     * Returns the IdResource
      * 
-     * @return The parent Id
+     * @return The IdResource
      */
-    String getParentId( );
+    public String getIdResource( )
+    {
+        return _strIdResource;
+    }
 
     /**
-     * The parent Id
+     * Sets the IdResource
      * 
-     * @return The parent Id
+     * @param strIdResource
+     *            The IdResource
      */
-    String getParentName( );
+    public void setIdResource( String strIdResource )
+    {
+        _strIdResource = strIdResource;
+    }
 
     /**
-     * The parent Id
+     * Returns the IdTask
      * 
-     * @return The parent Id
+     * @return The IdTask
      */
-    String getDocumentTypeName( );
+    public int getIdTask( )
+    {
+        return _nIdTask;
+    }
 
+    /**
+     * Sets the IdTask
+     * 
+     * @param nIdTask
+     *            The IdTask
+     */
+    public void setIdTask( int nIdTask )
+    {
+        _nIdTask = nIdTask;
+    }
+
+    /**
+     * Returns the IdDataSource
+     * 
+     * @return The IdDataSource
+     */
+    public String getIdDataSource( )
+    {
+        return _strIdDataSource;
+    }
+
+    /**
+     * Sets the IdDataSource
+     * 
+     * @param strIdDataSource
+     *            The IdDataSource
+     */
+    public void setIdDataSource( String strIdDataSource )
+    {
+        _strIdDataSource = strIdDataSource;
+    }
 }

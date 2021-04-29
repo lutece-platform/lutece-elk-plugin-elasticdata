@@ -12,15 +12,19 @@
                     <#list data_sources_list as source>
                         <tr>
                             <td>${source.name}
-                                <div class="progress" id="${source.id}">
+                                <div class="progress" id="${source.id}" style="display:none">
                                     <div class="progress-bar progress-bar-striped progress-bar-animated"
                                         role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
                                     </div>
                                 </div>
+                                <div id="log-${source.id}">
+                                </div>
                             </td>
                             <td>
                                 <@button title='#i18n{elasticdata.manage_elasticdata.buttonIndex}' buttonIcon='cogs'
-                                    color="primary" params='data-indexId="${source.id}"' id='btn-${source.id}' />
+                                    color="primary" params='data-indexId="${source.id}" action="index" check=true' />
+                                <@button title='#i18n{elasticdata.manage_elasticdata.buttonIncrementalIndex}' buttonIcon='cogs'
+                                    color="primary" params='data-indexId="${source.id}" action="index_incremental" check=true' />
                             </td>
                         </tr>
                     </#list>
@@ -38,9 +42,11 @@
         if (datasources != null) {
             for (const datasource of datasources) {
                 const dataSourceId = datasource.getAttribute('data-indexId');
-                await getStatus(dataSourceId).then(json => {
+                 if( datasource.getAttribute('check') === "true" ) {
+                     await getStatus(dataSourceId).then(json => {
                 	progressBar(dataSourceId, json)
-                });
+                    });
+                }
             }
         }
     }
@@ -53,46 +59,54 @@
         return data;
     }
     // run indexation
-    async function runIndex(dataSourceId) {
+    async function runIndex(dataSourceId, action) {
         let response = await fetch(
-            "jsp/admin/plugins/elasticdata/IndexingElasticData.jsp?action=index&data_source=" +
+            "jsp/admin/plugins/elasticdata/IndexingElasticData.jsp?action=" + action + "&data_source=" +
             dataSourceId);
         let data = await response.json()
     }
     // checking
     setInterval(function () {
         check()
-    }, 3000);
+    }, 1500);
     // progress bar
     function progressBar(dataSourceId, json) {
+        console.log("dadada")
         const progressBar = document.getElementById(dataSourceId);
+        const btns = document.querySelectorAll("*[data-indexId=" + dataSourceId + "]");
         if (json !== null) {
-            const percent = json.progress;
-            const nbTotalObj = json.nbTotalObj;
-            const currentNbIndexedObj = json.currentNbIndexedObj;
-            if (percent > 0) {
+            document.getElementById("log-"+dataSourceId).innerHTML = "<i>" + json.sbLogs + "</i>"
+            if ( json.isRunning ) {
                 progressBar.style.display = 'block';
                 progressBar.getElementsByClassName('.progress');
-                document.getElementById("btn-" + dataSourceId).disabled = true
+                btns.forEach(btn => {
+                    btn.disabled = true;
+                });
                 const bar = progressBar.querySelector("*[aria-valuenow]");
-                bar.setAttribute("aria-valuenow", percent);
-                bar.style.width = percent + "%"
-                bar.innerHTML = percent.toFixed(2) + "%" + " (" + currentNbIndexedObj + "/" + nbTotalObj + ")";
-                if (percent >= 100) {
-                    document.getElementById("btn-" + dataSourceId).disabled = false;
-                }
+                bar.setAttribute("aria-valuenow", json.progress);
+                bar.style.width = json.progress + "%";
+                bar.innerHTML = json.progress.toFixed(2) + "%" + " (" + json.currentNbIndexedObj + "/" + json.nbTotalObj + ")";
+            } else {
+                console.log(btns)
+                btns.forEach(btn => {
+                    btn.setAttribute("check",false);
+                    btn.disabled = false;
+                });
+               progressBar.style.display = 'none';
             };
         }
     }
+
     // register btn listeners
     for (datasource of datasources) {
         datasource.addEventListener('click', async function (event) {
             event.preventDefault();
             const dataSourceId = event.target.getAttribute('data-indexId');
-            event.target.disabled = true
+            const action = event.target.getAttribute('action');
+            event.target.disabled = true;
             const progressBar = document.getElementById(dataSourceId);
-            runIndex(dataSourceId);
-            progressBar.style.display = 'block';
+            runIndex(dataSourceId, action);
+            event.target.setAttribute("check",true);
         }, false);
     }
 </script>

@@ -39,10 +39,15 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.apache.commons.lang.StringUtils;
+import org.json.JSONArray;
+
 import fr.paris.lutece.plugins.elasticdata.business.DataObject;
 import fr.paris.lutece.plugins.elasticdata.business.DataSource;
 import fr.paris.lutece.plugins.elasticdata.business.IDataSourceExternalAttributesProvider;
+import fr.paris.lutece.plugins.elasticdata.business.IndexerActionHome;
 import fr.paris.lutece.plugins.libraryelastic.business.bulk.BulkRequest;
 import fr.paris.lutece.plugins.libraryelastic.business.bulk.IndexSubRequest;
 import fr.paris.lutece.plugins.libraryelastic.util.Elastic;
@@ -52,6 +57,7 @@ import fr.paris.lutece.portal.service.event.ResourceEventManager;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
+import fr.paris.lutece.util.sql.TransactionManager;
 
 /**
  * DataSourceService
@@ -120,19 +126,20 @@ public final class DataSourceService
      * @throws ElasticClientException
      *             If an error occurs accessing to ElasticSearch
      */
-    public static void processFullIndexing( DataSource dataSource, boolean bReset)
+    public static void processFullIndexing( DataSource dataSource, boolean bReset )
     {
 
-    	if( dataSource.getIndexingStatus().getIsRunning( ).compareAndSet(false, true)) {    		
-    		( new Thread( )
-	        {
-	            @Override
-	            public void run( )
-	            {
-	            	process( dataSource, bReset);
-	            }
-	        } ).start( );  			    	
-    	}
+        if ( dataSource.getIndexingStatus( ).getIsRunning( ).compareAndSet( false, true ) )
+        {
+            ( new Thread( )
+            {
+                @Override
+                public void run( )
+                {
+                    process( dataSource, bReset );
+                }
+            } ).start( );
+        }
     }
 
     /**
@@ -147,44 +154,49 @@ public final class DataSourceService
      * @throws ElasticClientException
      *             If an error occurs accessing to ElasticSearch
      */
-    private static void process( DataSource dataSource, boolean bReset)
+    private static void process( DataSource dataSource, boolean bReset )
     {
-    	long timeBegin = System.currentTimeMillis( );
-        dataSource.getIndexingStatus().reset( );
-    	try {
-	        Elastic elastic = getElastic( );
-	        if ( bReset )
-	        {		           
-					if ( elastic.isExists( dataSource.getTargetIndexName( ) ) )
-					{
-					    elastic.deleteIndex( dataSource.getTargetIndexName( ) );
-					}					
-	            elastic.createMappings( dataSource.getTargetIndexName( ), getMappings( dataSource ) );
-	        }
-	        // Index the objects in bulk mode
-	        int nbDocsInsert = insertObjects( elastic, dataSource, dataSource.getDataObjectsIterator( ) );
-	        long timeEnd = System.currentTimeMillis( );
-	        dataSource.getIndexingStatus().getSbLogs( ).append( "Number of object inserted for Data Source '" ).append( dataSource.getName( ) ).append( "' : " ).append( nbDocsInsert );
-	        dataSource.getIndexingStatus().getSbLogs( ).append( " (duration : " ).append( timeEnd - timeBegin ).append( "ms)\n" );
-	       
-	        ResourceEvent dataSourceFullIndexed = new ResourceEvent( );
-		    dataSourceFullIndexed.setIdResource( dataSource.getId( ) );
-		    dataSourceFullIndexed.setTypeResource( getIndexingResourceType( ) );
-		    ResourceEventManager.fireAddedResource( dataSourceFullIndexed );
-    	
-    	} catch (ElasticClientException e) {
-    		
-    		dataSource.getIndexingStatus().getSbLogs( ).append( e.getMessage( ) ).append( e );
-    		AppLogService.error("Process full indexing: ", e);
-			
-    	}finally 
-    	{
-    		
-	        dataSource.getIndexingStatus().getIsRunning( ).set( false );
-    	}
-    	
-	}
-    
+        long timeBegin = System.currentTimeMillis( );
+        dataSource.getIndexingStatus( ).reset( );
+        try
+        {
+            Elastic elastic = getElastic( );
+            if ( bReset )
+            {
+                if ( elastic.isExists( dataSource.getTargetIndexName( ) ) )
+                {
+                    elastic.deleteIndex( dataSource.getTargetIndexName( ) );
+                }
+                elastic.createMappings( dataSource.getTargetIndexName( ), getMappings( dataSource ) );
+            }
+            // Index the objects in bulk mode
+            int nbDocsInsert = insertObjects( elastic, dataSource, dataSource.getDataObjectsIterator( ) );
+            long timeEnd = System.currentTimeMillis( );
+            dataSource.getIndexingStatus( ).getSbLogs( ).append( "Number of object inserted for Data Source '" ).append( dataSource.getName( ) )
+                    .append( "' : " ).append( nbDocsInsert );
+            dataSource.getIndexingStatus( ).getSbLogs( ).append( " (duration : " ).append( timeEnd - timeBegin ).append( "ms)\n" );
+
+            ResourceEvent dataSourceFullIndexed = new ResourceEvent( );
+            dataSourceFullIndexed.setIdResource( dataSource.getId( ) );
+            dataSourceFullIndexed.setTypeResource( getIndexingResourceType( ) );
+            ResourceEventManager.fireAddedResource( dataSourceFullIndexed );
+
+        }
+        catch( ElasticClientException e )
+        {
+
+            dataSource.getIndexingStatus( ).getSbLogs( ).append( e.getMessage( ) ).append( e );
+            AppLogService.error( "Process full indexing: ", e );
+
+        }
+        finally
+        {
+
+            dataSource.getIndexingStatus( ).getIsRunning( ).set( false );
+        }
+
+    }
+
     /**
      * Insert one dataObject from a DataSource into Elastic Search
      * 
@@ -221,7 +233,7 @@ public final class DataSourceService
         long timeBegin = System.currentTimeMillis( );
         Elastic elastic = getElastic( );
         // Index the objects in bulk mode
-        int nbDocsInsert = insertObjects( elastic, dataSource, dataObject.iterator( ));
+        int nbDocsInsert = insertObjects( elastic, dataSource, dataObject.iterator( ) );
         long timeEnd = System.currentTimeMillis( );
         sbLogs.append( "Number of object inserted for Data Source '" ).append( dataSource.getName( ) ).append( "' : " ).append( nbDocsInsert );
         sbLogs.append( " (duration : " ).append( timeEnd - timeBegin ).append( "ms)\n" );
@@ -244,7 +256,6 @@ public final class DataSourceService
     {
         Elastic elastic = getElastic( );
         elastic.partialUpdate( dataSource.getTargetIndexName( ), strId, object );
-
     }
 
     /**
@@ -252,15 +263,31 @@ public final class DataSourceService
      * 
      * @param dataSource
      *            The data source
-     * @param strQuery
-     *            The Query
+     * @param listIdResource
+     *            The list of resource identifiers
      * @throws ElasticClientException
      *             Exception If an error occurs accessing to ElasticSearch
      */
-    public static void deleteByQuery( DataSource dataSource, String strQuery ) throws ElasticClientException
+    public static int deleteByQuery( DataSource dataSource, List<String> listIdResource ) throws ElasticClientException
     {
-        Elastic elastic = getElastic( );
-        elastic.deleteByQuery( dataSource.getTargetIndexName( ), strQuery );
+        try
+        {
+            TransactionManager.beginTransaction( DataSourceUtils.getPlugin( ) );
+            Elastic elastic = getElastic( );
+            List<String> idDocumentList = listIdResource.stream( ).map( idDataObject -> DataSourceService.getIdDocument( dataSource.getId( ), idDataObject ) )
+                    .collect( Collectors.toList( ) );
+            elastic.deleteByQuery( dataSource.getTargetIndexName( ), "{\"query\" : { \"terms\" : {\"_id\" : " + new JSONArray( idDocumentList ) + "}}}" );
+            IndexerActionHome.removeByIdResourceList( listIdResource, dataSource.getId( ) );
+            TransactionManager.commitTransaction( DataSourceUtils.getPlugin( ) );
+            int nSize = idDocumentList.size( );
+            updateIndexingStatus( dataSource, nSize );
+            return nSize;
+        }
+        catch( ElasticClientException e )
+        {
+            TransactionManager.rollBack( DataSourceUtils.getPlugin( ) );
+            throw new ElasticClientException( "ElasticData createByBulk error", e );
+        }
     }
 
     /**
@@ -276,7 +303,7 @@ public final class DataSourceService
     public static void deleteById( DataSource dataSource, String strId ) throws ElasticClientException
     {
         Elastic elastic = getElastic( );
-        elastic.deleteDocument( dataSource.getTargetIndexName( ), strId );
+        elastic.deleteDocument( dataSource.getTargetIndexName( ), getIdDocument( dataSource.getId( ), strId ) );
     }
 
     /**
@@ -304,20 +331,20 @@ public final class DataSourceService
      */
     public static String insertDataAllDatasources( boolean bReset, boolean bDaemon )
     {
-    	StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder( );
         for ( DataSource dataSource : getDataSources( ) )
         {
-            if ( ( dataSource.usesFullIndexingDaemon( ) || !bDaemon) &&  dataSource.getIndexingStatus().getIsRunning( ).compareAndSet(false, true) )
+            if ( ( dataSource.usesFullIndexingDaemon( ) || !bDaemon ) && dataSource.getIndexingStatus( ).getIsRunning( ).compareAndSet( false, true ) )
             {
-	            process( dataSource, bReset );
-	            builder.append( dataSource.getIndexingStatus().getSbLogs().toString( ) ).append("\n" );               
+                process( dataSource, bReset );
+                builder.append( dataSource.getIndexingStatus( ).getSbLogs( ).toString( ) ).append( "\n" );
             }
         }
-        return builder.toString( ); 
+        return builder.toString( );
     }
 
     /**
-     *  Return elastic connection 
+     * Return elastic connection
      **/
     public static Elastic getElastic( )
     {
@@ -355,15 +382,49 @@ public final class DataSourceService
         // Default timestamp mappings
         return DataSourceUtils.TIMESTAMP_MAPPINGS;
     }
+
     /**
-     * Complete the data source with the external attributes
-     * @param dataSource the data source
-     * @param dataObject the data object
+     * Complete the data source with the external attributes and set elastic docuement id
+     * 
+     * @param dataSource
+     *            the data source
+     * @param dataObject
+     *            the data object
      */
     public static void completeDataObjectWithFullData( DataSource dataSource, DataObject dataObject )
     {
-        // Complete the data source with the external attributes
+        dataObject.setId( getIdDocument( dataSource.getId( ), dataObject.getId( ) ) );
         provideExternalAttributes( dataSource, dataObject );
+    }
+
+    /**
+     * Complete the data source with the external attributes and set elastic docuement id
+     * 
+     * @param dataSource
+     *            the data source
+     * @param dataObject
+     *            the data object
+     */
+    public static void completeDataObjectWithFullData( DataSource dataSource, List<DataObject> dataObjectList )
+    {
+        for ( DataObject dataObject : dataObjectList )
+        {
+            dataObject.setId( getIdDocument( dataSource.getId( ), dataObject.getId( ) ) );
+        }
+        provideExternalAttributes( dataSource, dataObjectList );
+    }
+
+    /**
+     * Return the unique id of the elastic document
+     * 
+     * @param strIdDataSource
+     *            the data source id
+     * @param strIdDataObject
+     *            the data object id
+     */
+    public static String getIdDocument( String strIdDataSource, String strIdDataObject )
+    {
+        return DataSourceUtils.INSTANCE_NAME + "_" + strIdDataSource + "_" + strIdDataObject;
     }
 
     /**
@@ -373,49 +434,116 @@ public final class DataSourceService
      *            The Elastic Server
      * @param dataSource
      *            The data source
-     * @param listDataObjects
-     *            The list of objects
-     * @param nBatchSize
-     *            The number of objects in each bulk request
+     * @param iterateDataObjects
+     *            The iterator of objects
      * @throws ElasticClientException
      *             If a problem occurs connecting the server
      * @return the number of documents posted
      */
-    private static int insertObjects( Elastic elastic, DataSource dataSource, Iterator<DataObject> iterateDataObjects )
-            throws ElasticClientException
+    public static int insertObjects( Elastic elastic, DataSource dataSource, Iterator<DataObject> iterateDataObjects ) throws ElasticClientException
     {
         List<DataObject> listBatch = new ArrayList<>( );
         int nCount = 0;
         BulkRequest br;
+        List<String> listIdResource = new ArrayList<>( );
         while ( iterateDataObjects.hasNext( ) )
         {
-            listBatch.add( iterateDataObjects.next( ) );            
-            nCount++;            
+            DataObject dataObject = iterateDataObjects.next( );
+            listIdResource.add( dataObject.getId( ) );
+            listBatch.add( dataObject );
+            nCount++;
             if ( ( listBatch.size( ) == dataSource.getBatchSize( ) ) || !iterateDataObjects.hasNext( ) )
             {
-                provideExternalAttributes( dataSource, listBatch );
+                completeDataObjectWithFullData( dataSource, listBatch );
                 br = new BulkRequest( );
                 for ( DataObject batchObject : listBatch )
                 {
                     br.addAction( new IndexSubRequest( batchObject.getId( ) ), batchObject );
                 }
-                AppLogService.info(
+                AppLogService.debug(
                         "ElasticData indexing : Posting bulk action for " + listBatch.size( ) + " documents of DataSource '" + dataSource.getName( ) + "'" );
                 if ( elastic == null )
                 {
                     elastic = new Elastic( AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL ) );
                 }
-                String strResponse = elastic.createByBulk( dataSource.getTargetIndexName( ), br );
-                AppLogService.debug( "ElasticData : Response of the posted bulk request : " + strResponse );
-                listBatch.clear( );
+
+                try
+                {
+                    TransactionManager.beginTransaction( DataSourceUtils.getPlugin( ) );
+                    String strResponse = elastic.createByBulk( dataSource.getTargetIndexName( ), br );
+                    AppLogService.debug( "ElasticData : Response of the posted bulk request : " + strResponse );
+
+                    IndexerActionHome.removeByIdResourceList( listIdResource, dataSource.getId( ) );
+                    listBatch.clear( );
+
+                    TransactionManager.commitTransaction( DataSourceUtils.getPlugin( ) );
+                }
+                catch( ElasticClientException e )
+                {
+
+                    TransactionManager.rollBack( DataSourceUtils.getPlugin( ) );
+                    throw new ElasticClientException( "ElasticData createByBulk error", e );
+
+                }
             }
-            if( dataSource.getIndexingStatus().getNbTotalObj( ) < nCount ) {
-            	
-            	dataSource.getIndexingStatus().setnNbTotalObj( nCount );
-            }
-            dataSource.getIndexingStatus().setCurrentNbIndexedObj( nCount );
+            updateIndexingStatus( dataSource, nCount );
         }
         AppLogService.info( "ElasticData indexing : completed for " + nCount + " documents of DataSource '" + dataSource.getName( ) + "'" );
+        return nCount;
+    }
+
+    /**
+     * update a list of object
+     * 
+     * @param elastic
+     *            The Elastic Server
+     * @param dataSource
+     *            The data source
+     * @param iterateDataObjects
+     *            The iterator of objects
+     * @throws ElasticClientException
+     *             If a problem occurs connecting the server
+     * @return the number of documents posted
+     */
+    public static int updateObjects( Elastic elastic, DataSource dataSource, Iterator<DataObject> iterateDataObjects ) throws ElasticClientException
+    {
+        List<DataObject> listBatch = new ArrayList<>( );
+        List<String> listIdResource = new ArrayList<>( );
+        int nCount = 0;
+        if ( elastic == null )
+        {
+            elastic = new Elastic( AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_URL, DEFAULT_ELASTIC_SERVER_URL ) );
+        }
+
+        while ( iterateDataObjects.hasNext( ) )
+        {
+            listBatch.add( iterateDataObjects.next( ) );
+            if ( ( listBatch.size( ) == dataSource.getBatchSize( ) ) || !iterateDataObjects.hasNext( ) )
+            {
+                completeDataObjectWithFullData( dataSource, listBatch );
+
+                try
+                {
+                    TransactionManager.beginTransaction( DataSourceUtils.getPlugin( ) );
+                    for ( DataObject batchObject : listBatch )
+                    {
+                        String strResponse = elastic.partialUpdate( dataSource.getTargetIndexName( ), batchObject.getId( ), batchObject );
+                        AppLogService.debug( "ElasticData : Response of the partial update : " + strResponse );
+                        nCount++;
+                    }
+                    IndexerActionHome.removeByIdResourceList( listIdResource, dataSource.getId( ) );
+                    listBatch.clear( );
+                    TransactionManager.commitTransaction( DataSourceUtils.getPlugin( ) );
+                }
+                catch( ElasticClientException e )
+                {
+                    TransactionManager.rollBack( DataSourceUtils.getPlugin( ) );
+                    throw new ElasticClientException( "ElasticData partialUpdate error", e );
+                }
+            }
+            updateIndexingStatus( dataSource, nCount );
+        }
+        AppLogService.info( "ElasticData partial update indexing : completed for " + nCount + " documents of DataSource '" + dataSource.getName( ) + "'" );
         return nCount;
     }
 
@@ -447,6 +575,23 @@ public final class DataSourceService
         {
             provider.provideAttributes( listDataObject );
         }
+    }
+
+    /**
+     * Update indexing status of the datasource
+     * 
+     * @param dataSource
+     *            the data source
+     * @param nCount
+     *            the count of objects processed
+     */
+    private static void updateIndexingStatus( DataSource dataSource, int nCount )
+    {
+        if ( dataSource.getIndexingStatus( ).getNbTotalObj( ) < nCount )
+        {
+            dataSource.getIndexingStatus( ).setnNbTotalObj( nCount );
+        }
+        dataSource.getIndexingStatus( ).setCurrentNbIndexedObj( nCount );
     }
 
     /**

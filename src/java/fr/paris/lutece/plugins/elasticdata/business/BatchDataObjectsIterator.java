@@ -48,20 +48,20 @@ public class BatchDataObjectsIterator implements Iterator<DataObject>
     protected final int _nBatchSize;
     protected final List<String> _listIdDataObjects;
     protected final DataSource _dataSource;
-    private Queue<DataObject> _queueTmpDataObject; 
+    private Queue<DataObject> _queueTmpDataObject;
     private int _nNextFirstId = 0;
 
     public BatchDataObjectsIterator( DataSource dataSource, List<String> listIdDataObjects )
     {
-    	_queueTmpDataObject = new ConcurrentLinkedQueue< >();
+        _queueTmpDataObject = new ConcurrentLinkedQueue<>( );
         _dataSource = dataSource;
-        _nBatchSize = dataSource.getBatchSize( ) ;
+        _nBatchSize = dataSource.getBatchSize( );
         _listIdDataObjects = listIdDataObjects;
         // Initialize the array of data objects with the firsts objects.
         List<String> listIdDataObjectsSublist = loadNextDataObjectsId( 0 );
         _nNextFirstId = _nBatchSize;
-        _queueTmpDataObject.addAll(dataSource.getDataObjects( listIdDataObjectsSublist ));
-    
+        _queueTmpDataObject.addAll( dataSource.getDataObjects( listIdDataObjectsSublist ) );
+
     }
 
     /**
@@ -80,22 +80,23 @@ public class BatchDataObjectsIterator implements Iterator<DataObject>
     public DataObject next( )
     {
         if ( _queueTmpDataObject.isEmpty( ) )
-             throw new NoSuchElementException( );
+            throw new NoSuchElementException( );
 
-        DataObject dataObj = _queueTmpDataObject.poll();
+        DataObject dataObj = _queueTmpDataObject.poll( );
         while ( _queueTmpDataObject.isEmpty( ) )
         {
             List<String> listIdDataObjectsSublist = loadNextDataObjectsId( _nNextFirstId );
             if ( !listIdDataObjectsSublist.isEmpty( ) )
             {
-                 _nNextFirstId += _nBatchSize;
-                 _queueTmpDataObject.addAll(_dataSource.getDataObjects( listIdDataObjectsSublist ) );                   
+                _nNextFirstId += _nBatchSize;
+                _queueTmpDataObject.addAll( _dataSource.getDataObjects( listIdDataObjectsSublist ) );
             }
-            else {
-            	break;
+            else
+            {
+                break;
             }
-          }
-        
+        }
+
         return dataObj;
     }
 
