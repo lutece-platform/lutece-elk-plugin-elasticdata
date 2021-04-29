@@ -11,6 +11,6 @@ public class IncrementalIndexingDaemon extends Daemon
     @Override
     public void run( )
     {
-        setLastRunLogs( DataSourceIncrementalService.insertDataIncrementalDatasources( ) );
+        setLastRunLogs( DataSourceIncrementalService.processIncrementalIndexing( ) );
     }
 }

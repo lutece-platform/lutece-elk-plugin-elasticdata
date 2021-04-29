@@ -106,7 +106,6 @@ public final class IndexerActionDAO implements IIndexerActionDAO
                 indexerAction.setIdDataSource( daoUtil.getString( nIndex ) );
             }
 
-            daoUtil.free( );
             return indexerAction;
         }
     }
@@ -135,7 +134,6 @@ public final class IndexerActionDAO implements IIndexerActionDAO
                 indexerAction.setIdDataSource( daoUtil.getString( nIndex ) );
             }
 
-            daoUtil.free( );
             return indexerAction;
         }
     }
@@ -150,7 +148,6 @@ public final class IndexerActionDAO implements IIndexerActionDAO
         {
             daoUtil.setInt( 1, nKey );
             daoUtil.executeUpdate( );
-            daoUtil.free( );
         }
     }
 
@@ -183,7 +180,6 @@ public final class IndexerActionDAO implements IIndexerActionDAO
                 }
 
                 daoUtil.executeUpdate( );
-                daoUtil.free( );
             }
         }
     }
@@ -205,7 +201,6 @@ public final class IndexerActionDAO implements IIndexerActionDAO
             daoUtil.setInt( nIndex, indexerAction.getId( ) );
 
             daoUtil.executeUpdate( );
-            daoUtil.free( );
         }
     }
 
@@ -233,7 +228,6 @@ public final class IndexerActionDAO implements IIndexerActionDAO
                 indexerActionList.add( indexerAction );
             }
 
-            daoUtil.free( );
             return indexerActionList;
         }
     }
@@ -267,7 +261,6 @@ public final class IndexerActionDAO implements IIndexerActionDAO
                 indexerActionList.add( indexerAction );
             }
 
-            daoUtil.free( );
             return indexerActionList;
         }
     }
@@ -294,7 +287,6 @@ public final class IndexerActionDAO implements IIndexerActionDAO
 
             }
 
-            daoUtil.free( );
             return indexerActionList;
         }
     }
@@ -315,7 +307,6 @@ public final class IndexerActionDAO implements IIndexerActionDAO
                 indexerActionList.add( daoUtil.getInt( 1 ) );
             }
 
-            daoUtil.free( );
             return indexerActionList;
         }
     }
@@ -336,7 +327,6 @@ public final class IndexerActionDAO implements IIndexerActionDAO
                 indexerActionList.addItem( daoUtil.getInt( 1 ), daoUtil.getString( 2 ) );
             }
 
-            daoUtil.free( );
             return indexerActionList;
         }
     }

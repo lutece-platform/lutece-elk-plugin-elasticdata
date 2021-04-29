@@ -112,7 +112,7 @@ public class ManageElasticDataJspBean extends MVCAdminJspBean
     {
         String strDataSourceId = request.getParameter( PARAMETER_DATA_SOURCE );
         DataSource dataSource = DataSourceService.getDataSource( strDataSourceId );
-        DataSourceIncrementalService.insertDataIncrementalDatasource( dataSource );
+        DataSourceIncrementalService.processAsynchronouslyIncrementalIndexing( dataSource );
 
         return redirect( request, VIEW_HOME );
     }

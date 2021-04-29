@@ -2,6 +2,9 @@ package fr.paris.lutece.plugins.elasticdata.service;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.apache.commons.collections.CollectionUtils;
+
 import fr.paris.lutece.plugins.elasticdata.business.DataSource;
 import fr.paris.lutece.plugins.elasticdata.business.IndexerAction;
 import fr.paris.lutece.plugins.elasticdata.business.IndexerActionHome;
@@ -12,20 +15,34 @@ import fr.paris.lutece.portal.service.util.AppLogService;
 public final class DataSourceIncrementalService
 {
 
+	private DataSourceIncrementalService() 
+	{
+		
+	}
     /**
      * Insert Incremental data sources
      * 
      * @return The logs of the process
+     * @throws ElasticClientException 
      * 
      */
-    public static String insertDataIncrementalDatasources( )
+    public static String processIncrementalIndexing( ) 
     {
+        StringBuilder builder = new StringBuilder( );
         for ( DataSource dataSource : DataSourceService.getDataSources( ) )
         {
-            insertDataIncrementalDatasource( dataSource );
-        }
+        	try {     		
+				processIncrementalIndexing( dataSource );
+        	} 
+        	catch (ElasticClientException e) {
+        		
+                AppLogService.error( e.getMessage(), e );
+				builder.append(e.getMessage( ));
+			}
+            builder.append( dataSource.getIndexingStatus( ).getSbLogs( ).toString( ) ).append( "\n" );
 
-        return null;
+        }
+        return builder.toString( );
     }
 
     /**
@@ -37,7 +54,7 @@ public final class DataSourceIncrementalService
      * @return The logs of the process
      * 
      */
-    public static String insertDataIncrementalDatasource( DataSource dataSource )
+    public static void processAsynchronouslyIncrementalIndexing( DataSource dataSource )
     {
         if ( dataSource.getIndexingStatus( ).getIsRunning( ).compareAndSet( false, true ) )
         {
@@ -47,16 +64,10 @@ public final class DataSourceIncrementalService
                 public void run( )
                 {
                     try
-                    {
-                        long timeBegin = System.currentTimeMillis( );
+                    {                       
                         dataSource.getIndexingStatus( ).reset( );
-
-                        int nCount = processIncrementalIndexing( dataSource );
-                        dataSource.getIndexingStatus( ).getSbLogs( ).append( "Number of documents processed by the incremental service from the Data Source '" )
-                                .append( dataSource.getName( ) ).append( "' : " ).append( nCount );
-                        dataSource.getIndexingStatus( ).getSbLogs( ).append( " (duration : " ).append( System.currentTimeMillis( ) - timeBegin )
-                                .append( "ms)\n" );
-
+                        processIncrementalIndexing( dataSource );
+                       
                     }
                     catch( ElasticClientException e )
                     {
@@ -73,7 +84,6 @@ public final class DataSourceIncrementalService
             } ).start( );
         }
 
-        return null;
     }
 
     /**
@@ -85,20 +95,24 @@ public final class DataSourceIncrementalService
      * @throws ElasticClientException
      *             If an error occurs accessing to ElasticSearch
      * 
-     * @return The total count of documents processed
-     * 
      */
-    public static int processIncrementalIndexing( DataSource dataSource ) throws ElasticClientException
+    public static void processIncrementalIndexing( DataSource dataSource ) throws ElasticClientException
     {
         int nCount = 0;
         int [ ] taskList = {
                 IndexerAction.TASK_CREATE, IndexerAction.TASK_MODIFY, IndexerAction.TASK_DELETE
         };
+        long timeBegin = System.currentTimeMillis( );
         for ( int nTask : taskList )
         {
             nCount += processIncrementalIndexing( dataSource, IndexerActionHome.getIndexerActionsList( dataSource.getId( ), nTask ), nTask );
+           
+
         }
-        return nCount;
+        dataSource.getIndexingStatus( ).getSbLogs( ).append( "Number of documents processed by the incremental service from the Data Source '" )
+        .append( dataSource.getName( ) ).append( "' : " ).append( nCount ); 
+         dataSource.getIndexingStatus( ).getSbLogs( ).append( " (duration : " ).append( System.currentTimeMillis( ) - timeBegin )
+        .append( "ms)\n" );
     }
 
     /**
@@ -119,11 +133,11 @@ public final class DataSourceIncrementalService
     {
 
         Elastic elastic = DataSourceService.getElastic( );
-        List<String> listIdResource = indexerActionList.parallelStream( ).map( indexerAction -> indexerAction.getIdResource( ) )
+        List<String> listIdResource = indexerActionList.stream( ).map( indexerAction -> indexerAction.getIdResource( ) )
                 .collect( Collectors.toList( ) );
         int nCount = 0;
 
-        if ( elastic != null && listIdResource.size( ) > 0 )
+        if ( elastic != null && !CollectionUtils.isEmpty( listIdResource ) )
         {
             switch( nIdTask )
             {
@@ -136,6 +150,7 @@ public final class DataSourceIncrementalService
                 case IndexerAction.TASK_DELETE:
                     nCount += DataSourceService.deleteByQuery( dataSource, listIdResource );
                     break;
+               default://do nothing
             }
         }
         return nCount;

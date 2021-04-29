@@ -286,10 +286,21 @@ public final class DataSourceService
         catch( ElasticClientException e )
         {
             TransactionManager.rollBack( DataSourceUtils.getPlugin( ) );
+            AppLogService.error( e.getMessage(), e );
             throw new ElasticClientException( "ElasticData createByBulk error", e );
         }
     }
-
+    /**
+     * Delete a documents by Query
+     * @param dataSource the data source
+     * @param strQuery the query
+     * @throws ElasticClientException Exception If an error occurs accessing to ElasticSearch
+     */
+    public static void deleteByQuery( DataSource dataSource, String strQuery ) throws ElasticClientException
+    {
+         Elastic elastic = getElastic( );
+         elastic.deleteByQuery( dataSource.getTargetIndexName( ), strQuery );
+    }
     /**
      * Delete a document based on its id in the index
      * 
@@ -334,7 +345,7 @@ public final class DataSourceService
         StringBuilder builder = new StringBuilder( );
         for ( DataSource dataSource : getDataSources( ) )
         {
-            if ( ( dataSource.usesFullIndexingDaemon( ) || !bDaemon ) && dataSource.getIndexingStatus( ).getIsRunning( ).compareAndSet( false, true ) )
+            if ( ( dataSource.usesFullIndexingDaemon( ) || !bDaemon ) )
             {
                 process( dataSource, bReset );
                 builder.append( dataSource.getIndexingStatus( ).getSbLogs( ).toString( ) ).append( "\n" );
@@ -424,7 +435,7 @@ public final class DataSourceService
      */
     public static String getIdDocument( String strIdDataSource, String strIdDataObject )
     {
-        return DataSourceUtils.INSTANCE_NAME + "_" + strIdDataSource + "_" + strIdDataObject;
+        return DataSourceUtils.PREFIX_DATA_OBJECT_ID + strIdDataSource + "_" + strIdDataObject;
     }
 
     /**
@@ -480,15 +491,15 @@ public final class DataSourceService
                 }
                 catch( ElasticClientException e )
                 {
-
                     TransactionManager.rollBack( DataSourceUtils.getPlugin( ) );
+                    AppLogService.error( e.getMessage(), e );
                     throw new ElasticClientException( "ElasticData createByBulk error", e );
-
                 }
             }
             updateIndexingStatus( dataSource, nCount );
         }
-        AppLogService.info( "ElasticData indexing : completed for " + nCount + " documents of DataSource '" + dataSource.getName( ) + "'" );
+        AppLogService.debug( "ElasticData indexing : completed for " + nCount + " documents of DataSource '" + dataSource.getName( ) + "'" );
+        
         return nCount;
     }
 
@@ -538,6 +549,7 @@ public final class DataSourceService
                 catch( ElasticClientException e )
                 {
                     TransactionManager.rollBack( DataSourceUtils.getPlugin( ) );
+                    AppLogService.error( e.getMessage(), e );
                     throw new ElasticClientException( "ElasticData partialUpdate error", e );
                 }
             }
