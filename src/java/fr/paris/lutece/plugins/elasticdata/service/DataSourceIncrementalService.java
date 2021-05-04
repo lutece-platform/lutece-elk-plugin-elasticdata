@@ -105,6 +105,7 @@ public final class DataSourceIncrementalService
      */
     public static void processIncrementalIndexing( DataSource dataSource ) throws ElasticClientException
     {
+    	dataSource.getIndexingStatus().reset( );
         int nCount = 0;
         int [ ] taskList = {
                 IndexerAction.TASK_CREATE, IndexerAction.TASK_MODIFY, IndexerAction.TASK_DELETE
@@ -202,7 +203,7 @@ public final class DataSourceIncrementalService
                     TransactionManager.beginTransaction( DataSourceUtils.getPlugin( ) );
                     String strResponse = elastic.createByBulk( dataSource.getTargetIndexName( ), br );
                     AppLogService.debug( "ElasticData : Response of the posted bulk request : " + strResponse );
-
+                    
                     IndexerActionHome.removeByIdResourceList( listIdResource, dataSource.getId( ) );
                     listBatch.clear( );
 
