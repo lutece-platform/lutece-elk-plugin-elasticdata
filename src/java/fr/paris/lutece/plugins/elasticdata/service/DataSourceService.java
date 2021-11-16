@@ -251,18 +251,22 @@ public final class DataSourceService
         elastic.partialUpdate( dataSource.getTargetIndexName( ), getIdDocument( dataSource.getId( ), strId ), object );
     }
 
-   
     /**
      * Delete a documents by Query
-     * @param dataSource the data source
-     * @param strQuery the query
-     * @throws ElasticClientException Exception If an error occurs accessing to ElasticSearch
+     * 
+     * @param dataSource
+     *            the data source
+     * @param strQuery
+     *            the query
+     * @throws ElasticClientException
+     *             Exception If an error occurs accessing to ElasticSearch
      */
     public static void deleteByQuery( DataSource dataSource, String strQuery ) throws ElasticClientException
     {
-         Elastic elastic = getElastic( );
-         elastic.deleteByQuery( dataSource.getTargetIndexName( ), strQuery );
+        Elastic elastic = getElastic( );
+        elastic.deleteByQuery( dataSource.getTargetIndexName( ), strQuery );
     }
+
     /**
      * Delete a document based on its id in the index
      * 
@@ -437,12 +441,12 @@ public final class DataSourceService
                 }
                 String strResponse = elastic.createByBulk( dataSource.getTargetIndexName( ), br );
                 AppLogService.debug( "ElasticData : Response of the posted bulk request : " + strResponse );
-                    listBatch.clear( );
+                listBatch.clear( );
             }
             updateIndexingStatus( dataSource, nCount );
         }
         AppLogService.debug( "ElasticData indexing : completed for " + nCount + " documents of DataSource: " + dataSource.getName( ) );
-        
+
         return nCount;
     }
 

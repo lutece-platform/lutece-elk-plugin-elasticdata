@@ -1,3 +1,36 @@
+/*
+ * Copyright (c) 2002-2021, City of Paris
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *  1. Redistributions of source code must retain the above copyright notice
+ *     and the following disclaimer.
+ *
+ *  2. Redistributions in binary form must reproduce the above copyright notice
+ *     and the following disclaimer in the documentation and/or other materials
+ *     provided with the distribution.
+ *
+ *  3. Neither the name of 'Mairie de Paris' nor 'Lutece' nor the names of its
+ *     contributors may be used to endorse or promote products derived from
+ *     this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ * License 1.0
+ */
 package fr.paris.lutece.plugins.elasticdata.service;
 
 import java.util.ArrayList;
@@ -22,30 +55,33 @@ import fr.paris.lutece.util.sql.TransactionManager;
 public final class DataSourceIncrementalService
 {
 
-	private DataSourceIncrementalService() 
-	{
-		
-	}
+    private DataSourceIncrementalService( )
+    {
+
+    }
+
     /**
      * Insert Incremental data sources
      * 
      * @return The logs of the process
-     * @throws ElasticClientException 
+     * @throws ElasticClientException
      * 
      */
-    public static String processIncrementalIndexing( ) 
+    public static String processIncrementalIndexing( )
     {
         StringBuilder builder = new StringBuilder( );
         for ( DataSource dataSource : DataSourceService.getDataSources( ) )
         {
-        	try {     		
-				processIncrementalIndexing( dataSource );
-        	} 
-        	catch (ElasticClientException e) {
-        		
-                AppLogService.error( e.getMessage(), e );
-				builder.append(e.getMessage( ));
-			}
+            try
+            {
+                processIncrementalIndexing( dataSource );
+            }
+            catch( ElasticClientException e )
+            {
+
+                AppLogService.error( e.getMessage( ), e );
+                builder.append( e.getMessage( ) );
+            }
             builder.append( dataSource.getIndexingStatus( ).getSbLogs( ).toString( ) ).append( "\n" );
 
         }
@@ -71,10 +107,10 @@ public final class DataSourceIncrementalService
                 public void run( )
                 {
                     try
-                    {                       
+                    {
                         dataSource.getIndexingStatus( ).reset( );
                         processIncrementalIndexing( dataSource );
-                       
+
                     }
                     catch( ElasticClientException e )
                     {
@@ -105,7 +141,7 @@ public final class DataSourceIncrementalService
      */
     public static void processIncrementalIndexing( DataSource dataSource ) throws ElasticClientException
     {
-    	dataSource.getIndexingStatus().reset( );
+        dataSource.getIndexingStatus( ).reset( );
         int nCount = 0;
         int [ ] taskList = {
                 IndexerAction.TASK_CREATE, IndexerAction.TASK_MODIFY, IndexerAction.TASK_DELETE
@@ -114,12 +150,11 @@ public final class DataSourceIncrementalService
         for ( int nTask : taskList )
         {
             nCount += processIncrementalIndexing( dataSource, IndexerActionHome.getIdResourceIndexerActionsList( dataSource.getId( ), nTask ), nTask );
-           
+
         }
         dataSource.getIndexingStatus( ).getSbLogs( ).append( "Number of documents processed by the incremental service from the Data Source '" )
-        .append( dataSource.getName( ) ).append( "' : " ).append( nCount ); 
-         dataSource.getIndexingStatus( ).getSbLogs( ).append( " (duration : " ).append( System.currentTimeMillis( ) - timeBegin )
-        .append( "ms)\n" );
+                .append( dataSource.getName( ) ).append( "' : " ).append( nCount );
+        dataSource.getIndexingStatus( ).getSbLogs( ).append( " (duration : " ).append( System.currentTimeMillis( ) - timeBegin ).append( "ms)\n" );
     }
 
     /**
@@ -155,11 +190,12 @@ public final class DataSourceIncrementalService
                 case IndexerAction.TASK_DELETE:
                     nCount += deleteByQuery( dataSource, listIdResource );
                     break;
-               default://do nothing
+                default:// do nothing
             }
         }
         return nCount;
     }
+
     /**
      * Insert a list of object in bulk mode
      * 
@@ -187,7 +223,7 @@ public final class DataSourceIncrementalService
             nCount++;
             if ( ( listBatch.size( ) == dataSource.getBatchSize( ) ) || !iterateDataObjects.hasNext( ) )
             {
-            	DataSourceService.completeDataObjectWithFullData( dataSource, listBatch );
+                DataSourceService.completeDataObjectWithFullData( dataSource, listBatch );
                 br = new BulkRequest( );
                 for ( DataObject batchObject : listBatch )
                 {
@@ -203,7 +239,7 @@ public final class DataSourceIncrementalService
                     TransactionManager.beginTransaction( DataSourceUtils.getPlugin( ) );
                     String strResponse = elastic.createByBulk( dataSource.getTargetIndexName( ), br );
                     AppLogService.debug( "ElasticData : Response of the posted bulk request : " + strResponse );
-                    
+
                     IndexerActionHome.removeByIdResourceList( listIdResource, dataSource.getId( ) );
                     listBatch.clear( );
 
@@ -212,16 +248,17 @@ public final class DataSourceIncrementalService
                 catch( ElasticClientException e )
                 {
                     TransactionManager.rollBack( DataSourceUtils.getPlugin( ) );
-                    AppLogService.error( e.getMessage(), e );
+                    AppLogService.error( e.getMessage( ), e );
                     throw new ElasticClientException( "ElasticData createByBulk error", e );
                 }
             }
             DataSourceService.updateIndexingStatus( dataSource, nCount );
         }
         AppLogService.debug( "ElasticData indexing : completed for " + nCount + " documents of DataSource: " + dataSource.getName( ) );
-        
+
         return nCount;
     }
+
     /**
      * update a list of object
      * 
@@ -250,7 +287,7 @@ public final class DataSourceIncrementalService
             listBatch.add( iterateDataObjects.next( ) );
             if ( ( listBatch.size( ) == dataSource.getBatchSize( ) ) || !iterateDataObjects.hasNext( ) )
             {
-            	DataSourceService.completeDataObjectWithFullData( dataSource, listBatch );
+                DataSourceService.completeDataObjectWithFullData( dataSource, listBatch );
 
                 try
                 {
@@ -268,7 +305,7 @@ public final class DataSourceIncrementalService
                 catch( ElasticClientException e )
                 {
                     TransactionManager.rollBack( DataSourceUtils.getPlugin( ) );
-                    AppLogService.error( e.getMessage(), e );
+                    AppLogService.error( e.getMessage( ), e );
                     throw new ElasticClientException( "ElasticData partialUpdate error", e );
                 }
             }
@@ -277,6 +314,7 @@ public final class DataSourceIncrementalService
         AppLogService.info( "ElasticData partial update indexing : completed for " + nCount + " documents of DataSource '" + dataSource.getName( ) + "'" );
         return nCount;
     }
+
     /**
      * Delete a documents by Query
      * 
@@ -305,10 +343,11 @@ public final class DataSourceIncrementalService
         catch( ElasticClientException e )
         {
             TransactionManager.rollBack( DataSourceUtils.getPlugin( ) );
-            AppLogService.error( e.getMessage(), e );
+            AppLogService.error( e.getMessage( ), e );
             throw new ElasticClientException( "ElasticData createByBulk error", e );
         }
     }
+
     /**
      * Create incremental task
      * 
