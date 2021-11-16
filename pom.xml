@@ -3,14 +3,14 @@
     <parent>
         <artifactId>lutece-global-pom</artifactId>
         <groupId>fr.paris.lutece.tools</groupId>
-        <version>5.1.1</version>
+        <version>5.2.0</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>fr.paris.lutece.plugins</groupId>
     <artifactId>plugin-elasticdata</artifactId>
     <packaging>lutece-plugin</packaging>
-    <version>2.0.2-SNAPSHOT</version>
+    <version>2.1.0-SNAPSHOT</version>
     <name>Lutece elasticdata plugin</name>
 
     <repositories>
@@ -37,13 +37,13 @@
         <dependency>
             <groupId>fr.paris.lutece</groupId>
             <artifactId>lutece-core</artifactId>
-            <version>[5.0.0,7.0.0-RC-09]</version>
+            <version>[7.0.0,)</version>
             <type>lutece-core</type>
         </dependency>
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>library-elastic</artifactId>
-            <version>[1.0.8,1.0.9]</version>
+            <version>[1.1.0,)</version>
         </dependency>
     </dependencies>
 
