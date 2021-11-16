@@ -37,13 +37,13 @@
         <dependency>
             <groupId>fr.paris.lutece</groupId>
             <artifactId>lutece-core</artifactId>
-            <version>[5.0.0,)</version>
+            <version>[5.0.0,7.0.0-RC-09]</version>
             <type>lutece-core</type>
         </dependency>
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>library-elastic</artifactId>
-            <version>[1.0.8-SNAPSHOT,)</version>
+            <version>[1.0.8,1.0.9]</version>
         </dependency>
     </dependencies>
 
