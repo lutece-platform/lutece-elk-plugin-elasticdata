@@ -10,7 +10,7 @@
     <groupId>fr.paris.lutece.plugins</groupId>
     <artifactId>plugin-elasticdata</artifactId>
     <packaging>lutece-plugin</packaging>
-    <version>2.0.1-SNAPSHOT</version>
+    <version>2.0.1</version>
     <name>Lutece elasticdata plugin</name>
 
     <repositories>
@@ -57,7 +57,7 @@
         <connection>scm:git:https://github.com/lutece-platform/lutece-elk-plugin-elasticdata.git</connection>
         <developerConnection>scm:git:https://github.com/lutece-platform/lutece-elk-plugin-elasticdata.git</developerConnection>
         <url>https://github.com/lutece-platform/lutece-elk-plugin-elasticdata.git</url>
-      <tag>HEAD</tag>
+      <tag>plugin-elasticdata-2.0.1</tag>
   </scm>
     
     
