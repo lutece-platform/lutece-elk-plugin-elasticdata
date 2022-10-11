@@ -1,0 +1,43 @@
+<@box>
+	<@boxHeader title='#i18n{elasticdata.manage_indexeraction.title}' boxTools=true>
+		<@tform class='form-inline pull-right' name='manage_indexeraction' action='jsp/admin/plugins/elasticdata/ManageElasticData.jsp?view=createIndexerAction'>
+			<@button type='submit' name='view_createIndexerAction' buttonIcon='plus' title='#i18n{elasticdata.manage_indexeractions.buttonAdd}' />
+		</@tform>
+	</@boxHeader>
+	<@boxBody>    
+    <@messages infos=infos />
+    <@paginationAdmin paginator=paginator combo=1 />
+    <div class="clearfix"></div>
+    <@table>
+        <tr>
+            <th>#i18n{elasticdata.manage_indexeractions.columnIdResource}</th>
+            <th>#i18n{elasticdata.manage_indexeractions.columnIdTask}</th>
+            <th>#i18n{elasticdata.manage_indexeractions.columnIdDatasource}</th>
+            <th>#i18n{portal.util.labelActions}</th>
+        </tr>
+        <@tableHeadBodySeparator />
+        <#list indexeraction_list as indexeraction >
+        <tr>
+            <td>
+				${indexeraction.idResource!''}
+			</td>
+            <td>
+				${indexeraction.idTask!''}
+			</td>
+            <td>
+				${indexeraction.idDataSource!''}
+			</td>
+        	<td>
+				<@aButton href='jsp/admin/plugins/elasticdata/ManageElasticData.jsp?view=modifyIndexerAction&id=${indexeraction.id!""}' title='#i18n{portal.util.labelModify}' hideTitle=['all'] buttonIcon='pencil' />
+						
+				<@aButton href='jsp/admin/plugins/elasticdata/ManageElasticData.jsp?action=confirmRemoveIndexerAction&id=${indexeraction.id!""}' title='#i18n{portal.util.labelDelete}' buttonIcon='trash' hideTitle=['all'] color='btn-danger'  />
+
+	        </td>
+        </tr>
+        </#list>
+    </@table>
+
+    <@paginationAdmin paginator=paginator />
+
+  </@boxBody>
+</@box>

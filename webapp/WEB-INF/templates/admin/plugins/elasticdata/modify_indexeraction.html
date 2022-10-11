@@ -1,0 +1,21 @@
+<@box>
+	<@boxHeader title='#i18n{elasticdata.modify_indexeraction.title}' />
+	<@boxBody>
+    <@tform class="form-horizontal" method="post" name="modify_indexeraction" action="jsp/admin/plugins/elasticdata/ManageElasticData.jsp" >
+			<@messages errors=errors />
+			<@input type="hidden" id="id" name="id" value="${indexeraction.id}"/>
+			<@input type="hidden" value="${token}" name="token" />
+			
+			<@formGroup labelFor='id_resource' labelKey='#i18n{elasticdata.modify_indexeraction.labelIdResource}' mandatory=true>
+				<@input type='text' id='id_resource' name='id_resource'  value='${indexeraction.idResource!\'\'}' tabIndex='0' />
+			</@formGroup>
+			<@formGroup labelFor='id_task' labelKey='#i18n{elasticdata.modify_indexeraction.labelIdTask}' mandatory=true>
+				<@input type='text' id='id_task' name='id_task'  value='${indexeraction.idTask!\'\'}' tabIndex='1' />
+			</@formGroup>
+			<@formGroup labelFor='id_datasource' labelKey='#i18n{elasticdata.modify_indexeraction.labelIdDatasource}' mandatory=true>
+				<@input type='text' id='id_datasource' name='id_dataSource'  value='${indexeraction.idDataSource!\'\'}' tabIndex='2' />
+			</@formGroup>
+        <@actionButtons button1Name="action_modifyIndexerAction" button2Name="view_manageIndexerAction"/>
+    </@tform>
+	</@boxBody>
+</@box>

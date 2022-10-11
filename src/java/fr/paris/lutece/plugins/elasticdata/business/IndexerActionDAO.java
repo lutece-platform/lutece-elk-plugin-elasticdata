@@ -41,6 +41,7 @@ import java.sql.Statement;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * This class provides Data Access methods for IndexerAction objects
@@ -57,6 +58,8 @@ public final class IndexerActionDAO implements IIndexerActionDAO
     private static final String SQL_QUERY_SELECTALL_ID = "SELECT id_action FROM elasticdata_indexer_action";
     private static final String SQL_QUERY_SELECTALL_ID_RESOURCE_BY_DATASOURCE_ID_TASK = "SELECT id_resource FROM elasticdata_indexer_action WHERE id_datasource = ? AND id_task = ?";
     private static final String SQL_QUERY_SELECTALL_BY_DATASOURCE_ID_TASK = "SELECT id_action, id_resource, id_task, id_datasource FROM elasticdata_indexer_action WHERE id_datasource = ? AND id_task = ?";
+    private static final String SQL_QUERY_SELECTALL_BY_DATASOURCE = "SELECT id_action, id_resource, id_task, id_datasource FROM elasticdata_indexer_action WHERE id_datasource = ?";
+    private static final String SQL_QUERY_SELECTALL_BY_IDS = "SELECT id_action, id_resource, id_task, id_datasource FROM elasticdata_indexer_action WHERE id_action IN (  ";
     private static final String SQL_QUERY_DELETE_BY_LIST = "DELETE FROM elasticdata_indexer_action WHERE id_datasource = ? AND id_resource IN (?";
     private static final String SQL_CLOSE_PARENTHESIS = " ) ";
     private static final String SQL_ADITIONAL_PARAMETER = ",?";
@@ -87,26 +90,26 @@ public final class IndexerActionDAO implements IIndexerActionDAO
      * {@inheritDoc }
      */
     @Override
-    public IndexerAction load( int nKey, Plugin plugin )
+    public Optional<IndexerAction> load( int nKey, Plugin plugin )
     {
-        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT, plugin ) )
+        try( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT, plugin ) )
         {
-            daoUtil.setInt( 1, nKey );
-            daoUtil.executeQuery( );
-            IndexerAction indexerAction = null;
-
-            if ( daoUtil.next( ) )
-            {
-                indexerAction = new IndexerAction( );
-                int nIndex = 1;
-
+	        daoUtil.setInt( 1 , nKey );
+	        daoUtil.executeQuery( );
+	        IndexerAction indexerAction = null;
+	
+	        if ( daoUtil.next( ) )
+	        {
+	            indexerAction = new IndexerAction();
+	            int nIndex = 1;
+	            
                 indexerAction.setId( daoUtil.getInt( nIndex++ ) );
                 indexerAction.setIdResource( daoUtil.getString( nIndex++ ) );
                 indexerAction.setIdTask( daoUtil.getInt( nIndex++ ) );
                 indexerAction.setIdDataSource( daoUtil.getString( nIndex ) );
-            }
-
-            return indexerAction;
+	        }
+	
+	        return Optional.ofNullable( indexerAction );
         }
     }
 
@@ -269,6 +272,38 @@ public final class IndexerActionDAO implements IIndexerActionDAO
      * {@inheritDoc }
      */
     @Override
+    public List<IndexerAction> selectIndexerActionsList( String strIdDataSource, Plugin plugin )
+    {
+
+        List<IndexerAction> indexerActionList = new ArrayList<>( );
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_BY_DATASOURCE, plugin ) )
+        {
+
+            daoUtil.setString( 1, strIdDataSource );
+
+            daoUtil.executeQuery( );
+
+            while ( daoUtil.next( ) )
+            {
+                IndexerAction indexerAction = new IndexerAction( );
+                int nIndex = 1;
+
+                indexerAction.setId( daoUtil.getInt( nIndex++ ) );
+                indexerAction.setIdResource( daoUtil.getString( nIndex++ ) );
+                indexerAction.setIdTask( daoUtil.getInt( nIndex++ ) );
+                indexerAction.setIdDataSource( daoUtil.getString( nIndex ) );
+
+                indexerActionList.add( indexerAction );
+            }
+
+            return indexerActionList;
+        }
+    }
+
+    /**
+     * {@inheritDoc }
+     */
+    @Override
     public List<String> selectIdResourceIndexerActionsList( String strIdDataSource, int nIdTask, Plugin plugin )
     {
 
@@ -330,4 +365,52 @@ public final class IndexerActionDAO implements IIndexerActionDAO
             return indexerActionList;
         }
     }
+
+        /**
+     * {@inheritDoc }
+     */
+	@Override
+	public List<IndexerAction> selectIndexerActionsListByIds( Plugin plugin, List<Integer> listIds ) {
+		List<IndexerAction> indexerActionList = new ArrayList<>(  );
+		
+		StringBuilder builder = new StringBuilder( );
+
+		if ( !listIds.isEmpty( ) )
+		{
+			for( int i = 0 ; i < listIds.size(); i++ ) {
+			    builder.append( "?," );
+			}
+	
+			String placeHolders =  builder.deleteCharAt( builder.length( ) -1 ).toString( );
+			String stmt = SQL_QUERY_SELECTALL_BY_IDS + placeHolders + ")";
+			
+			
+	        try ( DAOUtil daoUtil = new DAOUtil( stmt, plugin ) )
+	        {
+	        	int index = 1;
+				for( Integer n : listIds ) {
+					daoUtil.setInt(  index++, n ); 
+				}
+	        	
+	        	daoUtil.executeQuery(  );
+	        	while ( daoUtil.next(  ) )
+		        {
+                    IndexerAction indexerAction = new IndexerAction( );
+                    int nIndex = 1;
+    
+                    indexerAction.setId( daoUtil.getInt( nIndex++ ) );
+                    indexerAction.setIdResource( daoUtil.getString( nIndex++ ) );
+                    indexerAction.setIdTask( daoUtil.getInt( nIndex++ ) );
+                    indexerAction.setIdDataSource( daoUtil.getString( nIndex ) );
+    
+                    indexerActionList.add( indexerAction );
+		        }
+		
+		        daoUtil.free( );
+		        
+	        }
+	    }
+		return indexerActionList;
+		
+	}
 }

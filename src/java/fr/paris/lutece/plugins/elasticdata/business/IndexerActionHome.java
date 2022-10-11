@@ -39,6 +39,7 @@ import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.util.ReferenceList;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * This class provides instances management methods (create, find, ...) for IndexerAction objects
@@ -115,7 +116,7 @@ public final class IndexerActionHome
      *            The indexerAction primary key
      * @return an instance of IndexerAction
      */
-    public static IndexerAction findByPrimaryKey( int nKey )
+    public static Optional<IndexerAction> findByPrimaryKey( int nKey )
     {
         return _dao.load( nKey, _plugin );
     }
@@ -153,6 +154,17 @@ public final class IndexerActionHome
     }
 
     /**
+     * Load the data of all the datasource indexerAction objects and returns them as a list
+     * 
+     * @return the list which contains the data of all the indexerAction objects
+     */
+    public static List<IndexerAction> getIndexerActionsList( String strIdDataSource )
+    {
+        return _dao.selectIndexerActionsList( strIdDataSource, _plugin );
+    }
+
+
+    /**
      * Load the id of all the indexerAction objects and returns them as a list
      * 
      * @return the list which contains the id of all the indexerAction objects
@@ -180,5 +192,16 @@ public final class IndexerActionHome
     public static ReferenceList getIndexerActionsReferenceList( )
     {
         return _dao.selectIndexerActionsReferenceList( _plugin );
+    }
+
+
+    /**
+     * Load the data of all the avant objects and returns them as a list
+     * @param listIds liste of ids
+     * @return the list which contains the data of all the avant objects
+     */
+    public static List<IndexerAction> getIndexerActionsListByIds( List<Integer> listIds )
+    {
+        return _dao.selectIndexerActionsListByIds( _plugin, listIds );
     }
 }

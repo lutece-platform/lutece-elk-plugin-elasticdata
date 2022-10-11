@@ -37,6 +37,7 @@ package fr.paris.lutece.plugins.elasticdata.business;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * IIndexerActionDAO Interface
@@ -97,7 +98,7 @@ public interface IIndexerActionDAO
      *            the Plugin
      * @return The instance of the indexerAction
      */
-    IndexerAction load( int nKey, Plugin plugin );
+    Optional<IndexerAction> load( int nKey, Plugin plugin );
 
     /**
      * Load the data from the table
@@ -126,13 +127,24 @@ public interface IIndexerActionDAO
      * 
      * @param strIdDataSource
      *            the identifier of data source
+     * @param plugin
+     *            the Plugin
+     * @return The list which contains the data of all the indexerAction objects
+     */
+    List<IndexerAction> selectIndexerActionsList( String strIdDataSource, int nIdTask, Plugin plugin );
+
+    /**
+     * Load the data of all the indexerAction objects and returns them as a list
+     * 
+     * @param strIdDataSource
+     *            the identifier of data source
      * @param nIdTask
      *            the identifier of task
      * @param plugin
      *            the Plugin
      * @return The list which contains the data of all the indexerAction objects
      */
-    List<IndexerAction> selectIndexerActionsList( String strIdDataSource, int nIdTask, Plugin plugin );
+    List<IndexerAction> selectIndexerActionsList( String strIdDataSource, Plugin plugin );
 
     /**
      * Load the id of all the indexerAction objects and returns them as a list
@@ -160,4 +172,12 @@ public interface IIndexerActionDAO
      * @return The referenceList which contains the data of all the indexerAction objects
      */
     ReferenceList selectIndexerActionsReferenceList( Plugin plugin );
+
+        /**
+     * Load the data of all the avant objects and returns them as a list
+     * @param plugin the Plugin
+     * @param listIds liste of ids
+     * @return The list which contains the data of all the avant objects
+     */
+	List<IndexerAction> selectIndexerActionsListByIds( Plugin _plugin, List<Integer> listIds );
 }

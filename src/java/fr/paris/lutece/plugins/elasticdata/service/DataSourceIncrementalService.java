@@ -386,4 +386,15 @@ public final class DataSourceIncrementalService
         IndexerActionHome.create( indexerAction );
     }
 
+    /**
+     * Load the data of all the datasource indexerAction objects and returns them as a list
+     * 
+     * @param strIdDataSource
+     *            the identifier of data source
+     * @return The list which contains the data of all the indexerAction objects
+     */
+    public static List<IndexerAction> getIndexerAction( String strIdDataSource ) {
+        return IndexerActionHome.getIndexerActionsList( strIdDataSource );
+    }
+
 }
