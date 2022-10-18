@@ -241,6 +241,7 @@ public final class DataSourceIncrementalService
                     AppLogService.debug( "ElasticData : Response of the posted bulk request : " + strResponse );
 
                     IndexerActionHome.removeByIdResourceList( listIdResource, dataSource.getId( ) );
+                    listIdResource.clear( );
                     listBatch.clear( );
 
                     TransactionManager.commitTransaction( DataSourceUtils.getPlugin( ) );
