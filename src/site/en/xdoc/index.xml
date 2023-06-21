@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+    <properties>
+        <title>Plugin elasticdata</title>
+    </properties>
+    <body>
+        <section name="Plugin elasticdata">
+            <p>
+                <img src="images/elastic.png"/>
+            </p>
+            <subsection name="Introduction">
+                <p>
+                    This plugin provides an easy way to fill ElasticSearch with timestamped data
+                    in order to build Kibana dashboards.
+                </p>
+                <p>
+                    It offers to create Lutece modules that declare Data Sources and Data Objects 
+                    that will create and fill Elastic indexes. 
+                </p>
+                <p>
+                    The plugin provides an Admin Feature that can start the feeding.
+                </p>
+            </subsection>
+            <subsection name="Configuration">
+                <p>The Elastic Search server URL should be defined in the <b>elasticdata.properties</b> file.</p>
+                <pre>
+elasticdata.elastic_server.url=http://localhost:9200                    
+                </pre>    
+                <p>
+                    All Data Sources defined into context files of installed modules will be detected.
+                </p>
+                <p> 
+                    NB : modules should be activated into the <b>Plugins Management</b> admin feature. 
+                </p>            
+            </subsection>
+            <subsection name="Usage">
+                <p>
+                    See the <a href="http://wiki.lutece.paris.fr">Lutece Wiki</a> to learn how to develop ElaticData modules.
+                </p>
+            </subsection>
+        </section>
+    </body>
+</document>
