@@ -1,3 +1,6 @@
+-- liquibase formatted sql
+-- changeset elasticdata:init_core_elasticdata.sql
+-- preconditions onFail:MARK_RAN onError:WARN
 
 --
 -- Data for table core_admin_right
