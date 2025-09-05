@@ -1,3 +1,6 @@
+-- liquibase formatted sql
+-- changeset elasticdata:update_db_elasticdata-1.0.0-2.0.0.sql
+-- preconditions onFail:MARK_RAN onError:WARN
 DROP TABLE IF EXISTS elasticdata_indexer_action;
 CREATE TABLE  elasticdata_indexer_action (
   id_action int AUTO_INCREMENT NOT NULL,
