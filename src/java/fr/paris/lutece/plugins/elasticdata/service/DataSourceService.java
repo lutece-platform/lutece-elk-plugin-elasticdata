@@ -43,15 +43,15 @@ import org.apache.commons.lang3.StringUtils;
 import fr.paris.lutece.plugins.elasticdata.business.DataObject;
 import fr.paris.lutece.plugins.elasticdata.business.DataSource;
 import fr.paris.lutece.plugins.elasticdata.business.IDataSourceExternalAttributesProvider;
+import fr.paris.lutece.plugins.elasticdata.service.event.DataSourceIndexedEvent;
 import fr.paris.lutece.plugins.libraryelastic.business.bulk.BulkRequest;
 import fr.paris.lutece.plugins.libraryelastic.business.bulk.IndexSubRequest;
 import fr.paris.lutece.plugins.libraryelastic.util.Elastic;
 import fr.paris.lutece.plugins.libraryelastic.util.ElasticClientException;
-import fr.paris.lutece.portal.business.event.ResourceEvent;
-import fr.paris.lutece.portal.service.event.ResourceEventManager;
-import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
+import jakarta.enterprise.concurrent.ManagedThreadFactory;
+import jakarta.enterprise.inject.spi.CDI;
 
 /**
  * DataSourceService
@@ -68,6 +68,8 @@ public final class DataSourceService
     private static final String SERVEUR_PWD = AppPropertiesService.getProperty( PROPERTY_ELASTIC_SERVER_PWD );
 
     private static Map<String, DataSource> _mapDataSources;
+    
+    private static ManagedThreadFactory _threadFactory = CDI.current( ).select( ManagedThreadFactory.class ).get( );
 
     /** Package constructor */
     DataSourceService( )
@@ -86,10 +88,10 @@ public final class DataSourceService
             if ( _mapDataSources == null )
             {
                 _mapDataSources = new HashMap<>( );
-                for ( DataSource source : SpringContextService.getBeansOfType( DataSource.class ) )
-                {
-                    _mapDataSources.put( source.getId( ), source );
-                }
+                CDI.current()
+                .select( DataSource.class )
+                .stream( )
+                .forEach( source -> _mapDataSources.put( source.getId( ), source ) );
             }
         }
         return _mapDataSources.values( );
@@ -109,9 +111,7 @@ public final class DataSourceService
 
     /**
      * Insert data from a DataSource into Elastic Search
-     * 
-     * @param sbLogs
-     *            A log buffer
+     *
      * @param dataSource
      *            The data source
      * @param bReset
@@ -121,31 +121,23 @@ public final class DataSourceService
      */
     public static void processFullIndexing( DataSource dataSource, boolean bReset )
     {
-
+    	// When running multiple instances, the only consequence is that data may be reindexed twice, but no data will be lost.
+    	// Elastic ensures concurrent write access and guarantees data uniqueness.
         if ( dataSource.getIndexingStatus( ).getIsRunning( ).compareAndSet( false, true ) )
         {
-            ( new Thread( )
-            {
-                @Override
-                public void run( )
-                {
-                    process( dataSource, bReset );
-                }
-            } ).start( );
+        	Runnable task = ( ) -> process( dataSource, bReset );
+            Thread thread = _threadFactory.newThread( task );
+            thread.start( );
         }
     }
 
     /**
      * Insert data from a DataSource into Elastic Search
-     * 
-     * @param sbLogs
-     *            A log buffer
+     *
      * @param dataSource
      *            The data source
      * @param bReset
      *            if the index should be reset before inserting
-     * @throws ElasticClientException
-     *             If an error occurs accessing to ElasticSearch
      */
     private static void process( DataSource dataSource, boolean bReset )
     {
@@ -169,22 +161,15 @@ public final class DataSourceService
                     .append( "' : " ).append( nbDocsInsert );
             dataSource.getIndexingStatus( ).getSbLogs( ).append( " (duration : " ).append( timeEnd - timeBegin ).append( "ms)\n" );
 
-            ResourceEvent dataSourceFullIndexed = new ResourceEvent( );
-            dataSourceFullIndexed.setIdResource( dataSource.getId( ) );
-            dataSourceFullIndexed.setTypeResource( DataSourceUtils.RESOURCE_TYPE_INDEXING );
-            ResourceEventManager.fireAddedResource( dataSourceFullIndexed );
-
+            CDI.current( ).getBeanManager( ).getEvent( ).fireAsync( new DataSourceIndexedEvent( dataSource.getId( ) ) );
         }
         catch( ElasticClientException e )
         {
-
             dataSource.getIndexingStatus( ).getSbLogs( ).append( e.getMessage( ) ).append( e );
             AppLogService.error( "Process full indexing: ", e );
-
         }
         finally
         {
-
             dataSource.getIndexingStatus( ).getIsRunning( ).set( false );
         }
 
@@ -379,8 +364,8 @@ public final class DataSourceService
      * 
      * @param dataSource
      *            the data source
-     * @param dataObject
-     *            the data object
+     * @param dataObjectList
+     *            the data object list
      */
     public static void completeDataObjectWithFullData( DataSource dataSource, List<DataObject> dataObjectList )
     {
@@ -440,12 +425,12 @@ public final class DataSourceService
                     elastic = getElastic( );
                 }
                 String strResponse = elastic.createByBulk( dataSource.getTargetIndexName( ), br );
-                AppLogService.debug( "ElasticData : Response of the posted bulk request : " + strResponse );
+                AppLogService.debug( "ElasticData : Response of the posted bulk request : {}", strResponse );
                 listBatch.clear( );
             }
             updateIndexingStatus( dataSource, nCount );
         }
-        AppLogService.debug( "ElasticData indexing : completed for " + nCount + " documents of DataSource: " + dataSource.getName( ) );
+        AppLogService.debug( "ElasticData indexing : completed for {} documents of DataSource: {}", nCount,  dataSource.getName( ) );
 
         return nCount;
     }

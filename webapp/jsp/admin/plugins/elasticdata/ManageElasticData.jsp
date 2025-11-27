@@ -1,10 +1,10 @@
-<jsp:useBean id="manageelasticdata" scope="session" class="fr.paris.lutece.plugins.elasticdata.web.ManageElasticDataJspBean" />
-<% String strContent = manageelasticdata.processController ( request , response ); %>
-
 <%@ page errorPage="../../ErrorPage.jsp" %>
+
+${ pageContext.setAttribute( 'strContent', manageElasticDataJspBean.processController( pageContext.request , pageContext.response ) ) }
+
 <jsp:include page="../../AdminHeader.jsp" />
 
-<%= strContent %>
+${ pageContext.getAttribute( 'strContent' ) }
 
 <%@ include file="../../AdminFooter.jsp" %>
 

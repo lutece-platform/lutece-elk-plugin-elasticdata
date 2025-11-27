@@ -56,9 +56,10 @@ public interface DataObject
     String getId( );
 
     /**
-     * The _id of the data
+     * Set the id of the data
      * 
-     * @return The id
+     * @param strId
+     *            The id to set
      */
     @JsonIgnore
     void setId( String strId );
@@ -78,9 +79,9 @@ public interface DataObject
     String getParentName( );
 
     /**
-     * The parent Id
+     * Get the document type name
      * 
-     * @return The parent Id
+     * @return The document type name
      */
     String getDocumentTypeName( );
 

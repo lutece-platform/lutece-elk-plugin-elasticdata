@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2021, City of Paris
+ * Copyright (c) 2002-2025, City of Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,40 +31,30 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.elasticdata.service;
+package fr.paris.lutece.plugins.elasticdata.service.event;
 
-import fr.paris.lutece.test.LuteceTestCase;
-import org.junit.jupiter.api.Test;
-
-/**
- * DataSourceServiceTest
- */
-public class DataSourceServiceTest extends LuteceTestCase
+public class DataSourceIndexedEvent 
 {
+	private String _strDataSourceId;
 
     /**
-     * Test of insertData method, of class DataSourceService.
+     * Creates a new instance of DataSourceIndexedEvent
      * 
-     * @throws java.lang.Exception
+     * @param strDataSourceId
+     *            The data source id
      */
-    @Test
-    void testInsertData( ) throws Exception
+    public DataSourceIndexedEvent( String strDataSourceId )
     {
-        /*
-         * MockDataSource ds = new MockDataSource( ); ds.setName( "Mock Data Source" ); ds.setTargetIndexName( "mockdatasource" ); ds.setBatchSize( 4 ); //
-         * actions will posted 4 + 4 + 1 DataSourceService.processFullIndexing( ds, true );
-         */
+    	_strDataSourceId = strDataSourceId;
     }
 
-    /**
-     * Test of insertData method, of class DataSourceService.
-     * 
-     * @throws java.lang.Exception
+	/**
+     * Returns the data source id
+     *
+     * @return The data source id
      */
-    @Test
-    void testInsertDataAllDatasources( ) throws Exception
+    public String getDataSourceId( )
     {
-        // DataSourceService.insertDataAllDatasources( true );
+        return _strDataSourceId;
     }
-
 }

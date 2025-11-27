@@ -5,7 +5,6 @@
 
         <@messages errors=errors />
         <@input type="hidden" id="id" name="id_action"/>
-        <@input type="hidden" value="${token}" name="token" />
 
 		<@formGroup labelFor='id_resource' labelKey='#i18n{elasticdata.modify_indexeraction.labelIdResource}' mandatory=true>
 			<@input type='text' id='id_resource' name='id_resource'  value='${indexeraction.idResource!\'\'}' tabIndex='0' />
