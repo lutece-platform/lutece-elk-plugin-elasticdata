@@ -38,7 +38,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.json.JSONArray;
 
 import fr.paris.lutece.plugins.elasticdata.business.DataObject;
@@ -51,9 +50,12 @@ import fr.paris.lutece.plugins.libraryelastic.util.Elastic;
 import fr.paris.lutece.plugins.libraryelastic.util.ElasticClientException;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.util.sql.TransactionManager;
+import jakarta.enterprise.concurrent.ManagedThreadFactory;
+import jakarta.enterprise.inject.spi.CDI;
 
 public final class DataSourceIncrementalService
 {
+	private static ManagedThreadFactory _threadFactory = CDI.current( ).select( ManagedThreadFactory.class ).get( );
 
     private DataSourceIncrementalService( )
     {
@@ -64,8 +66,6 @@ public final class DataSourceIncrementalService
      * Insert Incremental data sources
      * 
      * @return The logs of the process
-     * @throws ElasticClientException
-     * 
      */
     public static String processIncrementalIndexing( )
     {
@@ -93,38 +93,30 @@ public final class DataSourceIncrementalService
      * 
      * @param dataSource
      *            the data source
-     * 
-     * @return The logs of the process
-     * 
      */
     public static void processAsynchronouslyIncrementalIndexing( DataSource dataSource )
     {
         if ( dataSource.getIndexingStatus( ).getIsRunning( ).compareAndSet( false, true ) )
         {
-            ( new Thread( )
+        	Thread thread = _threadFactory.newThread( ( ) -> 
             {
-                @Override
-                public void run( )
+                try
                 {
-                    try
-                    {
-                        dataSource.getIndexingStatus( ).reset( );
-                        processIncrementalIndexing( dataSource );
-
-                    }
-                    catch( ElasticClientException e )
-                    {
-                        dataSource.getIndexingStatus( ).getSbLogs( ).append( e.getMessage( ) ).append( e );
-                        AppLogService.error( "Process intcremental indexing error: ", e );
-
-                    }
-                    finally
-                    {
-                        dataSource.getIndexingStatus( ).getIsRunning( ).set( false );
-                    }
+                    processIncrementalIndexing( dataSource );
 
                 }
-            } ).start( );
+                catch( ElasticClientException e )
+                {
+                    dataSource.getIndexingStatus( ).getSbLogs( ).append( e.getMessage( ) ).append( e );
+                    AppLogService.error( "Process incremental indexing error: ", e );
+
+                }
+                finally
+                {
+                    dataSource.getIndexingStatus( ).getIsRunning( ).set( false );
+                }
+            } );
+        	thread.start( );
         }
 
     }
@@ -162,8 +154,8 @@ public final class DataSourceIncrementalService
      * 
      * @param dataSource
      *            the datasource
-     * @param indexActionList
-     *            the list of indexer actions to index
+     * @param listIdResource
+     *            the list of resource id
      * @param nIdTask
      *            the task id
      * @throws ElasticClientException
@@ -177,7 +169,7 @@ public final class DataSourceIncrementalService
         Elastic elastic = DataSourceService.getElastic( );
         int nCount = 0;
 
-        if ( elastic != null && !CollectionUtils.isEmpty( listIdResource ) )
+        if ( elastic != null && listIdResource != null && !listIdResource.isEmpty( ) )
         {
             switch( nIdTask )
             {
@@ -238,7 +230,7 @@ public final class DataSourceIncrementalService
                 {
                     TransactionManager.beginTransaction( DataSourceUtils.getPlugin( ) );
                     String strResponse = elastic.createByBulk( dataSource.getTargetIndexName( ), br );
-                    AppLogService.debug( "ElasticData : Response of the posted bulk request : " + strResponse );
+                    AppLogService.debug( "ElasticData : Response of the posted bulk request : {}", strResponse );
 
                     IndexerActionHome.removeByIdResourceList( listIdResource, dataSource.getId( ) );
                     listIdResource.clear( );
@@ -255,7 +247,7 @@ public final class DataSourceIncrementalService
             }
             DataSourceService.updateIndexingStatus( dataSource, nCount );
         }
-        AppLogService.debug( "ElasticData indexing : completed for " + nCount + " documents of DataSource: " + dataSource.getName( ) );
+        AppLogService.debug( "ElasticData indexing : completed for {} documents of DataSource: {}", nCount, dataSource.getName( ) );
 
         return nCount;
     }
@@ -296,7 +288,7 @@ public final class DataSourceIncrementalService
                     for ( DataObject batchObject : listBatch )
                     {
                         String strResponse = elastic.partialUpdate( dataSource.getTargetIndexName( ), batchObject.getId( ), batchObject );
-                        AppLogService.debug( "ElasticData : Response of the partial update : " + strResponse );
+                        AppLogService.debug( "ElasticData : Response of the partial update : {}", strResponse );
                         nCount++;
                     }
                     IndexerActionHome.removeByIdResourceList( listIdResource, dataSource.getId( ) );
@@ -312,7 +304,7 @@ public final class DataSourceIncrementalService
             }
             DataSourceService.updateIndexingStatus( dataSource, nCount );
         }
-        AppLogService.info( "ElasticData partial update indexing : completed for " + nCount + " documents of DataSource '" + dataSource.getName( ) + "'" );
+        AppLogService.info( "ElasticData partial update indexing : completed for {} documents of DataSource '{}'", nCount, dataSource.getName( ) );
         return nCount;
     }
 

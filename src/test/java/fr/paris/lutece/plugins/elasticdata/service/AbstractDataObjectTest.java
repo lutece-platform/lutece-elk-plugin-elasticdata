@@ -35,7 +35,7 @@ package fr.paris.lutece.plugins.elasticdata.service;
 
 import fr.paris.lutece.plugins.elasticdata.business.AbstractDataObject;
 import fr.paris.lutece.test.LuteceTestCase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * AbstractDataObjectTest
@@ -51,7 +51,7 @@ public class AbstractDataObjectTest extends LuteceTestCase
      * Test of getDayOfWeek method, of class AbstractDataObject.
      */
     @Test
-    public void testGetDayOfWeek( )
+    void testGetDayOfWeek( )
     {
         /*
          * AbstractDataObject dataObject = new TestDataObject( ); long lTime = ( new Date( ) ).getTime( );
@@ -64,7 +64,7 @@ public class AbstractDataObjectTest extends LuteceTestCase
      * Test of getMonth method, of class AbstractDataObject.
      */
     @Test
-    public void testGetMonth( )
+    void testGetMonth( )
     {
         /*
          * AbstractDataObject dataObject = new TestDataObject( ); long lTime = ( new Date( ) ).getTime( );

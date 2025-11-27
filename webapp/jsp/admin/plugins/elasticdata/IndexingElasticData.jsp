@@ -1,3 +1,2 @@
-<jsp:useBean id="manageelasticdata" scope="session" class="fr.paris.lutece.plugins.elasticdata.web.ManageElasticDataJspBean" />
-<% String strContent = manageelasticdata.processController ( request , response ); %>
-<%= strContent %>
+${ pageContext.setAttribute( 'strContent', manageElasticDataJspBean.processController( pageContext.request , pageContext.response ) ) }
+${ pageContext.getAttribute( 'strContent' ) }

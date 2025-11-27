@@ -45,7 +45,6 @@ import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
 import fr.paris.lutece.portal.service.message.AdminMessage;
 import fr.paris.lutece.portal.service.message.AdminMessageService;
-import fr.paris.lutece.portal.service.security.SecurityTokenService;
 import fr.paris.lutece.plugins.elasticdata.business.IndexerAction;
 import fr.paris.lutece.plugins.elasticdata.business.IndexerActionHome;
 import fr.paris.lutece.portal.service.admin.AccessDeniedException;
@@ -58,14 +57,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
+
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.inject.Named;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 
 /**
  * ManageElasticData JSP Bean abstract class for JSP Bean
  */
-@Controller( controllerJsp = "ManageElasticData.jsp", controllerPath = "jsp/admin/plugins/elasticdata/", right = "ELASTICDATA_MANAGEMENT" )
-public class ManageElasticDataJspBean extends AbstractManageJspBean <Integer, IndexerAction>
+@SessionScoped
+@Named
+@Controller( controllerJsp = "ManageElasticData.jsp", controllerPath = "jsp/admin/plugins/elasticdata/", right = "ELASTICDATA_MANAGEMENT", securityTokenEnabled = true )
+public class ManageElasticDataJspBean extends AbstractManageJspBean<Integer, IndexerAction>
 {
     private static final long serialVersionUID = 1L;
 
@@ -167,14 +171,14 @@ public class ManageElasticDataJspBean extends AbstractManageJspBean <Integer, In
      *            The HTTP request
      * @return The redirected page
      */
-    @Action( ACTION_INDEX )
-    public String doIndex( HttpServletRequest request ) throws ElasticClientException
+    @Action( value = ACTION_INDEX, securityTokenDisabled = true )
+    public String doIndex( HttpServletRequest request )
     {
         String strDataSourceId = request.getParameter( PARAMETER_DATA_SOURCE );
         DataSource dataSource = DataSourceService.getDataSource( strDataSourceId );
         DataSourceService.processFullIndexing( dataSource, true );
 
-        return redirect( request, VIEW_HOME );
+        return redirectView( request, VIEW_HOME );
 
     }
 
@@ -185,8 +189,8 @@ public class ManageElasticDataJspBean extends AbstractManageJspBean <Integer, In
      *            The HTTP request
      * @return The redirected page
      */
-    @Action( ACTION_INDEX_INCREMENTAL )
-    public String doIncrementalIndexing( HttpServletRequest request ) throws ElasticClientException
+    @Action( value = ACTION_INDEX_INCREMENTAL, securityTokenDisabled = true )
+    public String doIncrementalIndexing( HttpServletRequest request )
     {
         String strDataSourceId = request.getParameter( PARAMETER_DATA_SOURCE );
         DataSource dataSource = DataSourceService.getDataSource( strDataSourceId );
@@ -201,8 +205,8 @@ public class ManageElasticDataJspBean extends AbstractManageJspBean <Integer, In
      * @return
      * @throws ElasticClientException
      */
-    @Action( ACTION_CHECK_INDEX_STATUS )
-    public String doCheckIndexStatus( HttpServletRequest request ) throws ElasticClientException
+    @Action( value = ACTION_CHECK_INDEX_STATUS, securityTokenDisabled = true )
+    public String doCheckIndexStatus( HttpServletRequest request )
     {
         String strDataSourceId = request.getParameter( PARAMETER_DATA_SOURCE );
         return getJsonStatus( strDataSourceId );
@@ -284,7 +288,6 @@ public class ManageElasticDataJspBean extends AbstractManageJspBean <Integer, In
 
         Map<String, Object> model = getModel(  );
         model.put( MARK_INDEXERACTION, _indexeraction );
-        model.put( SecurityTokenService.MARK_TOKEN, SecurityTokenService.getInstance( ).getToken( request, ACTION_CREATE_INDEXERACTION ) );
 
         return getPage( PROPERTY_PAGE_TITLE_CREATE_INDEXERACTION, TEMPLATE_CREATE_INDEXERACTION, model );
     }
@@ -297,15 +300,9 @@ public class ManageElasticDataJspBean extends AbstractManageJspBean <Integer, In
      * @throws AccessDeniedException
      */
     @Action( ACTION_CREATE_INDEXERACTION )
-    public String doCreateIndexerAction( HttpServletRequest request ) throws AccessDeniedException
+    public String doCreateIndexerAction( HttpServletRequest request )
     {
         populate( _indexeraction, request, getLocale( ) );
-        
-
-        if ( !SecurityTokenService.getInstance( ).validate( request, ACTION_CREATE_INDEXERACTION ) )
-        {
-            throw new AccessDeniedException ( "Invalid security token" );
-        }
 
         // Check constraints
         if ( !validateBean( _indexeraction, VALIDATION_ATTRIBUTES_PREFIX ) )
@@ -327,7 +324,7 @@ public class ManageElasticDataJspBean extends AbstractManageJspBean <Integer, In
      * @param request The Http request
      * @return the html code to confirm
      */
-    @Action( ACTION_CONFIRM_REMOVE_INDEXERACTION )
+    @Action( value = ACTION_CONFIRM_REMOVE_INDEXERACTION, securityTokenAction = ACTION_REMOVE_INDEXERACTION )
     public String getConfirmRemoveIndexerAction( HttpServletRequest request )
     {
         int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_INDEXERACTION ) );
@@ -350,7 +347,7 @@ public class ManageElasticDataJspBean extends AbstractManageJspBean <Integer, In
     {
         int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_INDEXERACTION ) );
         
-        
+
         IndexerActionHome.remove( nId );
         addInfo( INFO_INDEXERACTION_REMOVED, getLocale(  ) );
         resetListId( );
@@ -378,7 +375,6 @@ public class ManageElasticDataJspBean extends AbstractManageJspBean <Integer, In
 
         Map<String, Object> model = getModel(  );
         model.put( MARK_INDEXERACTION, _indexeraction );
-        model.put( SecurityTokenService.MARK_TOKEN, SecurityTokenService.getInstance( ).getToken( request, ACTION_MODIFY_INDEXERACTION ) );
 
         return getPage( PROPERTY_PAGE_TITLE_MODIFY_INDEXERACTION, TEMPLATE_MODIFY_INDEXERACTION, model );
     }
@@ -391,15 +387,9 @@ public class ManageElasticDataJspBean extends AbstractManageJspBean <Integer, In
      * @throws AccessDeniedException
      */
     @Action( ACTION_MODIFY_INDEXERACTION )
-    public String doModifyIndexerAction( HttpServletRequest request ) throws AccessDeniedException
+    public String doModifyIndexerAction( HttpServletRequest request )
     {   
         populate( _indexeraction, request, getLocale( ) );
-		
-		
-        if ( !SecurityTokenService.getInstance( ).validate( request, ACTION_MODIFY_INDEXERACTION ) )
-        {
-            throw new AccessDeniedException ( "Invalid security token" );
-        }
 
         // Check constraints
         if ( !validateBean( _indexeraction, VALIDATION_ATTRIBUTES_PREFIX ) )
