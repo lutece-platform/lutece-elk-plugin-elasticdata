@@ -28,7 +28,7 @@
                                     <@input type='hidden' name='data_source' value='${source.id}' />
                                     <@input type='hidden' name='_csrftoken' value=(index_tokens[indexAction])!'' />
                                     <@button type='submit' title=(indexAction == 'index')?then('#i18n{elasticdata.manage_elasticdata.buttonIndex}', '#i18n{elasticdata.manage_elasticdata.buttonIncrementalIndex}') buttonIcon='cogs'
-                                        color="primary" params='data-indexId="${source.id}" check=true' />
+                                        color="primary" params={'data-index-id': source.id, 'data-check': 'true'} />
                                 </@tform>
                                 </#list>
                             </td>
@@ -42,13 +42,13 @@
 <@scrollTopBtn />
 <script>
     // variables
-    const datasources = document.querySelectorAll("*[data-indexId]");
+    const datasources = document.querySelectorAll("[data-index-id]");
     // check if one of datasources is indexing;
     async function check() {
         if (datasources != null) {
             for (const datasource of datasources) {
-                const dataSourceId = datasource.getAttribute('data-indexId');
-                 if( datasource.getAttribute('check') === "true" ) {
+                const dataSourceId = datasource.dataset.indexId;
+                 if( datasource.dataset.check === "true" ) {
                      await getStatus(dataSourceId).then(json => {
                 	progressBar(dataSourceId, json)
                     });
@@ -60,7 +60,7 @@
     async function getStatus(dataSourceId) {
         let response = await fetch(
             "jsp/admin/plugins/elasticdata/IndexingElasticData.jsp?view=checkIndexStatus&data_source=" +
-            dataSourceId);
+            encodeURIComponent(dataSourceId));
         let data = await response.json()
         return data;
     }
@@ -70,11 +70,13 @@
     }, 1500);
     // progress bar
     function progressBar(dataSourceId, json) {
-        console.log("dadada")
         const progressBar = document.getElementById(dataSourceId);
-        const btns = document.querySelectorAll("*[data-indexId=" + dataSourceId + "]");
+        const btns = document.querySelectorAll("[data-index-id=\"" + CSS.escape(dataSourceId) + "\"]");
         if (json !== null) {
-            document.getElementById("log-"+dataSourceId).innerHTML = "<i>" + json.sbLogs + "</i>"
+            const log = document.createElement("i");
+            log.className = "elasticdata-log";
+            log.textContent = json.sbLogs;
+            document.getElementById("log-"+dataSourceId).replaceChildren(log);
             if ( json.isRunning ) {
                 progressBar.style.display = 'block';
                 progressBar.getElementsByClassName('.progress');
@@ -84,11 +86,10 @@
                 const bar = progressBar.querySelector("*[aria-valuenow]");
                 bar.setAttribute("aria-valuenow", json.progress);
                 bar.style.width = json.progress + "%";
-                bar.innerHTML = json.progress.toFixed(2) + "%" + " (" + json.currentNbIndexedObj + "/" + json.nbTotalObj + ")";
+                bar.textContent = json.progress.toFixed(2) + "%" + " (" + json.currentNbIndexedObj + "/" + json.nbTotalObj + ")";
             } else {
-                console.log(btns)
                 btns.forEach(btn => {
-                    btn.setAttribute("check",false);
+                    btn.dataset.check = "false";
                     btn.disabled = false;
                 });
                progressBar.style.display = 'none';
@@ -103,5 +104,8 @@
         height: 20px !important;
         font-weight: bold;
         text-transform: uppercase;
+    }
+    .elasticdata-log {
+        white-space: pre-line;
     }
 </style>
