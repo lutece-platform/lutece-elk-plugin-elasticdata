@@ -98,6 +98,7 @@ public class ManageElasticDataJspBean extends AbstractManageJspBean<Integer, Ind
     private static final String MARK_INDEXERACTION = "indexeraction";
     private static final String MARK_DATA_SOURCES_LIST = "data_sources_list";
     private static final String MARK_INDEX_TOKENS = "index_tokens";
+    private static final String JSON_EMPTY_STATUS = "{}";
 
     private static final String JSP_MANAGE_INDEXERACTIONS = "jsp/admin/plugins/elasticdata/ManageElasticData.jsp";
 
@@ -241,16 +242,23 @@ public class ManageElasticDataJspBean extends AbstractManageJspBean<Integer, Ind
     }
 
     /**
-     * Get Json status of given data source id
+     * Get Json status of given data source id, an empty JSON object when the data source is unknown (polled by the page with any id)
      * 
      * @param strDataSourceId
+     *            the data source id
      * @return JsonStatus of given datasource id
      */
-    private String getJsonStatus( String strDataSourceId )
+    String getJsonStatus( String strDataSourceId )
     {
+        DataSource dataSource = DataSourceService.getDataSource( strDataSourceId );
+        if ( dataSource == null )
+        {
+            AppLogService.info( "Index status requested for an unknown data source '{}'", strDataSourceId );
+            return JSON_EMPTY_STATUS;
+        }
         try
         {
-            return _mapper.writeValueAsString( DataSourceService.getDataSource( strDataSourceId ).getIndexingStatus( ) );
+            return _mapper.writeValueAsString( dataSource.getIndexingStatus( ) );
         }
         catch( JsonProcessingException e )
         {

@@ -98,14 +98,15 @@ public final class DataSourceService
     }
 
     /**
-     * Get a Data Source from its ID
+     * Get a Data Source from its ID. The data sources are loaded at the first call, whichever method is called first.
      * 
      * @param strId
      *            The ID
-     * @return The Data Source
+     * @return The Data Source, or null if no data source has this ID
      */
     public static DataSource getDataSource( String strId )
     {
+        getDataSources( );
         return _mapDataSources.get( strId );
     }
 
