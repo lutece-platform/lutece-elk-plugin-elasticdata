@@ -39,6 +39,10 @@ import fr.paris.lutece.util.ReferenceList;
 import fr.paris.lutece.util.sql.DAOUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 
+import fr.paris.lutece.portal.service.util.AppException;
+
+import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Statement;
 
 import java.util.ArrayList;
@@ -92,6 +96,53 @@ public final class IndexerActionDAO implements IIndexerActionDAO
     /**
      * {@inheritDoc }
      */
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean insertIfAbsent( IndexerAction indexerAction, Plugin plugin )
+    {
+        try
+        {
+            insert( indexerAction, plugin );
+            return true;
+        }
+        catch( AppException e )
+        {
+            if ( isDuplicateKey( e ) )
+            {
+                return false;
+            }
+            throw e;
+        }
+    }
+
+    /**
+     * Detects a violation of the unique key of the table in a portable way: the JDBC SQLIntegrityConstraintViolationException, or the SQL-92 SQLState class
+     * 23 (integrity constraint violation) of MariaDB, PostgreSQL or HSQL.
+     * 
+     * @param exception
+     *            the AppException wrapping the SQLException thrown by DAOUtil
+     * @return true if the cause is an integrity constraint violation
+     */
+    private static boolean isDuplicateKey( AppException exception )
+    {
+        Throwable cause = exception.getCause( );
+        while ( cause != null )
+        {
+            if ( cause instanceof SQLIntegrityConstraintViolationException )
+            {
+                return true;
+            }
+            if ( cause instanceof SQLException sqlException && sqlException.getSQLState( ) != null && sqlException.getSQLState( ).startsWith( "23" ) )
+            {
+                return true;
+            }
+            cause = cause.getCause( );
+        }
+        return false;
+    }
+
     @Override
     public Optional<IndexerAction> load( int nKey, Plugin plugin )
     {

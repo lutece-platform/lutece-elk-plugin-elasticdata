@@ -9,3 +9,8 @@ CREATE TABLE  elasticdata_indexer_action (
   id_datasource varchar(255) NOT NULL,
   PRIMARY KEY (id_action)
 );
+
+-- changeset elasticdata:create_db_elasticdata.sql-rev1
+-- preconditions onFail:MARK_RAN onError:WARN
+-- A single queued action per resource and data source, even when several threads or instances queue it at the same time
+ALTER TABLE elasticdata_indexer_action ADD CONSTRAINT uk_elasticdata_indexer_action UNIQUE ( id_resource, id_datasource );

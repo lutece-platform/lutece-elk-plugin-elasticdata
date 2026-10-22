@@ -72,6 +72,18 @@ public final class IndexerActionHome
     }
 
     /**
+     * Create an instance of the indexerAction class unless an action is already queued for the same resource and data source
+     * 
+     * @param indexerAction
+     *            The instance of the IndexerAction which contains the informations to store
+     * @return true if the action was created, false if an action was already queued for the resource and data source
+     */
+    public static boolean createIfAbsent( IndexerAction indexerAction )
+    {
+        return _dao.insertIfAbsent( indexerAction, _plugin );
+    }
+
+    /**
      * Update of the indexerAction which is specified in parameter
      * 
      * @param indexerAction

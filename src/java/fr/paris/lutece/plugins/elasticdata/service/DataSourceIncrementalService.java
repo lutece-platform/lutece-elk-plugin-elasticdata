@@ -56,6 +56,9 @@ import jakarta.enterprise.inject.spi.CDI;
 public final class DataSourceIncrementalService
 {
 	private static ManagedThreadFactory _threadFactory = CDI.current( ).select( ManagedThreadFactory.class ).get( );
+    // Striped locks of the queue: the tasks of one resource (the CREATE and UPDATE events of one submission) are queued one after the other on an instance
+    private static final int TASK_LOCKS_COUNT = 64;
+    private static final Object [ ] TASK_LOCKS = createTaskLocks( );
 
     private DataSourceIncrementalService( )
     {
@@ -342,7 +345,8 @@ public final class DataSourceIncrementalService
     }
 
     /**
-     * Create incremental task
+     * Create incremental task. The queue holds a single action per resource and data source (unique key of the table): when an action is already queued,
+     * possibly by another thread or another instance at the same time, the new task is merged into it.
      * 
      * @param strIdDataSource
      *            the datasource id
@@ -354,29 +358,96 @@ public final class DataSourceIncrementalService
      */
     public static void addTask( String strIdDataSource, String strIdResource, int nIdTask )
     {
+        synchronized( getTaskLock( strIdDataSource, strIdResource ) )
+        {
+            queueTask( strIdDataSource, strIdResource, nIdTask );
+        }
+    }
 
+    /**
+     * Queue a task under the lock of its resource: create the action, or merge the task into the action already queued for the resource, possibly by
+     * another instance at the same time (unique key of the table)
+     * 
+     * @param strIdDataSource
+     *            the datasource id
+     * @param strIdResource
+     *            the resource id
+     * @param nIdTask
+     *            the task id
+     */
+    private static void queueTask( String strIdDataSource, String strIdResource, int nIdTask )
+    {
         IndexerAction indexerAction = IndexerActionHome.findByIdResource( strIdResource, strIdDataSource );
+
+        if ( indexerAction == null )
+        {
+            indexerAction = new IndexerAction( );
+            indexerAction.setIdDataSource( strIdDataSource );
+            indexerAction.setIdResource( strIdResource );
+            indexerAction.setIdTask( nIdTask );
+            if ( IndexerActionHome.createIfAbsent( indexerAction ) )
+            {
+                return;
+            }
+            indexerAction = IndexerActionHome.findByIdResource( strIdResource, strIdDataSource );
+        }
 
         if ( indexerAction != null )
         {
-            if ( indexerAction.getIdTask( ) == IndexerAction.TASK_CREATE && nIdTask == IndexerAction.TASK_DELETE )
-            {
-                IndexerActionHome.remove( indexerAction.getId( ) );
-            }
-            else
-                if ( indexerAction.getIdTask( ) == IndexerAction.TASK_MODIFY && nIdTask == IndexerAction.TASK_DELETE )
-                {
-                    indexerAction.setIdTask( nIdTask );
-                    IndexerActionHome.update( indexerAction );
-                }
-            return;
+            mergeTask( indexerAction, nIdTask );
         }
+    }
 
-        indexerAction = new IndexerAction( );
-        indexerAction.setIdDataSource( strIdDataSource );
-        indexerAction.setIdResource( strIdResource );
-        indexerAction.setIdTask( nIdTask );
-        IndexerActionHome.create( indexerAction );
+    /**
+     * Create the striped locks of the queue
+     * 
+     * @return the locks
+     */
+    private static Object [ ] createTaskLocks( )
+    {
+        Object [ ] locks = new Object [ TASK_LOCKS_COUNT];
+        for ( int i = 0; i < TASK_LOCKS_COUNT; i++ )
+        {
+            locks [i] = new Object( );
+        }
+        return locks;
+    }
+
+    /**
+     * Get the lock of the queue for a resource of a data source
+     * 
+     * @param strIdDataSource
+     *            the datasource id
+     * @param strIdResource
+     *            the resource id
+     * @return the lock
+     */
+    private static Object getTaskLock( String strIdDataSource, String strIdResource )
+    {
+        return TASK_LOCKS [Math.floorMod( ( strIdDataSource + '/' + strIdResource ).hashCode( ), TASK_LOCKS_COUNT )];
+    }
+
+    /**
+     * Merge a new task into the action already queued for the same resource: a deletion cancels a queued creation and replaces a queued modification,
+     * any other task is already covered by the queued action
+     * 
+     * @param indexerAction
+     *            the queued action
+     * @param nIdTask
+     *            the new task id
+     */
+    private static void mergeTask( IndexerAction indexerAction, int nIdTask )
+    {
+        if ( indexerAction.getIdTask( ) == IndexerAction.TASK_CREATE && nIdTask == IndexerAction.TASK_DELETE )
+        {
+            IndexerActionHome.remove( indexerAction.getId( ) );
+        }
+        else
+            if ( indexerAction.getIdTask( ) == IndexerAction.TASK_MODIFY && nIdTask == IndexerAction.TASK_DELETE )
+            {
+                indexerAction.setIdTask( nIdTask );
+                IndexerActionHome.update( indexerAction );
+            }
     }
 
     /**

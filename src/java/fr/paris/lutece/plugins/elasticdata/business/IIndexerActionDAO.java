@@ -55,6 +55,18 @@ public interface IIndexerActionDAO
     void insert( IndexerAction indexerAction, Plugin plugin );
 
     /**
+     * Insert a new record in the table unless an action is already queued for the same resource and data source (unique key of the table), for example
+     * inserted at the same time by another thread or another instance.
+     * 
+     * @param indexerAction
+     *            instance of the IndexerAction object to insert
+     * @param plugin
+     *            the Plugin
+     * @return true if the record was inserted, false if an action was already queued for the resource and data source
+     */
+    boolean insertIfAbsent( IndexerAction indexerAction, Plugin plugin );
+
+    /**
      * Update the record in the table
      * 
      * @param indexerAction
