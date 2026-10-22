@@ -223,7 +223,7 @@ public class ManageElasticDataJspBean extends AbstractManageJspBean<Integer, Ind
         DataSource dataSource = DataSourceService.getDataSource( strDataSourceId );
         DataSourceIncrementalService.processAsynchronouslyIncrementalIndexing( dataSource );
 
-        return redirect( request, VIEW_HOME );
+        return redirectView( request, VIEW_HOME );
     }
 
     /**
