@@ -42,6 +42,7 @@ import fr.paris.lutece.plugins.libraryelastic.util.ElasticClientException;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.util.mvc.admin.annotations.Controller;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
+import fr.paris.lutece.portal.util.mvc.commons.annotations.ResponseBody;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
 import fr.paris.lutece.portal.service.message.AdminMessage;
 import fr.paris.lutece.portal.service.message.AdminMessageService;
@@ -49,9 +50,11 @@ import fr.paris.lutece.plugins.elasticdata.business.IndexerAction;
 import fr.paris.lutece.plugins.elasticdata.business.IndexerActionHome;
 import fr.paris.lutece.portal.service.admin.AccessDeniedException;
 import fr.paris.lutece.portal.service.util.AppException;
+import fr.paris.lutece.portal.service.security.SecurityTokenService;
 import fr.paris.lutece.util.url.UrlItem;
 import fr.paris.lutece.util.html.AbstractPaginator;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -59,6 +62,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.SessionScoped;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -93,6 +97,7 @@ public class ManageElasticDataJspBean extends AbstractManageJspBean<Integer, Ind
     private static final String MARK_INDEXERACTION_LIST = "indexeraction_list";
     private static final String MARK_INDEXERACTION = "indexeraction";
     private static final String MARK_DATA_SOURCES_LIST = "data_sources_list";
+    private static final String MARK_INDEX_TOKENS = "index_tokens";
 
     private static final String JSP_MANAGE_INDEXERACTIONS = "jsp/admin/plugins/elasticdata/ManageElasticData.jsp";
 
@@ -113,8 +118,8 @@ public class ManageElasticDataJspBean extends AbstractManageJspBean<Integer, Ind
     private static final String ACTION_CREATE_INDEXERACTION = "createIndexerAction";
     private static final String ACTION_MODIFY_INDEXERACTION = "modifyIndexerAction";
     private static final String ACTION_REMOVE_INDEXERACTION = "removeIndexerAction";
-    private static final String ACTION_CONFIRM_REMOVE_INDEXERACTION = "confirmRemoveIndexerAction";
-    private static final String ACTION_CHECK_INDEX_STATUS = "checkIndexStatus";
+    private static final String VIEW_CONFIRM_REMOVE_INDEXERACTION = "confirmRemoveIndexerAction";
+    private static final String VIEW_CHECK_INDEX_STATUS = "checkIndexStatus";
     private static final String ACTION_INDEX = "index";
     private static final String ACTION_INDEX_INCREMENTAL = "index_incremental";
 
@@ -132,6 +137,9 @@ public class ManageElasticDataJspBean extends AbstractManageJspBean<Integer, Ind
 
     ObjectMapper _mapper = new ObjectMapper( );
 
+    @Inject
+    private SecurityTokenService _securityTokenService;
+
     /**
      * View the home of the feature
      * 
@@ -144,6 +152,7 @@ public class ManageElasticDataJspBean extends AbstractManageJspBean<Integer, Ind
     {
         Map<String, Object> model = getModel( );
         model.put( MARK_DATA_SOURCES_LIST, DataSourceService.getDataSources( ) );
+        putIndexTokens( request, model );
 
         return getPage( PROPERTY_PAGE_TITLE, TEMPLATE_HOME, model );
     }
@@ -160,8 +169,25 @@ public class ManageElasticDataJspBean extends AbstractManageJspBean<Integer, Ind
     {
         Map<String, Object> model = getModel( );
         model.put( MARK_DATA_SOURCES_LIST, DataSourceService.getDataSources( ) );
+        putIndexTokens( request, model );
 
         return getPage( PROPERTY_PAGE_TITLE, TEMPLATE_HOME, model );
+    }
+
+    /**
+     * Puts in the model the security tokens of the full and incremental indexing actions, posted by the buttons of the page.
+     *
+     * @param request
+     *            The HTTP request
+     * @param model
+     *            The model of the page
+     */
+    private void putIndexTokens( HttpServletRequest request, Map<String, Object> model )
+    {
+        Map<String, String> mapTokens = new HashMap<>( );
+        mapTokens.put( ACTION_INDEX, _securityTokenService.getToken( request, ACTION_INDEX ) );
+        mapTokens.put( ACTION_INDEX_INCREMENTAL, _securityTokenService.getToken( request, ACTION_INDEX_INCREMENTAL ) );
+        model.put( MARK_INDEX_TOKENS, mapTokens );
     }
 
     /**
@@ -171,7 +197,7 @@ public class ManageElasticDataJspBean extends AbstractManageJspBean<Integer, Ind
      *            The HTTP request
      * @return The redirected page
      */
-    @Action( value = ACTION_INDEX, securityTokenDisabled = true )
+    @Action( ACTION_INDEX )
     public String doIndex( HttpServletRequest request )
     {
         String strDataSourceId = request.getParameter( PARAMETER_DATA_SOURCE );
@@ -189,7 +215,7 @@ public class ManageElasticDataJspBean extends AbstractManageJspBean<Integer, Ind
      *            The HTTP request
      * @return The redirected page
      */
-    @Action( value = ACTION_INDEX_INCREMENTAL, securityTokenDisabled = true )
+    @Action( ACTION_INDEX_INCREMENTAL )
     public String doIncrementalIndexing( HttpServletRequest request )
     {
         String strDataSourceId = request.getParameter( PARAMETER_DATA_SOURCE );
@@ -200,13 +226,15 @@ public class ManageElasticDataJspBean extends AbstractManageJspBean<Integer, Ind
     }
 
     /**
+     * Gets the indexing status of a given data source, read by the progress bar of the page
      *
      * @param request
-     * @return
-     * @throws ElasticClientException
+     *            The HTTP request
+     * @return the JSON status of the data source
      */
-    @Action( value = ACTION_CHECK_INDEX_STATUS, securityTokenDisabled = true )
-    public String doCheckIndexStatus( HttpServletRequest request )
+    @View( value = VIEW_CHECK_INDEX_STATUS )
+    @ResponseBody
+    public String getCheckIndexStatus( HttpServletRequest request )
     {
         String strDataSourceId = request.getParameter( PARAMETER_DATA_SOURCE );
         return getJsonStatus( strDataSourceId );
@@ -324,7 +352,7 @@ public class ManageElasticDataJspBean extends AbstractManageJspBean<Integer, Ind
      * @param request The Http request
      * @return the html code to confirm
      */
-    @Action( value = ACTION_CONFIRM_REMOVE_INDEXERACTION, securityTokenAction = ACTION_REMOVE_INDEXERACTION )
+    @View( value = VIEW_CONFIRM_REMOVE_INDEXERACTION, securityTokenAction = ACTION_REMOVE_INDEXERACTION )
     public String getConfirmRemoveIndexerAction( HttpServletRequest request )
     {
         int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_INDEXERACTION ) );

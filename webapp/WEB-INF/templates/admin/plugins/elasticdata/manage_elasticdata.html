@@ -22,10 +22,15 @@
                                 </div>
                             </td>
                             <td>
-                                <@button title='#i18n{elasticdata.manage_elasticdata.buttonIndex}' buttonIcon='cogs'
-                                    color="primary" params='data-indexId="${source.id}" action="index" check=true' />
-                                <@button title='#i18n{elasticdata.manage_elasticdata.buttonIncrementalIndex}' buttonIcon='cogs'
-                                    color="primary" params='data-indexId="${source.id}" action="index_incremental" check=true' />
+                                <#list ['index', 'index_incremental'] as indexAction>
+                                <@tform action='jsp/admin/plugins/elasticdata/ManageElasticData.jsp' method='post' class='d-inline'>
+                                    <@input type='hidden' name='action' value=indexAction />
+                                    <@input type='hidden' name='data_source' value='${source.id}' />
+                                    <@input type='hidden' name='_csrftoken' value=(index_tokens[indexAction])!'' />
+                                    <@button type='submit' title=(indexAction == 'index')?then('#i18n{elasticdata.manage_elasticdata.buttonIndex}', '#i18n{elasticdata.manage_elasticdata.buttonIncrementalIndex}') buttonIcon='cogs'
+                                        color="primary" params='data-indexId="${source.id}" check=true' />
+                                </@tform>
+                                </#list>
                             </td>
                         </tr>
                     </#list>
@@ -54,17 +59,10 @@
     // get index status 
     async function getStatus(dataSourceId) {
         let response = await fetch(
-            "jsp/admin/plugins/elasticdata/IndexingElasticData.jsp?action=checkIndexStatus&data_source=" +
+            "jsp/admin/plugins/elasticdata/IndexingElasticData.jsp?view=checkIndexStatus&data_source=" +
             dataSourceId);
         let data = await response.json()
         return data;
-    }
-    // run indexation
-    async function runIndex(dataSourceId, action) {
-        let response = await fetch(
-            "jsp/admin/plugins/elasticdata/IndexingElasticData.jsp?action=" + action + "&data_source=" +
-            dataSourceId);
-        let data = await response.json()
     }
     // checking
     setInterval(function () {
@@ -98,18 +96,6 @@
         }
     }
 
-    // register btn listeners
-    for (datasource of datasources) {
-        datasource.addEventListener('click', async function (event) {
-            event.preventDefault();
-            const dataSourceId = event.target.getAttribute('data-indexId');
-            const action = event.target.getAttribute('action');
-            event.target.disabled = true;
-            const progressBar = document.getElementById(dataSourceId);
-            runIndex(dataSourceId, action);
-            event.target.setAttribute("check",true);
-        }, false);
-    }
 </script>
 <style>
     table .progress,
