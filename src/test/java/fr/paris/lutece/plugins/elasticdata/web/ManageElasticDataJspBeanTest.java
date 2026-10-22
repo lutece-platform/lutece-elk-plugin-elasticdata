@@ -33,8 +33,15 @@
  */
 package fr.paris.lutece.plugins.elasticdata.web;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+
 import org.junit.jupiter.api.Test;
 
+import fr.paris.lutece.plugins.elasticdata.business.IndexerAction;
+import fr.paris.lutece.portal.service.template.AppTemplateService;
 import fr.paris.lutece.test.LuteceTestCase;
 
 /**
@@ -42,6 +49,32 @@ import fr.paris.lutece.test.LuteceTestCase;
  */
 public class ManageElasticDataJspBeanTest extends LuteceTestCase
 {
+    private static final String TEMPLATE_MODIFY_INDEXERACTION = "/admin/plugins/elasticdata/modify_indexeraction.html";
+
+    /**
+     * The modification page of an indexer action renders with the model of its view (indexer action and messages): its template no longer reads a
+     * token missing from the model
+     */
+    @Test
+    public void testModifyIndexerActionTemplateRendersWithItsModel( )
+    {
+        IndexerAction indexerAction = new IndexerAction( );
+        indexerAction.setId( 1 );
+        indexerAction.setIdResource( "1" );
+        indexerAction.setIdTask( 1 );
+        indexerAction.setIdDataSource( "testDataSource" );
+
+        Map<String, Object> model = new HashMap<>( );
+        model.put( "indexeraction", indexerAction );
+        model.put( "errors", new ArrayList<>( ) );
+        model.put( "infos", new ArrayList<>( ) );
+        model.put( "warnings", new ArrayList<>( ) );
+
+        String strHtml = AppTemplateService.getTemplate( TEMPLATE_MODIFY_INDEXERACTION, Locale.FRENCH, model ).getHtml( );
+
+        assertTrue( strHtml.contains( "modify_indexeraction" ) );
+    }
+
     /**
      * The status of an unknown data source is an empty JSON object instead of a NullPointerException (Internal error)
      */
