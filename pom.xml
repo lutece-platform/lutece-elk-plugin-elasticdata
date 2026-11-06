@@ -10,7 +10,7 @@
     <groupId>fr.paris.lutece.plugins</groupId>
     <artifactId>plugin-elasticdata</artifactId>
     <packaging>lutece-plugin</packaging>
-    <version>3.0.1-beta-01</version>
+    <version>3.0.1-SNAPSHOT</version>
     <name>Lutece elasticdata plugin</name>
 
     <repositories>
